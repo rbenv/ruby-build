@@ -1,0 +1,98 @@
+#!/bin/bash
+
+set -e
+
+install_package() {
+  local cwd="$(pwd)"
+  local package_name="$1"
+  local package_url="$2"
+  shift 2
+
+  cd "$TEMP_PATH"
+  download_package "$package_name" "$package_url"
+  extract_package "$package_name"
+  cd "$package_name"
+  build_package "$package_name" $*
+  cd "$cwd"
+}
+
+download_package() {
+  local package_name="$1"
+  local package_url="$2"
+
+  echo "Downloading ${package_url}..." >&2
+  { curl "$package_url" > "${package_name}.tar.gz"
+  } >$LOG_PATH 2>&1
+}
+
+extract_package() {
+  local package_name="$1"
+
+  { tar xzvf "${package_name}.tar.gz"
+  } >$LOG_PATH 2>&1
+}
+
+build_package() {
+  local package_name="$1"
+  shift
+
+  if [ "$#" -eq 0 ]; then
+    local commands="standard"
+  else
+    local commands="$*"
+  fi
+
+  echo "Installing ${package_name}..." >&2
+
+  for command in $commands; do
+    "build_package_${command}"
+  done
+}
+
+build_package_standard() {
+  local package_name="$1"
+
+  { ./configure --prefix="$PREFIX_PATH"
+    make -j 2
+    make install
+  } >$LOG_PATH 2>&1
+}
+
+build_package_ruby() {
+  local package_name="$1"
+
+  { "$RUBY_BIN" setup.rb
+  } >$LOG_PATH 2>&1
+}
+
+usage() {
+  echo "usage: ruby-build DEFINITION-PATH INSTALLATION-PREFIX"
+  exit 1
+}
+
+
+DEFINITION_PATH="$1"
+if [ -z "$DEFINITION_PATH" ]; then
+  usage
+elif [ ! -e "$DEFINITION_PATH" ]; then
+  echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
+  exit 1
+fi
+
+PREFIX_PATH="$2"
+if [ -z "$PREFIX_PATH" ]; then
+  usage
+fi
+
+SEED="$$-${RANDOM}"
+LOG_PATH="/tmp/ruby-build.${SEED}.log"
+TEMP_PATH="/tmp/ruby-build.${SEED}"
+RUBY_BIN="${PREFIX_PATH}/bin/ruby"
+CWD="$(pwd)"
+
+export LDFLAGS="-L'${PREFIX_PATH}/lib' ${LDFLAGS}"
+export CPPFLAGS="-I'${PREFIX_PATH}/include' ${CPPFLAGS}"
+
+mkdir -p "$TEMP_PATH"
+source "$DEFINITION_PATH"
+rm -fr "$TEMP_PATH"
