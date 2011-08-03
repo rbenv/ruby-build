@@ -65,6 +65,11 @@ build_package_ruby() {
   } >$LOG_PATH 2>&1
 }
 
+build_package_ree_installer() {
+  { ./installer --auto "$PREFIX_PATH"
+  } >$LOG_PATH 2>&1
+}
+
 usage() {
   echo "usage: ruby-build DEFINITION-PATH INSTALLATION-PREFIX"
   exit 1
