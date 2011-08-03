@@ -1,1 +1,11 @@
+after_install_package() {
+  shim_jruby
+}
+
+shim_jruby() {
+  cd "${PREFIX_PATH}/bin"
+  sed -i "" 's/^#!\/bin\/bash/#!\/usr\/bin\/env bash/' jruby
+  ln -fs jruby ruby
+}
+
 install_package "jruby-1.6.3" "http://jruby.org.s3.amazonaws.com/downloads/1.6.3/jruby-bin-1.6.3.tar.gz" copy
