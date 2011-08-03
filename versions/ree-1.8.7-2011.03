@@ -1,10 +1,10 @@
 build_package_ree_installer() {
-  local options="--auto $PREFIX_PATH"
+  local options=""
   if [[ "Darwin" = "$(uname)" ]]; then
-    options="$options --no-tcmalloc"
+    options="--no-tcmalloc"
   fi
 
-  { ./installer $options
+  { ./installer --auto "$PREFIX_PATH" $options
   } >$LOG_PATH 2>&1
 }
 
