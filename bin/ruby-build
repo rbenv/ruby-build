@@ -67,7 +67,7 @@ build_package_ruby() {
 }
 
 build_package_copy() {
-  cp -R . $PREFIX_PATH
+  cp -R . "$PREFIX_PATH"
 }
 
 after_install_package() {
