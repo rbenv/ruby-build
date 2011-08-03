@@ -65,6 +65,10 @@ build_package_ruby() {
   } >$LOG_PATH 2>&1
 }
 
+build_package_copy() {
+  cp -R . $PREFIX_PATH
+}
+
 usage() {
   echo "usage: ruby-build DEFINITION-PATH INSTALLATION-PREFIX"
   exit 1
