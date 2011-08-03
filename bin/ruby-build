@@ -70,16 +70,6 @@ build_package_copy() {
   cp -R . "$PREFIX_PATH"
 }
 
-build_package_ree_installer() {
-  local options="--auto $PREFIX_PATH"
-  if [[ "Darwin" = "$(uname)" ]]; then
-    options="$options --no-tcmalloc"
-  fi
-
-  { ./installer $options
-  } >$LOG_PATH 2>&1
-}
-
 after_install_package() {
   local stub=1
 }
