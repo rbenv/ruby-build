@@ -1,0 +1,11 @@
+build_package_ree_installer() {
+  local options=""
+  if [[ "Darwin" = "$(uname)" ]]; then
+    options="--no-tcmalloc"
+  fi
+
+  { ./installer --auto "$PREFIX_PATH" $options
+  } >$LOG_PATH 2>&1
+}
+
+install_package "ruby-enterprise-1.8.7-2011.03" "http://rubyenterpriseedition.googlecode.com/files/ruby-enterprise-1.8.7-2011.03.tar.gz" ree_installer
