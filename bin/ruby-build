@@ -13,6 +13,7 @@ install_package() {
   extract_package "$package_name"
   cd "$package_name"
   build_package "$package_name" $*
+  after_install_package "$package_name"
   cd "$cwd"
 }
 
@@ -65,9 +66,17 @@ build_package_ruby() {
   } >$LOG_PATH 2>&1
 }
 
+build_package_copy() {
+  cp -R . "$PREFIX_PATH"
+}
+
 build_package_ree_installer() {
   { ./installer --auto "$PREFIX_PATH"
   } >$LOG_PATH 2>&1
+}
+
+after_install_package() {
+  local stub=1
 }
 
 usage() {
