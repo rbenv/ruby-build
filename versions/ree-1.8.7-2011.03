@@ -8,4 +8,5 @@ build_package_ree_installer() {
   } >$LOG_PATH 2>&1
 }
 
+use_gcc42_on_lion
 install_package "ruby-enterprise-1.8.7-2011.03" "http://rubyenterpriseedition.googlecode.com/files/ruby-enterprise-1.8.7-2011.03.tar.gz" ree_installer
