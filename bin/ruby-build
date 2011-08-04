@@ -109,6 +109,7 @@ CWD="$(pwd)"
 
 export LDFLAGS="-L'${PREFIX_PATH}/lib' ${LDFLAGS}"
 export CPPFLAGS="-I'${PREFIX_PATH}/include' ${CPPFLAGS}"
+export RUBYOPT=""
 
 mkdir -p "$TEMP_PATH"
 source "$DEFINITION_PATH"
