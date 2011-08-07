@@ -16,6 +16,14 @@ abs_dirname() {
   cd "$cwd"
 }
 
+log() {
+  if [ -z "$VERBOSE" ]; then
+    cat >>"$LOG_PATH"
+  else
+    tee -a "$LOG_PATH"
+  fi
+}
+
 install_package() {
   local cwd="$(pwd)"
   local package_name="$1"
@@ -29,6 +37,8 @@ install_package() {
   build_package "$package_name" $*
   after_install_package "$package_name"
   cd "$cwd"
+
+  echo "Installed ${package_name} to ${PREFIX_PATH}" >&2
 }
 
 download_package() {
@@ -37,14 +47,14 @@ download_package() {
 
   echo "Downloading ${package_url}..." >&2
   { curl "$package_url" > "${package_name}.tar.gz"
-  } >$LOG_PATH 2>&1
+  } 2>&1 | log
 }
 
 extract_package() {
   local package_name="$1"
 
   { tar xzvf "${package_name}.tar.gz"
-  } >$LOG_PATH 2>&1
+  } 2>&1 | log
 }
 
 build_package() {
@@ -70,14 +80,14 @@ build_package_standard() {
   { ./configure --prefix="$PREFIX_PATH"
     make -j 2
     make install
-  } >$LOG_PATH 2>&1
+  } 2>&1 | log
 }
 
 build_package_ruby() {
   local package_name="$1"
 
   { "$RUBY_BIN" setup.rb
-  } >$LOG_PATH 2>&1
+  } 2>&1 | log
 }
 
 build_package_rbx() {
@@ -85,7 +95,7 @@ build_package_rbx() {
 
   { ./configure --prefix="$PREFIX_PATH"
     rake install
-  } >$LOG_PATH 2>&1
+  } 2>&1 | log
 }
 
 build_package_copy() {
@@ -105,12 +115,33 @@ use_gcc42_on_lion() {
 }
 
 usage() {
-  echo "usage: ruby-build DEFINITION-PATH INSTALLATION-PREFIX"
-  exit 1
+  { echo "usage: ruby-build [-v|--verbose] definition prefix"
+    echo "       ruby-build --definitions"
+  } >&2
+  [ -z "$1" ] && exit 1
 }
 
 
+unset VERBOSE
 RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
+
+case "$1" in
+"-h" | "--help" )
+  usage without_exiting
+  { echo
+    echo "Options:"
+    echo
+    echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
+    echo
+  } >&2
+  exit 0
+  ;;
+"-v" | "--verbose" )
+  VERBOSE=true
+  shift
+  ;;
+esac
+
 
 DEFINITION_PATH="$1"
 if [ -z "$DEFINITION_PATH" ]; then
