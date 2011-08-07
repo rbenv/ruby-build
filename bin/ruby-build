@@ -109,7 +109,7 @@ if [ -z "$PREFIX_PATH" ]; then
   usage
 fi
 
-SEED="$$-${RANDOM}"
+SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="/tmp/ruby-build.${SEED}.log"
 TEMP_PATH="/tmp/ruby-build.${SEED}"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
