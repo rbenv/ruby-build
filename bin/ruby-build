@@ -121,6 +121,14 @@ usage() {
   [ -z "$1" ] && exit 1
 }
 
+list_definitions() {
+  { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
+      echo "${definition##*/}"
+    done
+  } | sort
+}
+
+
 
 unset VERBOSE
 RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
@@ -132,8 +140,13 @@ case "$1" in
     echo "Options:"
     echo
     echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
+    echo "  --definitions    List all built-in definitions"
     echo
   } >&2
+  exit 0
+  ;;
+"--definitions" )
+  list_definitions
   exit 0
   ;;
 "-v" | "--verbose" )
