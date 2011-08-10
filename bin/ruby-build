@@ -112,7 +112,7 @@ after_install_package() {
 
 use_gcc42_on_lion() {
   if [ "$(uname -s)" = "Darwin" ]; then
-    if [ "$(expr "$(sw_vers -productVersion | cut -f 2 -d .)" \>= 7)" = 0 ]; then
+    if [ "$(expr "$(sw_vers -productVersion | cut -f 2 -d .)" \>= 7)" -eq 1 ]; then
       export CC=/usr/bin/gcc-4.2
     fi
   fi
