@@ -1,6 +1,6 @@
 # ruby-build
 
-ruby-build provides a simple way to build and install different
+ruby-build provides a simple way to compile and install different
 versions of Ruby on UNIX-based systems.
 
 ### Installing ruby-build
@@ -23,6 +23,9 @@ definitions](https://github.com/sstephenson/ruby-build/tree/master/share/ruby-bu
 may be specified instead.)
 
     $ ruby-build 1.9.2-p290 ~/local/ruby-1.9.2-p290
+    ...
+    $ ~/local/ruby-1.9.2-p290/bin/ruby --version
+    ruby 1.9.2p290 (2011-07-09 revision 32553) [x86_64-darwin11.0.0]
 
 ### License
 
