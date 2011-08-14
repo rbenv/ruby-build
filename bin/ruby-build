@@ -97,7 +97,7 @@ build_package_ruby() {
 build_package_rbx() {
   local package_name="$1"
 
-  { ./configure --prefix="$PREFIX_PATH"
+  { ./configure --prefix="$PREFIX_PATH" --gemsdir="$PREFIX_PATH"
     rake install
   } >&4 2>&1
 }
