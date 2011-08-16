@@ -1,7 +1,7 @@
 # ruby-build
 
 ruby-build provides a simple way to compile and install different
-versions of Ruby on UNIX-based systems.
+versions of Ruby on UNIX-like systems.
 
 ### Installing ruby-build
 
@@ -26,6 +26,10 @@ may be specified instead.)
     ...
     $ ~/local/ruby-1.9.2-p290/bin/ruby --version
     ruby 1.9.2p290 (2011-07-09 revision 32553) [x86_64-darwin11.0.0]
+
+You can use it with [rbenv](https://github.com/sstephenson/rbenv):
+
+    $ ruby-build 1.9.2-p290 ~/.rbenv/versions/1.9.2-p290
 
 ### License
 
