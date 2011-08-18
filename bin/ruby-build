@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
