@@ -1,0 +1,10 @@
+build_package_rbx-2.0.0pre_github() {
+  local package_name="$1"
+
+  { cd rubinius-rubinius-*
+    ./configure --prefix="$PREFIX_PATH" --gemsdir="$PREFIX_PATH"
+    rake install
+  } >&4 2>&1
+}
+
+install_package "rubinius-2.0.0.pre" "https://nodeload.github.com/rubinius/rubinius/tarball/2.0.0pre" rbx-2.0.0pre_github
