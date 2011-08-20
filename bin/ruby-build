@@ -139,49 +139,60 @@ list_definitions() {
   } | sort
 }
 
+set_definition_path() {
+  DEFINITION_PATH="$1"
+  if [ -z "$DEFINITION_PATH" ]; then
+    usage
+  elif [ ! -e "$DEFINITION_PATH" ]; then
+    BUILTIN_DEFINITION_PATH="${RUBY_BUILD_ROOT}/share/ruby-build/${DEFINITION_PATH}"
+    if [ -e "$BUILTIN_DEFINITION_PATH" ]; then
+      DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"
+    else
+      echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
+      exit 1
+    fi
+  fi
+}
 
+set_prefix_path() {
+  PREFIX_PATH="$1"
+  if [ -z "$PREFIX_PATH" ]; then
+    usage
+  fi
+}
 
 unset VERBOSE
 RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
 
-case "$1" in
-"-h" | "--help" )
-  usage without_exiting
-  { echo
-    echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
-    echo "  --definitions    List all built-in definitions"
-    echo
-  } >&2
-  exit 0
-  ;;
-"--definitions" )
-  list_definitions
-  exit 0
-  ;;
-"-v" | "--verbose" )
-  VERBOSE=true
-  shift
-  ;;
-esac
-
-
-DEFINITION_PATH="$1"
-if [ -z "$DEFINITION_PATH" ]; then
-  usage
-elif [ ! -e "$DEFINITION_PATH" ]; then
-  BUILTIN_DEFINITION_PATH="${RUBY_BUILD_ROOT}/share/ruby-build/${DEFINITION_PATH}"
-  if [ -e "$BUILTIN_DEFINITION_PATH" ]; then
-    DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"
-  else
-    echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
-    exit 1
-  fi
-fi
-
-PREFIX_PATH="$2"
-if [ -z "$PREFIX_PATH" ]; then
-  usage
-fi
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    "-h" | "--help" )
+      usage without_exiting
+      { echo
+        echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
+        echo "  --definitions    List all built-in definitions"
+        echo
+      } >&2
+      exit 0
+      ;;
+    "--definitions" )
+      list_definitions
+      exit 0
+      ;;
+    "-v" | "--verbose" )
+      VERBOSE=true
+      shift
+      ;;
+    *)
+      if [ -z "$DEFINITION_PATH" ]; then
+        set_definition_path $1
+      elif [ -z "$PREFIX_PATH" ]; then
+        set_prefix_path $1
+      fi
+      shift
+      ;;
+  esac
+done
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="/tmp/ruby-build.${SEED}.log"
