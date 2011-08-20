@@ -177,6 +177,8 @@ set_prefix_path() {
 unset VERBOSE
 RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
 
+[ -z "$@" ] && usage
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     "-h" | "--help" )
