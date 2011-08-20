@@ -111,7 +111,20 @@ build_package_copy() {
 }
 
 after_install_package() {
-  local stub=1
+  case $PWD in
+    *rubygems*)
+      if [ -e "$HOME/.ruby-build_default_gems" ]; then
+        echo -n "Installing default gems..." >&2
+        install_default_gems && echo " done" >&2
+      fi
+  esac
+}
+
+install_default_gems() {
+  for gem in $(cat $HOME/.ruby-build_default_gems); do
+    { "$GEM_BIN" install $gem
+    } >&4 2>&1
+  done
 }
 
 use_gcc42_on_lion() {
@@ -198,6 +211,7 @@ SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="/tmp/ruby-build.${SEED}.log"
 TEMP_PATH="/tmp/ruby-build.${SEED}"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
+GEM_BIN="${PREFIX_PATH}/bin/gem"
 CWD="$(pwd)"
 
 exec 4<> "$LOG_PATH" # open the log file at fd 4
