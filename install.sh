@@ -21,3 +21,5 @@ for file in share/ruby-build/*; do
 done
 
 echo "Installed ruby-build at ${PREFIX}"
+echo "Binary files are at ${BIN_PATH}"
+echo "Share files are at ${SHARE_PATH}"
