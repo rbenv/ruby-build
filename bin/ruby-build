@@ -184,8 +184,13 @@ if [ -z "$PREFIX_PATH" ]; then
 fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
-LOG_PATH="/tmp/ruby-build.${SEED}.log"
-TEMP_PATH="/tmp/ruby-build.${SEED}"
+
+if [ -z "${TMP}" ]; then
+  TMP="/tmp"
+fi
+
+LOG_PATH="${TMP}/ruby-build.${SEED}.log"
+TEMP_PATH="${TMP}/ruby-build.${SEED}"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
