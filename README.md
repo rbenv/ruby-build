@@ -31,6 +31,18 @@ You can use it with [rbenv](https://github.com/sstephenson/rbenv):
 
     $ ruby-build 1.9.2-p290 ~/.rbenv/versions/1.9.2-p290
 
+### Default gems
+You can specify a list of default gems in `~/.ruby-build_default_gems`.
+These gems will be installed with each new ruby.
+
+    $ cat ~/.ruby-build_default_gems
+    rak
+    ghost
+    bundler
+    git
+    github
+    wirble
+
 ### License
 
 (The MIT License)
