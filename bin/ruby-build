@@ -44,6 +44,7 @@ install_package() {
   cd "$package_name"
   build_package "$package_name" $*
   after_install_package "$package_name"
+  fix_directory_permissions
   cd "$cwd"
 
   echo "Installed ${package_name} to ${PREFIX_PATH}" >&2
@@ -112,6 +113,11 @@ build_package_copy() {
 
 after_install_package() {
   local stub=1
+}
+
+fix_directory_permissions() {
+  # Ensure installed directories are not world-writable to avoid Bundler warnings
+  find "$PREFIX_PATH" -type d -exec chmod go-w {} \;
 }
 
 use_gcc42_on_lion() {
