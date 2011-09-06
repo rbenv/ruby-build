@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+RUBY_BUILD_VERSION="20110906"
+
 set -E
 exec 3<&2 # preserve original stderr at fd 3
 
@@ -128,8 +130,13 @@ use_gcc42_on_lion() {
   fi
 }
 
+version() {
+  echo "ruby-build ${RUBY_BUILD_VERSION}"
+}
+
 usage() {
-  { echo "usage: ruby-build [-v|--verbose] definition prefix"
+  { version
+    echo "usage: ruby-build [-v|--verbose] definition prefix"
     echo "       ruby-build --definitions"
   } >&2
 
@@ -162,6 +169,10 @@ case "$1" in
   ;;
 "--definitions" )
   list_definitions
+  exit 0
+  ;;
+"--version" )
+  version
   exit 0
   ;;
 "-v" | "--verbose" )
