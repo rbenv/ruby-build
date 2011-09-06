@@ -191,9 +191,15 @@ fi
 mkdir -p "$2"
 PREFIX_PATH="$(abs_dirname "$2")"
 
+if [ -z "$TMPDIR" ]; then
+  TMP="/tmp"
+else
+  TMP="${TMPDIR%/}"
+fi
+
 SEED="$(date "+%Y%m%d%H%M%S").$$"
-LOG_PATH="/tmp/ruby-build.${SEED}.log"
-TEMP_PATH="/tmp/ruby-build.${SEED}"
+LOG_PATH="${TMP}/ruby-build.${SEED}.log"
+TEMP_PATH="${TMP}/ruby-build.${SEED}"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
