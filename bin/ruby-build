@@ -184,10 +184,12 @@ elif [ ! -e "$DEFINITION_PATH" ]; then
   fi
 fi
 
-PREFIX_PATH="$2"
-if [ -z "$PREFIX_PATH" ]; then
+if [ -z "$2" ]; then
   usage
 fi
+
+mkdir -p "$2"
+PREFIX_PATH="$(abs_dirname "$2")"
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="/tmp/ruby-build.${SEED}.log"
