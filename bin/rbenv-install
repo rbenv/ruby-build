@@ -6,4 +6,21 @@ if [ -z "$RBENV_ROOT" ]; then
   RBENV_ROOT="${HOME}/.rbenv"
 fi
 
-exec ruby-build "$1" "${RBENV_ROOT}/versions/$1"
+DEFINITION="$1"
+case "$DEFINITION" in
+"" | -* )
+  { echo "usage: rbenv install VERSION"
+    echo "       rbenv install /path/to/definition"
+    echo
+    echo "Available versions:"
+    ruby-build --definitions | sed 's/^/  /'
+    echo
+  } >&2
+  exit 1
+  ;;
+esac
+
+VERSION_NAME="${DEFINITION##*/}"
+PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
+
+exec ruby-build "$DEFINITION" "$PREFIX"
