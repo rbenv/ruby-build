@@ -1,0 +1,2 @@
+install_git "rubinius-2.0.0-dev" "https://github.com/rubinius/rubinius.git" "2.0.0pre" rbx
+install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz" ruby
