@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RUBY_BUILD_VERSION="20110906.1"
+RUBY_BUILD_VERSION="20110912.1"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
@@ -35,36 +35,58 @@ build_failed() {
 }
 
 install_package() {
-  local cwd="$(pwd)"
-  local package_name="$1"
-  local package_url="$2"
-  shift 2
+  install_package_using "tarball" 1 $*
+}
 
-  cd "$TEMP_PATH"
-  download_package "$package_name" "$package_url"
-  extract_package "$package_name"
-  cd "$package_name"
-  build_package "$package_name" $*
-  after_install_package "$package_name"
-  fix_directory_permissions
-  cd "$cwd"
+install_git() {
+  install_package_using "git" 2 $*
+}
+
+install_package_using() {
+  local package_type="$1"
+  local package_type_nargs="$2"
+  local package_name="$3"
+  shift 3
+
+  pushd "$TEMP_PATH"
+  "fetch_${package_type}" "$package_name" $*
+  shift $(($package_type_nargs))
+  make_package "$package_name" $*
+  popd
 
   echo "Installed ${package_name} to ${PREFIX_PATH}" >&2
 }
 
-download_package() {
+make_package() {
+  local package_name="$1"
+  shift
+
+  pushd "$package_name"
+  build_package "$package_name" $*
+  after_install_package "$package_name"
+  fix_directory_permissions
+  popd
+
+  echo "Installed ${package_name} to ${PREFIX_PATH}" >&2
+}
+
+fetch_tarball() {
   local package_name="$1"
   local package_url="$2"
 
   echo "Downloading ${package_url}..." >&2
   { curl "$package_url" > "${package_name}.tar.gz"
+    tar xzvf "${package_name}.tar.gz"
   } >&4 2>&1
 }
 
-extract_package() {
+fetch_git() {
   local package_name="$1"
+  local git_url="$2"
+  local git_ref="$3"
 
-  { tar xzvf "${package_name}.tar.gz"
+  echo "Cloning ${git_url}..." >&2
+  { git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}"
   } >&4 2>&1
 }
 
@@ -91,6 +113,11 @@ build_package_standard() {
   { ./configure --prefix="$PREFIX_PATH"
     make -j 2
     make install
+  } >&4 2>&1
+}
+
+build_package_autoconf() {
+  { autoconf
   } >&4 2>&1
 }
 
