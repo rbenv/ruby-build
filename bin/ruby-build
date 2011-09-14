@@ -66,8 +66,6 @@ make_package() {
   after_install_package "$package_name"
   fix_directory_permissions
   popd >&4
-
-  echo "Installed ${package_name} to ${PREFIX_PATH}" >&2
 }
 
 fetch_tarball() {
