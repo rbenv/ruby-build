@@ -31,6 +31,33 @@ You can use it with [rbenv](https://github.com/sstephenson/rbenv):
 
     $ ruby-build 1.9.2-p290 ~/.rbenv/versions/1.9.2-p290
 
+ruby-build provides an `rbenv-install` command that shortens this to:
+
+    $ rbenv install 1.9.2-p290
+
+### Version History
+
+#### 20110914
+
+* Added an rbx-2.0.0-dev definition for Rubinius 2.0.0 from git.
+* Added support for setting `./configure` options with the
+  `CONFIGURE_OPTS` environment variable.
+* Added a 1.9.3-dev definition for Ruby 1.9.3 from Git.
+* Added support for fetching package sources via Git.
+* Added an `rbenv-install` script which provides an `install` command
+  for rbenv users.
+
+#### 20110906.1
+
+* Changed the REE definition not to install its default gem
+  collection.
+* Reverted a poorly-tested change that intended to enable support for
+  relative installation paths.
+
+#### 20110906
+
+ * Initial public release.
+
 ### License
 
 (The MIT License)
