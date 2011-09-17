@@ -35,10 +35,10 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
     $ rbenv install 1.9.2-p290
 
-Once installed for [rbenv](https://github.com/sstephenson/rbenv) 
-you have to rebuild the shim binaries. You should do this any time 
-you install a new Ruby binary (for example, when installing a new 
-Ruby version, or when installing a gem that provides a binary).
+Once installed you have to rebuild the shim binaries. You should do 
+this any time you install a new Ruby binary (for example, when 
+installing a new Ruby version, or when installing a gem that provides 
+a binary).
 
     $ rbenv rehash
 
