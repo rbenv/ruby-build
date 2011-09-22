@@ -126,6 +126,19 @@ build_package_ruby() {
   } >&4 2>&1
 }
 
+build_package_ree_installer() {
+  local options=""
+  if [[ "Darwin" = "$(uname)" ]]; then
+    options="--no-tcmalloc"
+  fi
+  
+  # Work around install_useful_libraries crash with --dont-install-useful-gems
+  mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
+
+  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems $options
+  } >&4 2>&1
+}
+
 build_package_rbx() {
   local package_name="$1"
 
