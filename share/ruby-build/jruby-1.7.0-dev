@@ -1,0 +1,18 @@
+after_install_package() {
+  shim_jruby
+  remove_windows_files
+}
+
+shim_jruby() {
+  cd "${PREFIX_PATH}/bin"
+  sed -i "" 's/^#!\/bin\/bash/#!\/usr\/bin\/env bash/' jruby
+  ln -fs jruby ruby
+}
+
+remove_windows_files() {
+  cd "$PREFIX_PATH"
+  rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
+}
+
+install_package "jruby-1.7.0.dev" "http://ci.jruby.org/snapshots/jruby-bin-1.7.0.dev.tar.gz" copy
+install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz" ruby
