@@ -28,4 +28,5 @@ esac
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
-exec ruby-build "$DEFINITION" "$PREFIX"
+ruby-build "$DEFINITION" "$PREFIX"
+rbenv rehash
