@@ -5,7 +5,7 @@ after_install_package() {
 
 shim_jruby() {
   cd "${PREFIX_PATH}/bin"
-  sed -i "" 's/^#!\/bin\/bash/#!\/usr\/bin\/env bash/' jruby
+  sed -i 's/^#!\/bin\/bash/#!\/usr\/bin\/env bash/' jruby
   ln -fs jruby ruby
 }
 
