@@ -147,6 +147,25 @@ build_package_rbx() {
   } >&4 2>&1
 }
 
+build_package_jruby() {
+  build_package_copy
+  cd "${PREFIX_PATH}/bin"
+  ln -fs jruby ruby
+  install_jruby_launcher
+  remove_windows_files
+}
+
+install_jruby_launcher() {
+  cd "${PREFIX_PATH}/bin"
+  { ./ruby gem install jruby-launcher
+  } >&4 2>&1
+}
+
+remove_windows_files() {
+  cd "$PREFIX_PATH"
+  rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
+}
+
 build_package_copy() {
   cp -R . "$PREFIX_PATH"
 }

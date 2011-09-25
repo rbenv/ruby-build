@@ -1,18 +1,2 @@
-after_install_package() {
-  shim_jruby
-  remove_windows_files
-}
-
-shim_jruby() {
-  cd "${PREFIX_PATH}/bin"
-  sed -i "" 's/^#!\/bin\/bash/#!\/usr\/bin\/env bash/' jruby
-  ln -fs jruby ruby
-}
-
-remove_windows_files() {
-  cd "$PREFIX_PATH"
-  rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
-}
-
-install_package "jruby-1.6.4" "http://jruby.org.s3.amazonaws.com/downloads/1.6.4/jruby-bin-1.6.4.tar.gz" copy
+install_package "jruby-1.6.4" "http://jruby.org.s3.amazonaws.com/downloads/1.6.4/jruby-bin-1.6.4.tar.gz" jruby
 install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz" ruby
