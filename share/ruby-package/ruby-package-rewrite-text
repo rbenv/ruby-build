@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+src_prefix="$1"
+dst_prefix="$2"
+
+if [ -z "$src_prefix" ] || [ -z "$dst_prefix" ]; then
+  echo "usage: ruby-package-install-text SRC_PREFIX DST_PREFIX" >&2
+  exit 1
+fi
+
+sed "s:${src_prefix}:${dst_prefix}:g"

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -e
+
+src_prefix="$1"
+dst_prefix="$2"
+
+if [ -z "$src_prefix" ] || [ -z "$dst_prefix" ]; then
+  echo "usage: ruby-package-install-binary SRC_PREFIX DST_PREFIX" >&2
+  exit 1
+fi
+
+hexify() {
+  xxd -c 1 -p | sed 's/^00$/,/' | tr ',\n' '\n '
+}
+
+search_hex="$(echo -n "$src_prefix" | hexify)"
+replace_hex="$(echo -n "$dst_prefix" | hexify)"
+
+hexify |
+awk '
+  BEGIN {
+    search_hex=" '"$search_hex"'";
+    replace_hex=" '"$replace_hex"'";
+    split(search_hex, search);
+    split(replace_hex, replace);
+    search_len=length(search);
+    replace_len=length(replace);
+  }
+  { matched=0 }
+  / '"$search_hex"'/ {
+    result=replace_hex substr($0, length(search_hex) + 1);
+    for (i=length(replace)+1; i<=length(search); i++)
+      result=result "00 ";
+    print result;
+    matched=1
+  }
+  { if (matched == 0) print $0 }
+' |
+sed 's/$/00/' |
+xxd -p -r

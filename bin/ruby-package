@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -e
+
+definition="$1"
+if [ -z "$definition" ]; then
+  echo "usage: ruby-package DEFINITION"
+fi
+
+package="${definition##*/}"
+prefix="/tmp/ruby-build/-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/$package"
+
+
+# ruby-build "$definition" "$prefix"
+cwd="$(pwd)"
+cd "${prefix}/.."
+
+# FIXME don't assume share is in cwd
+mkdir -p "${package}.rubypackage/bin"
+cp "${cwd}/share/ruby-package/"* "${package}.rubypackage/bin"
+
+mkdir -p "${package}.rubypackage/metadata"
+echo -n "$prefix" > "${package}.rubypackage/metadata/prefix"
+echo -n "$package" > "${package}.rubypackage/metadata/package"
+
+cd "$package"
+
+while read line; do
+  binary="${line#Binary file }"
+  if [ "$line" = "$binary" ]; then
+    # plain text match
+    text="${line%%:*}"
+    echo "$text" >> "../${package}.rubypackage/metadata/text-files"
+  else
+    # binary match
+    binary="${binary% matches}"
+    echo "$binary" >> "../${package}.rubypackage/metadata/binary-files"
+  fi
+done < <( grep -m 1 -R "$prefix" * )
+
+tar cf "../${package}.rubypackage/package.tar" *
+
+cd ..
+
+tar czf "${cwd}/${package}.rubypackage.tar.gz" "${package}.rubypackage"
+rm -fr "${package}.rubypackage"
