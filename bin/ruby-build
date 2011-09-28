@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RUBY_BUILD_VERSION="20110914"
+RUBY_BUILD_VERSION="20110928"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
@@ -131,7 +131,7 @@ build_package_ree_installer() {
   if [[ "Darwin" = "$(uname)" ]]; then
     options="--no-tcmalloc"
   fi
-  
+
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
