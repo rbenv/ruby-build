@@ -5,6 +5,8 @@ versions of Ruby on UNIX-like systems.
 
 ### Installing ruby-build
 
+ruby-build depends on curl to download binaries. This ships with OSX. If you are using ubuntu install it with `apt-get install curl`.
+
     $ git clone git://github.com/sstephenson/ruby-build.git
     $ cd ruby-build
     $ ./install.sh
