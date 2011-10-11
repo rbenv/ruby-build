@@ -37,6 +37,17 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
 ### Version History
 
+#### 20110928
+
+* ruby-build now uses the `--with-gcc` configure flag on OS X Lion.
+* Added definitions for REE 1.8.7-2010.02 and 1.8.6-2009.06.
+* Modified `rbenv-install` to run `rbenv rehash` after installation.
+* Added a Ruby 1.9.3-rc1 definition.
+* Updated the JRuby defintions to install the `jruby-launcher` gem.
+* Updated the rbx-2.0.0 definition to point to the master branch.
+* Added a jruby-1.7.0-dev definition.
+* Added a Ruby 1.9.4-dev definition.
+
 #### 20110914
 
 * Added an rbx-2.0.0-dev definition for Rubinius 2.0.0 from git.
