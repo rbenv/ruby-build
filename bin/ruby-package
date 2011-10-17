@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -e
 
+resolve_link() {
+  $(type -p greadlink readlink | head -1) $1
+}
+
+abs_dirname() {
+  local cwd="$(pwd)"
+  local path="$1"
+
+  while [ -n "$path" ]; do
+    cd "${path%/*}"
+    local name="${path##*/}"
+    path="$(resolve_link "$name" || true)"
+  done
+
+  pwd
+  cd "$cwd"
+}
+
+bin_root="$(abs_dirname "$0")"
+
+
 definition="$1"
 if [ -z "$definition" ]; then
   echo "usage: ruby-package DEFINITION"
@@ -10,13 +31,14 @@ package="${definition##*/}"
 prefix="/tmp/ruby-build/-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/$package"
 
 
-# ruby-build "$definition" "$prefix"
+"${bin_root}/ruby-build" -v "$definition" "$prefix"
 cwd="$(pwd)"
 cd "${prefix}/.."
 
-# FIXME don't assume share is in cwd
 mkdir -p "${package}.rubypackage/bin"
-cp "${cwd}/share/ruby-package/"* "${package}.rubypackage/bin"
+cp "${bin_root}/../share/ruby-package/ruby-package-install" "${package}.rubypackage/bin"
+cp "${bin_root}/../share/ruby-package/ruby-package-rewrite-text" "${package}.rubypackage/bin"
+cc -Wall "${bin_root}/../share/ruby-package/ruby-package-rewrite-binary.c" -o "${package}.rubypackage/bin/ruby-package-rewrite-binary"
 
 mkdir -p "${package}.rubypackage/metadata"
 echo -n "$prefix" > "${package}.rubypackage/metadata/prefix"
