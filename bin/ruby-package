@@ -23,12 +23,38 @@ abs_dirname() {
   cd "$cwd"
 }
 
+usage() {
+  echo "usage: ruby-package [-v | --verbose] [--resume] DEFINITION"
+  exit 1
+}
+
 bin_root="$(abs_dirname "$0")"
 
+verbose=""
+resume=""
+
+while :; do
+  case "$1" in
+    "-v" | "--verbose" )
+      verbose="-v"
+      shift
+      ;;
+    "--resume" )
+      resume=1
+      shift
+      ;;
+    "-"* )
+      usage
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
 
 definition="$1"
 if [ -z "$definition" ]; then
-  echo "usage: ruby-package DEFINITION"
+  usage
 fi
 
 package="${definition##*/}"
@@ -36,7 +62,10 @@ prefix="/tmp/ruby-build/--------------------------------------------------------
 
 package_dir="${package}.$(package_platform)"
 
-"${bin_root}/ruby-build" -v "$definition" "$prefix"
+if [ -z "$resume" ]; then
+  "${bin_root}/ruby-build" $verbose "$definition" "$prefix"
+fi
+
 cwd="$(pwd)"
 cd "${prefix}/.."
 
