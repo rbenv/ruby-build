@@ -59,7 +59,7 @@ prefix="/tmp/ruby-build/--------------------------------------------------------
 package_dir="${package}.$(ruby-package platform)"
 
 if [ -z "$resume" ]; then
-  "${bin_root}/ruby-build" $verbose "$definition" "$prefix"
+  ruby-build $verbose "$definition" "$prefix"
 fi
 
 cwd="$(pwd)"
