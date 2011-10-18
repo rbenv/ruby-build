@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -e
+
+usage() {
+  echo "usage: ruby-package fetch PACKAGE" >&2
+  exit 1
+}
+
+if [ -z "$1" ]; then
+  usage
+fi
+package_name="${1}.$(ruby-package platform).rubypackage"
+
+package_repo="${RUBY_PACKAGE_REPO%/}"
+if [ -z "$ruby_package_repo" ]; then
+  package_repo="https://github.com/downloads/sstephenson/ruby-packages"
+fi
+
+url="${package_repo}/${package_name}"
+filename="${TMPDIR}/${package_name}.$$"
+
+set +e
+curl -Lfs "$url" > "$filename"
+result="$?"
+set -e
+
+if [ "$result" -eq 22 ]; then
+  exit 3
+elif [ ! -f "$filename" ]; then
+  exit 2
+else
+  echo "$filename"
+fi

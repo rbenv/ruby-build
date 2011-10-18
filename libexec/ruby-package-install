@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -e
+
+usage() {
+  echo "usage: ruby-package install PACKAGE DESTINATION" >&2
+  exit 1
+}
+
+cleanup_packages() {
+  if [ -n "$package_root" ]; then
+    rm -rf "${package_root}/.."
+  fi
+
+  if [ -n "$package_file" ]; then
+    if [ "$package" != "$package_file" ]; then
+      rm -rf "$package_file"
+    fi
+  fi
+}
+
+package="$1"
+if [ -z "$package" ]; then
+  usage
+fi
+
+destination="$2"
+if [ -z "$destination" ]; then
+  usage
+fi
+
+if [ -f "$package" ]; then
+  package_file="$package"
+else
+  package_file="$(ruby-package fetch "$package")"
+fi
+
+trap cleanup_packages SIGINT SIGTERM EXIT
+
+package_root="$(ruby-package unpack "$package_file")"
+
+"${package_root}/bin/ruby-package-install" "$destination"

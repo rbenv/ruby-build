@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -e
+
+resolve_link() {
+  $(type -p greadlink readlink | head -1) $1
+}
+
+abs_dirname() {
+  local cwd="$(pwd)"
+  local path="$1"
+
+  while [ -n "$path" ]; do
+    cd "${path%/*}" 2>/dev/null
+    local name="${path##*/}"
+    path="$(resolve_link "$name" || true)"
+  done
+
+  pwd
+  cd "$cwd"
+}
+
+usage() {
+  echo "usage: ruby-package unpack PACKAGE_FILE" >&2
+  exit 1
+}
+
+package_file="$1"
+if [ -z "$package_file" ]; then
+  usage
+fi
+
+package_path="$(abs_dirname "$package_file")/${package_file##*/}"
+if [ ! -f "$package_path" ]; then
+  echo "error: file not found: $1" >&2
+  exit 1
+fi
+
+root="${TMPDIR}/ruby-package.$$"
+rm -fr "$root"
+mkdir -p "$root"
+
+cd "$root"
+tar xzf "$package_path"
+
+cd *
+package_root="$(pwd)"
+package_name="$(cat "$package_root"/metadata/package)"
+package_name_with_platform="${package_root##*/}"
+
+if [ "${package_name}.$(ruby-package platform)" != "$package_name_with_platform" ]; then
+  echo "error: invalid package format" >&2
+  exit 2
+fi
+
+echo "$package_root"
