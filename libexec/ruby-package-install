@@ -8,7 +8,7 @@ usage() {
 
 cleanup_packages() {
   if [ -n "$package_root" ]; then
-    rm -rf "${package_root}/.."
+    rm -rf "${package_root%/*}"
   fi
 
   if [ -n "$package_file" ]; then
