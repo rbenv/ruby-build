@@ -21,7 +21,7 @@ abs_dirname() {
 }
 
 usage() {
-  { echo "usage: rbenv install [--force-build | --force-package] VERSION"
+  { echo "usage: rbenv install [--build | --package] VERSION"
     echo "       rbenv install /path/to/definition"
     echo
     echo "Available versions:"
@@ -41,10 +41,10 @@ fi
 
 force_build=""
 force_package=""
-if [ "$1" = "--force-build" ]; then
+if [ "$1" = "--build" ]; then
   force_build=1
   shift
-elif [ "$1" = "--force-package" ]; then
+elif [ "$1" = "--package" ]; then
   force_package=1
   shift
 fi
