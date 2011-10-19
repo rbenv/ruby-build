@@ -1,8 +1,8 @@
 Binary packages
 ---------------
 
-* Better error messages
-* Show 'Downloading' and 'Installing' messages a la ruby-build
+X Better error messages
+X Show 'Downloading' and 'Installing' messages a la ruby-build
 * Rewrite RbConfig::CONFIG['CC'] on install
 * Patch rbx since the rewriter doesn't work there
 * rbenv-install should check for binary packages before building
