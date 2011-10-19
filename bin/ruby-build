@@ -29,7 +29,8 @@ build_failed() {
     echo
     echo "Inspect or clean up the working tree at ${TEMP_PATH}"
     echo "Results logged to ${LOG_PATH}"
-    echo
+    echo "Last 10 log lines:"
+    tail -n 10 $LOG_PATH
   } >&3
   exit 1
 }
