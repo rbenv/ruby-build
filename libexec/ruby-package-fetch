@@ -64,6 +64,7 @@ if [ -n "$check" ]; then
   } >&2
 else
   package_filename="${TMPDIR}/${package_name}.$$"
+  echo "Downloading $package_url..." >&2
   download "$package_url" "$package_filename" || {
     echo "error: couldn't fetch package \`$package' ($package_url)"
     exit 1
