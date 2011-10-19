@@ -2,7 +2,7 @@
 set -e
 
 usage() {
-  echo "usage: ruby-package install PACKAGE DESTINATION" >&2
+  echo "usage: ruby-package install [--fail-silently] PACKAGE DESTINATION" >&2
   exit 1
 }
 
@@ -18,6 +18,12 @@ cleanup_packages() {
   fi
 }
 
+fail_silently=""
+if [ "$1" = "--fail-silently" ]; then
+  fail_silently=1
+  shift
+fi
+
 package="$1"
 if [ -z "$package" ]; then
   usage
@@ -31,6 +37,10 @@ fi
 if [ -f "$package" ]; then
   package_file="$package"
 else
+  if [ -n "$fail_silently" ]; then
+    ruby-package fetch --check "$package" 2>/dev/null
+  fi
+
   package_file="$(ruby-package fetch "$package")"
 fi
 
