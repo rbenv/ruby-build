@@ -2,32 +2,70 @@
 set -e
 
 usage() {
-  echo "usage: ruby-package fetch PACKAGE" >&2
+  echo "usage: ruby-package fetch [--check] PACKAGE" >&2
   exit 1
 }
 
-if [ -z "$1" ]; then
+check() {
+  local url="$1"
+
+  set +e
+  curl -ILfs "$url" >/dev/null
+  local result="$?"
+  set -e
+
+  if [ "$result" -ne 0 ]; then
+    return 1
+  fi
+}
+
+download() {
+  local url="$1"
+  local filename="$2"
+
+  set +e
+  curl -Lfs "$url" > "$filename"
+  local result="$?"
+  set -e
+
+  if [ "$result" -ne 0 ]; then
+    return 1
+  elif [ ! -f "$filename" ]; then
+    return 1
+  else
+    echo "$filename"
+  fi
+}
+
+check=""
+if [ "$1" = "--check" ]; then
+  check=1
+  shift
+fi
+
+package="$1"
+if [ -z "$package" ]; then
   usage
 fi
-package_name="${1}.$(ruby-package platform).rubypackage"
+
+package_name="${package}.$(ruby-package platform).rubypackage"
 
 package_repo="${RUBY_PACKAGE_REPO%/}"
 if [ -z "$ruby_package_repo" ]; then
   package_repo="https://github.com/downloads/sstephenson/ruby-packages"
 fi
 
-url="${package_repo}/${package_name}"
-filename="${TMPDIR}/${package_name}.$$"
+package_url="${package_repo}/${package_name}"
 
-set +e
-curl -Lfs "$url" > "$filename"
-result="$?"
-set -e
-
-if [ "$result" -eq 22 ]; then
-  exit 3
-elif [ ! -f "$filename" ]; then
-  exit 2
+if [ -n "$check" ]; then
+  check "$package_url" || {
+    echo "error: package \`$package' not found ($package_url)"
+    exit 1
+  } >&2
 else
-  echo "$filename"
+  package_filename="${TMPDIR}/${package_name}.$$"
+  download "$package_url" "$package_filename" || {
+    echo "error: couldn't fetch package \`$package' ($package_url)"
+    exit 1
+  } >&2
 fi
