@@ -1,3 +1,4 @@
+require_gcc
 install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz"
 install_package "ruby-1.9.1-p378" "http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.1-p378.tar.gz"
 install_package "rubygems-1.3.5" "http://production.cf.rubygems.org/rubygems/rubygems-1.3.5.tgz" ruby

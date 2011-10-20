@@ -1,3 +1,3 @@
-use_gcc42_on_lion
+require_gcc
 install_package "ruby-enterprise-1.8.7-2010.02" "http://files.rubyforge.vm.bytemark.co.uk/emm-ruby/ruby-enterprise-1.8.7-2010.02.tar.gz" ree_installer
 install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz" ruby
