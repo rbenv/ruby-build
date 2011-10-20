@@ -180,7 +180,7 @@ fix_directory_permissions() {
   find "$PREFIX_PATH" -type d -exec chmod go-w {} \;
 }
 
-requires_gcc() {
+require_gcc() {
   local gcc="$(locate_gcc || true)"
   if [ -z "$gcc" ]; then
     { echo
