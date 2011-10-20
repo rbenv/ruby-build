@@ -180,13 +180,59 @@ fix_directory_permissions() {
   find "$PREFIX_PATH" -type d -exec chmod go-w {} \;
 }
 
-use_gcc42_on_lion() {
-  if [ "$(uname -s)" = "Darwin" ]; then
-    if [ "$(expr "$(sw_vers -productVersion | cut -f 2 -d .)" \>= 7 || true)" -eq 1 ]; then
-      export CC=/usr/bin/gcc-4.2
-      CONFIGURE_OPTS="--with-gcc=$CC $CONFIGURE_OPTS"
-    fi
+require_gcc() {
+  local gcc="$(locate_gcc || true)"
+  if [ -z "$gcc" ]; then
+    { echo
+      echo "ERROR: This package must be compiled with GCC, and we"
+      echo "couldn't find a suitable \`gcc' binary on your system."
+      echo "Please install GCC and try again."
+      echo
+
+      if [ "$(uname -s)" = "Darwin" ]; then
+        echo "You can install these GCC packages on Mac OS X:"
+        echo "https://github.com/kennethreitz/osx-gcc-installer/downloads"
+        echo
+      fi
+    } >&3
+    return 1
   fi
+
+  export CC="$gcc"
+}
+
+locate_gcc() {
+  local gcc gccs
+  shopt -s nullglob
+  gccs=( /usr/bin/gcc-* )
+  shopt -u nullglob
+
+  verify_gcc "$CC" ||
+  verify_gcc "$(command -v gcc || true)" || {
+    for gcc in "${gccs[@]}"; do
+      verify_gcc "$gcc" && break || true
+    done
+  }
+
+  return 1
+}
+
+verify_gcc() {
+  local gcc="$1"
+  if [ -z "$gcc" ]; then
+    return 1
+  fi
+
+  local version="$("$gcc" --version || true)"
+  if [ -z "$version" ]; then
+    return 1
+  fi
+
+  if echo "$version" | grep LLVM >/dev/null; then
+    return 1
+  fi
+
+  echo "$gcc"
 }
 
 version() {

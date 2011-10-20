@@ -1,4 +1,4 @@
-use_gcc42_on_lion
+require_gcc
 install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz"
 install_git "ruby-1.9.3-dev" "https://github.com/ruby/ruby.git" "ruby_1_9_3" autoconf standard
 install_package "rubygems-1.8.10" "http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz" ruby
