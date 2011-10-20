@@ -211,6 +211,13 @@ list_definitions() {
   } | sort
 }
 
+set_architecture() {
+  echo Setting build architecture to $1
+  export CONFIGURE_OPTS="--with-arch=$1 ${CONFIGURE_OPTS}"
+  export CFLAGS="-arch $1 ${CFLAGS}"
+  export LDFLAGS="-arch $1 ${LDFLAGS}"
+}
+
 
 
 unset VERBOSE
@@ -275,6 +282,10 @@ exec 4<> "$LOG_PATH" # open the log file at fd 4
 if [ -n "$VERBOSE" ]; then
   tail -f "$LOG_PATH" &
   trap "kill 0" SIGINT SIGTERM EXIT
+fi
+
+if [ -n "${RUBY_BUILD_ARCH}" ]; then
+  set_architecture "${RUBY_BUILD_ARCH}"
 fi
 
 export LDFLAGS="-L'${PREFIX_PATH}/lib' ${LDFLAGS}"
