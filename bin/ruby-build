@@ -152,7 +152,7 @@ build_package_ree_installer() {
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
-  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems $options
+  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems $options $CONFIGURE_OPTS
   } >&4 2>&1
 }
 
