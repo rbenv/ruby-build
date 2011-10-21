@@ -301,6 +301,10 @@ case "$1" in
   VERBOSE=true
   shift
   ;;
+"--test" )
+  shift
+  echo $($*)
+  exit 0
 esac
 
 

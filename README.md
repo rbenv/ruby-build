@@ -69,6 +69,14 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
  * Initial public release.
 
+### Runing Tests
+Install any ruby version
+
+    gem install bundler
+    cd spec
+    bundle
+    bundle exec rake
+
 ### License
 
 (The MIT License)
