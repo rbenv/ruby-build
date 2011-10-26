@@ -145,9 +145,18 @@ build_package_ruby() {
 
 build_package_ree_installer() {
   local options=""
-  if [[ "Darwin" = "$(uname)" ]]; then
-    options="--no-tcmalloc"
-  fi
+
+  case "$(uname)" in
+    Darwin)
+      options="--no-tcmalloc"
+      ;;
+
+    Linux)
+      # http://digitaldisorder.posterous.com/ruby-rvm-and-debian-sid-problems
+      cat "${RUBY_BUILD_ROOT}/share/patches/disable_sslv2.patch" |\
+        patch source/ext/openssl/ossl_ssl.c
+      ;;
+  esac
 
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
