@@ -28,10 +28,27 @@ build_failed() {
     echo "BUILD FAILED"
     echo
     echo "Inspect or clean up the working tree at ${TEMP_PATH}"
-    echo "Results logged to ${LOG_PATH}"
-    echo
+
+    if file_is_not_empty "$LOG_PATH"; then
+      echo "Results logged to ${LOG_PATH}"
+      echo
+      echo "Last 10 log lines:"
+      tail -n 10 "$LOG_PATH"
+    fi
   } >&3
   exit 1
+}
+
+file_is_not_empty() {
+  local filename="$1"
+  local line_count="$(wc -l "$filename" 2>/dev/null || true)"
+
+  if [ -n "$line_count" ]; then
+    words=( $line_count )
+    [ "${words[0]}" -gt 0 ]
+  else
+    return 1
+  fi
 }
 
 install_package() {
@@ -135,7 +152,7 @@ build_package_ree_installer() {
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
-  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems $options
+  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems $options $CONFIGURE_OPTS
   } >&4 2>&1
 }
 
@@ -167,6 +184,7 @@ remove_windows_files() {
 }
 
 build_package_copy() {
+  mkdir -p "$PREFIX_PATH"
   cp -R . "$PREFIX_PATH"
 }
 
@@ -179,13 +197,59 @@ fix_directory_permissions() {
   find "$PREFIX_PATH" -type d -exec chmod go-w {} \;
 }
 
-use_gcc42_on_lion() {
-  if [ "$(uname -s)" = "Darwin" ]; then
-    if [ "$(expr "$(sw_vers -productVersion | cut -f 2 -d .)" \>= 7 || true)" -eq 1 ]; then
-      export CC=/usr/bin/gcc-4.2
-      CONFIGURE_OPTS="--with-gcc=$CC $CONFIGURE_OPTS"
-    fi
+require_gcc() {
+  local gcc="$(locate_gcc || true)"
+  if [ -z "$gcc" ]; then
+    { echo
+      echo "ERROR: This package must be compiled with GCC, and we"
+      echo "couldn't find a suitable \`gcc' binary on your system."
+      echo "Please install GCC and try again."
+      echo
+
+      if [ "$(uname -s)" = "Darwin" ]; then
+        echo "You can install these GCC packages on Mac OS X:"
+        echo "https://github.com/kennethreitz/osx-gcc-installer/downloads"
+        echo
+      fi
+    } >&3
+    return 1
   fi
+
+  export CC="$gcc"
+}
+
+locate_gcc() {
+  local gcc gccs
+  shopt -s nullglob
+  gccs=( /usr/bin/gcc-* )
+  shopt -u nullglob
+
+  verify_gcc "$CC" ||
+  verify_gcc "$(command -v gcc || true)" || {
+    for gcc in "${gccs[@]}"; do
+      verify_gcc "$gcc" && break || true
+    done
+  }
+
+  return 1
+}
+
+verify_gcc() {
+  local gcc="$1"
+  if [ -z "$gcc" ]; then
+    return 1
+  fi
+
+  local version="$("$gcc" --version || true)"
+  if [ -z "$version" ]; then
+    return 1
+  fi
+
+  if echo "$version" | grep LLVM >/dev/null; then
+    return 1
+  fi
+
+  echo "$gcc"
 }
 
 version() {
