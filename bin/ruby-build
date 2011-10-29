@@ -167,6 +167,20 @@ build_package_rbx() {
   } >&4 2>&1
 }
 
+build_package_maglev() {
+  build_package_copy
+
+  { cd "${PREFIX_PATH}"
+    ./install.sh
+  } >&4 2>&1
+  echo
+  echo "Using another Ruby (Rubinius 1.2.4 or 2.0.0x, MRI, etc)"
+  echo "from within $PREFIX_PATH run"
+  echo "/path/to/that/other/rake build:maglev"
+  echo
+  echo "Run 'maglev start' to start up the stone before using 'maglev-ruby' or 'maglev-irb'"
+}
+
 build_package_jruby() {
   build_package_copy
   cd "${PREFIX_PATH}/bin"
