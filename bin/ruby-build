@@ -27,13 +27,16 @@ build_failed() {
   { echo
     echo "BUILD FAILED"
     echo
-    echo "Inspect or clean up the working tree at ${TEMP_PATH}"
 
-    if file_is_not_empty "$LOG_PATH"; then
-      echo "Results logged to ${LOG_PATH}"
-      echo
-      echo "Last 10 log lines:"
-      tail -n 10 "$LOG_PATH"
+    if ! rmdir "${TEMP_PATH}" 2>/dev/null; then
+      echo "Inspect or clean up the working tree at ${TEMP_PATH}"
+
+      if file_is_not_empty "$LOG_PATH"; then
+        echo "Results logged to ${LOG_PATH}"
+        echo
+        echo "Last 10 log lines:"
+        tail -n 10 "$LOG_PATH"
+      fi
     fi
   } >&3
   exit 1
