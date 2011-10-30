@@ -37,6 +37,22 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
 ### Version History
 
+#### 20111030
+
+* Added a Ruby 1.8.7-p334 definition.
+* Renamed the 1.9.4-dev definition to 2.0.0-dev to reflect the new
+  version numbering scheme.
+* ruby-build now automatically displays the last 10 lines of the error
+  log, if any, when a build fails.
+* Improved the GCC detection routines and added a more helpful error
+  message for Xcode 4.2 users.
+* JRuby installation no longer requires the install prefix to exist
+  first.
+* You can now pass `$CONFIGURE_OPTS` to the REE definitions.
+* Added a JRuby 1.6.5 definition.
+* Added a Ruby 1.9.2-p180 definition.
+* Added a Ruby 1.9.3-p0 definition.
+
 #### 20110928
 
 * ruby-build now uses the `--with-gcc` configure flag on OS X Lion.
