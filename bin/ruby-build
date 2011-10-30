@@ -207,7 +207,10 @@ require_gcc() {
       echo
 
       if [ "$(uname -s)" = "Darwin" ]; then
-        echo "You can install these GCC packages on Mac OS X:"
+        echo "As of version 4.2, Xcode is LLVM-only and no longer"
+        echo "includes GCC. You can install GCC with these binary"
+        echo "packages on Mac OS X:"
+        echo
         echo "https://github.com/kennethreitz/osx-gcc-installer/downloads"
         echo
       fi
