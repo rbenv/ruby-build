@@ -40,7 +40,7 @@ rm -fr "$root"
 mkdir -p "$root"
 
 cd "$root"
-tar xzf "$package_path"
+tar xf "$package_path"
 
 cd *
 package_root="$(pwd)"
