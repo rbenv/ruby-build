@@ -44,6 +44,6 @@ rewrite() {
   done < "${package_root}/metadata/${kind}-files"
 }
 
-tar xzf "${package_root}/package.tar"
+tar xf "${package_root}/package.tar"
 rewrite binary
 rewrite text
