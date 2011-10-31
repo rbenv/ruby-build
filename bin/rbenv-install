@@ -2,19 +2,26 @@
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
-# Provide rbenv completions
-if [ "$1" = "--complete" ]; then
-  exec ruby-build --definitions
-fi
+resolve_link() {
+  $(type -p greadlink readlink | head -1) $1
+}
 
-if [ -z "$RBENV_ROOT" ]; then
-  RBENV_ROOT="${HOME}/.rbenv"
-fi
+abs_dirname() {
+  local cwd="$(pwd)"
+  local path="$1"
 
-DEFINITION="$1"
-case "$DEFINITION" in
-"" | -* )
-  { echo "usage: rbenv install VERSION"
+  while [ -n "$path" ]; do
+    cd "${path%/*}"
+    local name="${path##*/}"
+    path="$(resolve_link "$name" || true)"
+  done
+
+  pwd
+  cd "$cwd"
+}
+
+usage() {
+  { echo "usage: rbenv install [--build | --package] VERSION"
     echo "       rbenv install /path/to/definition"
     echo
     echo "Available versions:"
@@ -22,11 +29,54 @@ case "$DEFINITION" in
     echo
   } >&2
   exit 1
+}
+
+bin_dir="$(abs_dirname "$0")"
+export PATH="${bin_dir}:$PATH"
+
+# Provide rbenv completions
+if [ "$1" = "--complete" ]; then
+  exec ruby-build --definitions
+fi
+
+force_build=""
+force_package=""
+if [ "$1" = "--build" ]; then
+  force_build=1
+  shift
+elif [ "$1" = "--package" ]; then
+  force_package=1
+  shift
+fi
+
+definition="$1"
+case "$definition" in
+"" | -* )
+  usage
   ;;
 esac
 
-VERSION_NAME="${DEFINITION##*/}"
-PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
+if [ -z "$RBENV_ROOT" ]; then
+  RBENV_ROOT="${HOME}/.rbenv"
+fi
 
-ruby-build "$DEFINITION" "$PREFIX"
+version_name="${definition##*/}"
+prefix="${RBENV_ROOT}/versions/${version_name}"
+
+package() {
+  ruby-package install $* "$definition" "$prefix"
+}
+
+build() {
+  ruby-build "$definition" "$prefix"
+}
+
+if [ -n "$force_build" ]; then
+  build
+elif [ -n "$force_package" ]; then
+  package
+else
+  package --fail-silently || build
+fi
+
 rbenv rehash

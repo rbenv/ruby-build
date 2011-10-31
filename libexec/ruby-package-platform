@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+
+echo "$(uname -m)-$(uname -s)" | tr '[A-Z] ' '[a-z]_'

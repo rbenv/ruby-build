@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+set -e
+
+resolve_link() {
+  $(type -p greadlink readlink | head -1) $1
+}
+
+abs_dirname() {
+  local cwd="$(pwd)"
+  local path="$1"
+
+  while [ -n "$path" ]; do
+    cd "${path%/*}"
+    local name="${path##*/}"
+    path="$(resolve_link "$name" || true)"
+  done
+
+  pwd
+  cd "$cwd"
+}
+
+usage() {
+  echo "usage: ruby-package build [-v | --verbose] [--resume] DEFINITION"
+  exit 1
+}
+
+bin_root="$(abs_dirname "$0")"
+
+verbose=""
+resume=""
+
+while :; do
+  case "$1" in
+    "-v" | "--verbose" )
+      verbose="-v"
+      shift
+      ;;
+    "--resume" )
+      resume=1
+      shift
+      ;;
+    "-"* )
+      usage
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+definition="$1"
+if [ -z "$definition" ]; then
+  usage
+fi
+
+package="${definition##*/}"
+prefix="/tmp/ruby-build/-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/$package"
+
+package_dir="${package}.$(ruby-package platform)"
+
+if [ -z "$resume" ]; then
+  ruby-build $verbose "$definition" "$prefix"
+fi
+
+cwd="$(pwd)"
+cd "${prefix}/.."
+
+mkdir -p "${package_dir}/bin"
+cp "${bin_root}/../share/ruby-package/ruby-package-install" "${package_dir}/bin"
+cp "${bin_root}/../share/ruby-package/ruby-package-rewrite-text" "${package_dir}/bin"
+cc -Wall "${bin_root}/../share/ruby-package/ruby-package-rewrite-binary.c" -o "${package_dir}/bin/ruby-package-rewrite-binary"
+
+mkdir -p "${package_dir}/metadata"
+echo -n "$prefix" > "${package_dir}/metadata/prefix"
+echo -n "$package" > "${package_dir}/metadata/package"
+
+cd "$package"
+
+while read line; do
+  binary="${line#Binary file }"
+  if [ "$line" = "$binary" ]; then
+    # plain text match
+    text="${line%%:*}"
+    echo "$text" >> "../${package_dir}/metadata/text-files"
+  else
+    # binary match
+    binary="${binary% matches}"
+    echo "$binary" >> "../${package_dir}/metadata/binary-files"
+  fi
+done < <( grep -m 1 -R "$prefix" * )
+
+tar cf "../${package_dir}/package.tar" *
+
+cd ..
+
+tar czf "${cwd}/${package_dir}.rubypackage" "$package_dir"
+rm -fr "$package_dir"
+
+echo "${package_dir}.rubypackage"
