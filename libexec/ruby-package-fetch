@@ -51,7 +51,7 @@ fi
 package_name="${package}.$(ruby-package platform).rubypackage"
 
 package_repo="${RUBY_PACKAGE_REPO%/}"
-if [ -z "$ruby_package_repo" ]; then
+if [ -z "$package_repo" ]; then
   package_repo="https://github.com/downloads/sstephenson/ruby-packages"
 fi
 
