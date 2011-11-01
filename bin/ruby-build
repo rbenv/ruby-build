@@ -167,6 +167,21 @@ build_package_rbx() {
   } >&4 2>&1
 }
 
+build_package_maglev() {
+  build_package_copy
+
+  { cd "${PREFIX_PATH}"
+    ./install.sh
+    cd "${PREFIX_PATH}/bin"
+    echo "Creating symlink for ruby*"
+    ln -fs maglev-ruby ruby
+    echo "Creating symlink for irb*"
+    ln -fs maglev-irb irb
+  } >&4 2>&1
+  echo
+  echo "Run 'maglev start' to start up the stone before using 'ruby' or 'irb'"
+}
+
 build_package_jruby() {
   build_package_copy
   cd "${PREFIX_PATH}/bin"
