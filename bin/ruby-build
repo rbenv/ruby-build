@@ -200,6 +200,41 @@ fix_directory_permissions() {
   find "$PREFIX_PATH" -type d -exec chmod go-w {} \;
 }
 
+require_cc() {
+  local cc ccs
+  ccs="gcc clang"
+
+  for cc in $ccs; do
+    cc="$("locate_$cc" || true)"
+    [ -n "$cc" ] && break
+  done
+
+  if [ -z "$cc" ]; then
+    { echo
+      echo "ERROR: This package must be compiled from source, and we"
+      echo "couldn't find a suitable compiler on your system."
+      echo "Please install any of the following compilers and try again:"
+      echo
+      for cc in $ccs; do
+        echo "- $cc"
+      done
+      echo
+
+      if [ "$(uname -s)" = "Darwin" ]; then
+        echo "As of version 4.2, Xcode is LLVM-only and no longer"
+        echo "includes GCC. You can install GCC with these binary"
+        echo "packages on Mac OS X:"
+        echo
+        echo "https://github.com/kennethreitz/osx-gcc-installer/downloads"
+        echo
+      fi
+    } >&3
+    return 1
+  fi
+
+  export CC="$cc"
+}
+
 require_gcc() {
   local gcc="$(locate_gcc || true)"
   if [ -z "$gcc" ]; then
@@ -224,6 +259,14 @@ require_gcc() {
   export CC="$gcc"
 }
 
+locate_clang() {
+    local clang
+    verify_clang "$CC" ||
+    verify_clang "$(command -v clang || true)"
+
+    return 1
+}
+
 locate_gcc() {
   local gcc gccs
   shopt -s nullglob
@@ -238,6 +281,20 @@ locate_gcc() {
   }
 
   return 1
+}
+
+verify_clang() {
+  local clang="$1"
+  if [ -z "$clang" ]; then
+    return 1
+  fi
+
+  local version="$("$clang" --version || true)"
+  if [ -z "$version" ]; then
+    return 1
+  fi
+
+  echo "$clang"
 }
 
 verify_gcc() {
