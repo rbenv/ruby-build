@@ -28,5 +28,9 @@ esac
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
-ruby-build "$DEFINITION" "$PREFIX"
+if [ -z "${RUBY_BUILD_OPTS+defined}" ]; then
+  RUBY_BUILD_OPTS=""
+fi
+
+ruby-build $RUBY_BUILD_OPTS "$DEFINITION" "$PREFIX"
 rbenv rehash
