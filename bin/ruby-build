@@ -82,6 +82,7 @@ make_package() {
   shift
 
   pushd "$package_name" >&4
+  before_install_package "$package_name"
   build_package "$package_name" $*
   after_install_package "$package_name"
   fix_directory_permissions
@@ -204,6 +205,10 @@ remove_windows_files() {
 build_package_copy() {
   mkdir -p "$PREFIX_PATH"
   cp -R . "$PREFIX_PATH"
+}
+
+before_install_package() {
+  local stub=1
 }
 
 after_install_package() {
