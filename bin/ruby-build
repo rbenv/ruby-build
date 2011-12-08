@@ -345,7 +345,11 @@ fi
 
 PREFIX_PATH="$2"
 if [ -z "$PREFIX_PATH" ]; then
-  usage
+  if [ -z "$RUBY_BUILD_PATH" ]; then
+    usage
+  else
+    PREFIX_PATH="$RUBY_BUILD_PATH$1"
+  fi
 fi
 
 if [ -z "$TMPDIR" ]; then
