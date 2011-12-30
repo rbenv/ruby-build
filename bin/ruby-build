@@ -252,9 +252,7 @@ require_gcc() {
 
 locate_gcc() {
   local gcc gccs
-  shopt -s nullglob
-  gccs=( /usr/bin/gcc-* )
-  shopt -u nullglob
+  IFS=: gccs=($(gccs_in_path))
 
   verify_gcc "$CC" ||
   verify_gcc "$(command -v gcc || true)" || {
@@ -264,6 +262,22 @@ locate_gcc() {
   }
 
   return 1
+}
+
+gccs_in_path() {
+  local gcc path paths
+  local gccs=()
+  IFS=: paths=($PATH)
+
+  shopt -s nullglob
+  for path in "${paths[@]}"; do
+    for gcc in "$path"/gcc-*; do
+      gccs["${#gccs[@]}"]="$gcc"
+    done
+  done
+  shopt -u nullglob
+
+  printf :%s "${gccs[@]}"
 }
 
 verify_gcc() {
