@@ -6,7 +6,7 @@ set -E
 exec 3<&2 # preserve original stderr at fd 3
 
 resolve_link() {
-  $(type -p greadlink readlink | head -1) $1
+  $(type -p greadlink readlink | head -1) "$1"
 }
 
 abs_dirname() {
