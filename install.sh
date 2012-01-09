@@ -23,6 +23,7 @@ for file in share/ruby-build/*; do
 done
 
 for file in man/*.1; do
+  command -v ronn >/dev/null && ronn --roff "${file}".ronn 2>/dev/null
   cp "${file}" "${MAN_PATH}"
 done
 
