@@ -12,10 +12,7 @@ for file in *; do
   rm "${BIN_PATH}/${file}"
 done
 
-cd ../share/ruby-build/
-for file in *; do
-  rm "${SHARE_PATH}/${file}"
-done
+rm -r "${SHARE_PATH}"
 
 cd -
 
