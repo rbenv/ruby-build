@@ -37,6 +37,20 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
 ### Version History
 
+#### 20111230
+
+* Added a definition for MagLev 1.0.0.
+* Added support for overriding `make` options with the
+  `$MAKEOPTS`/`$MAKE_OPTS` environment variable.
+* Removed RubyGems installations from JRuby definitions in favor of
+  the bundled RubyGems versions.
+* Added a `before_install_package` hook.
+* Added definitions for REE 1.8.7-2009.09 and 1.8.7-2010.01.
+* Added definitions for Ruby 1.8.6-p383, 1.8.7-p302 and 1.8.7-p357.
+* Updated the JRuby 1.7.0-dev snapshot URL.
+* Changed the GCC detector to look for `gcc-*` anywhere in the
+  `$PATH`, not just `/usr/bin`.
+
 #### 20111030
 
 * Added a Ruby 1.8.7-p334 definition.
