@@ -44,6 +44,14 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
 ### Version History
 
+#### 20120216
+
+* Added definitions for REE 1.8.7-2011.12 and 1.8.7-2012.01.
+* Added definitions for JRuby 1.6.5.1 and 1.6.6.
+* Added definitions for Ruby 1.8.7-p358 and 1.9.3-p125.
+* Updated the readme with instructions for installing ruby-build as an
+  rbenv plugin.
+
 #### 20111230
 
 * Added a definition for MagLev 1.0.0.
