@@ -42,6 +42,16 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
     $ rbenv install 1.9.2-p290
 
+### Removing Ruby
+
+To remove a Ruby version, ruby-build provides a `rbenv-remove` command. 
+You can use this function with rbenv command.
+
+    $ rbenv remove 1.9.2-p290
+
+rbenv-remove simply removes `$HOME/.rbenv/versions/[specified version]/`
+recursively.
+
 ### Version History
 
 #### 20120216

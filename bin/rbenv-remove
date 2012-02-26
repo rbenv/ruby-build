@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -e
+[ -n "$RBENV_DEBUG" ] && set -x
+
+usage() {
+  { echo "usage: rbenv remove VERSION"
+    echo
+    echo "Available versions:"
+    rbenv versions 
+    echo
+  } >&2
+}
+
+if [ -z "$RBENV_ROOT" ]; then
+  RBENV_ROOT="${HOME}/.rbenv"
+fi
+
+VERSION_NAME="$1"
+case "$VERSION_NAME" in
+"" | -* )
+ usage
+ exit 1
+  ;;
+esac
+
+PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
+
+if [ ! -d $PREFIX ]; then
+  echo "$VERSION_NAME is not installed." >&2
+  usage
+  exit 1;
+fi
+
+echo "This will execute rm -rf ${PREFIX}."
+echo -n "Are you sure want to uninstall ${VERSION_NAME}? [y/N]:"; read answer
+case "$answer" in
+y | Y | yes | YES | Yes )
+  rm -rf "$PREFIX" && rbenv rehash && exit 0 || exit 1
+  ;;
+* )
+  echo "skipped."
+  exit 1
+  ;;
+esac
