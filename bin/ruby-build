@@ -129,7 +129,7 @@ build_package() {
 build_package_standard() {
   local package_name="$1"
 
-  if [ -z "${MAKEOPTS+defined}" ]; then
+  if [ "${MAKEOPTS+defined}" ]; then
     MAKE_OPTS="$MAKEOPTS"
   elif [ -z "${MAKE_OPTS+defined}" ]; then
     MAKE_OPTS="-j 2"
