@@ -14,8 +14,8 @@ fi
 DEFINITION="$1"
 case "$DEFINITION" in
 "" | -* )
-  { echo "usage: rbenv install VERSION"
-    echo "       rbenv install /path/to/definition"
+  { echo "usage: rbenv install VERSION [VERSION_NAME]"
+    echo "       rbenv install /path/to/definition [VERSION_NAME]"
     echo
     echo "Available versions:"
     ruby-build --definitions | sed 's/^/  /'
@@ -25,7 +25,12 @@ case "$DEFINITION" in
   ;;
 esac
 
-VERSION_NAME="${DEFINITION##*/}"
+if [ $2 ]; then
+  VERSION_NAME="$2"
+else
+  VERSION_NAME="${DEFINITION##*/}"
+fi
+
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
 ruby-build "$DEFINITION" "$PREFIX"
