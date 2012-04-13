@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Set a $RBENV_PATH and create the packages folder:
+RBENV_PATH=$HOME/.rbenv
+mkdir -p $RBENV_PATH/packages
+
+# Build packages:
+pushd $RBENV_PATH/packages > /dev/null
+  RUBIES=(1.8.7-p358
+          1.9.3-p125
+          1.9.3-p0
+          ree-1.8.7-2011.03
+          ree-1.8.7-2012.02)
+
+  for ruby in "${RUBIES[@]}"; do
+    if [ ! -f $ruby* ]; then
+      ruby-package build $ruby
+    fi
+  done
+popd > /dev/null
