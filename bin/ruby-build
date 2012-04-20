@@ -90,11 +90,11 @@ make_package() {
 }
 
 if type curl &>/dev/null; then
-get() { curl "$@" ;}
+fetch_url() { curl "$@" ;}
 elif type wget &>/dev/null; then
-get() { wget -O- "$@" ;}
+fetch_url() { wget -O- "$@" ;}
 else
-get() { echo "curl or wget is required" >&2; exit 1 ;}
+fetch_url() { echo "curl or wget is required" >&2; exit 1 ;}
 fi
 
 fetch_tarball() {
@@ -102,7 +102,7 @@ fetch_tarball() {
   local package_url="$2"
 
   echo "Downloading ${package_url}..." >&2
-  { get "$package_url" > "${package_name}.tar.gz"
+  { fetch_url "$package_url" > "${package_name}.tar.gz"
     tar xzvf "${package_name}.tar.gz"
   } >&4 2>&1
 }
