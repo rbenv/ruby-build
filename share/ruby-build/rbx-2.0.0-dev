@@ -1,2 +1,2 @@
 install_git "rubinius-2.0.0-dev" "https://github.com/rubinius/rubinius.git" "master" rbx
-install_package "rubygems-1.8.10" "http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz" ruby
+install_package "rubygems-1.8.23" "http://production.cf.rubygems.org/rubygems/rubygems-1.8.23.tgz" ruby
