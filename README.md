@@ -21,6 +21,17 @@ install it locally as a plugin:
     $ cd ~/.rbenv/plugins
     $ git clone git://github.com/sstephenson/ruby-build.git
 
+And if you're using Homebrew, you can just
+
+    $ brew install ruby-build
+
+to get the latest release, or
+
+    $ brew install --HEAD ruby-build
+
+to pull the latest from git.
+
+
 ### Installing Ruby
 
 To install a Ruby version, run the `ruby-build` command with the path
