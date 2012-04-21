@@ -291,7 +291,7 @@ verify_gcc() {
     return 1
   fi
 
-  if echo "$version" | grep LLVM >/dev/null; then
+  if [ -z "$LLVM" ] && echo "$version" | grep LLVM >/dev/null; then
     return 1
   fi
 
