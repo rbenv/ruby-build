@@ -90,9 +90,9 @@ make_package() {
 }
 
 fetch_url() {
-  if type curl 2>/dev/null; then
+  if type curl &>/dev/null; then
     curl "$@"
-  elif type wget 2>/dev/null; then
+  elif type wget &>/dev/null; then
     wget -O- "$@"
   else
     echo "error: please install \`curl\` or \`wget\` and try again" >&2
@@ -117,7 +117,7 @@ fetch_git() {
 
   echo "Cloning ${git_url}..." >&2
 
-  if type git 2>/dev/null; then
+  if type git &>/dev/null; then
     git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
   else
     echo "error: please install \`git\` and try again" >&2
