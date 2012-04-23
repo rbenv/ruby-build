@@ -236,25 +236,26 @@ fix_directory_permissions() {
 
 require_gcc() {
   local gcc="$(locate_gcc || true)"
+
   if [ -z "$gcc" ]; then
+    local esc=$'\033'
     { echo
-      echo "ERROR: This package must be compiled with GCC, but ruby-build couldn't"
+      echo "${esc}[1mERROR${esc}[0m: This package must be compiled with GCC, but ruby-build couldn't"
       echo "find a suitable \`gcc\` executable on your system. Please install GCC"
       echo "and try again."
       echo
 
       if [ "$(uname -s)" = "Darwin" ]; then
-        local esc=$'\033'
-        echo "Apple no longer includes the official GCC compiler with Xcode as of"
-        echo "version 4.2. Instead, the \`gcc\` executable is a symlink to \`llvm-gcc\`,"
-        echo "a modified version of GCC which outputs LLVM bytecode."
+        echo "${esc}[1mDETAILS${esc}[0m: Apple no longer includes the official GCC compiler with Xcode"
+        echo "as of version 4.2. Instead, the \`gcc\` executable is a symlink to"
+        echo "\`llvm-gcc\`, a modified version of GCC which outputs LLVM bytecode."
         echo
         echo "For most programs the \`llvm-gcc\` compiler works fine. However,"
         echo "versions of Ruby older than 1.9.3-p125 are incompatible with"
         echo "\`llvm-gcc\`. To build older versions of Ruby you must have the official"
         echo "GCC compiler installed on your system."
         echo
-        echo "You can install the official GCC compiler on OS X using these binary"
+        echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install the official GCC compiler using these"
         echo "packages: ${esc}[4mhttps://github.com/kennethreitz/osx-gcc-installer/downloads${esc}[0m"
         echo
         echo "You will need to install the official GCC compiler to build older"
