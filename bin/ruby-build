@@ -89,13 +89,16 @@ make_package() {
   popd >&4
 }
 
-if type curl &>/dev/null; then
-fetch_url() { curl "$@" ;}
-elif type wget &>/dev/null; then
-fetch_url() { wget -O- "$@" ;}
-else
-fetch_url() { echo "curl or wget is required" >&2; exit 1 ;}
-fi
+fetch_url() {
+  if type curl 2>/dev/null; then
+    curl "$@"
+  elif type wget 2>/dev/null; then
+    wget -O- "$@"
+  else
+    echo "error: please install \`curl\` or \`wget\` and try again" >&2
+    exit 1
+  fi
+}
 
 fetch_tarball() {
   local package_name="$1"
