@@ -55,12 +55,14 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
 ### Version History
 
-#### master
+#### 20120423
 
-* XCode 4.3+ may be used to build 1.9.3-p125 and later
-* Added definitions for REE 1.8.7-2012.02 and 1.8.7-2009.10
-* Added definitions for JRuby 1.6.7
-* Added definitions for Ruby 1.9.2-p318, 1.9.2-p320, and 1.9.3-p194
+* Improved error messages when dependencies are missing.
+* XCode 4.3+ may be used to build 1.9.3-p125 and later.
+* Updated all Ruby 1.9.2 and 1.9.3 definitions to RubyGems 1.8.23.
+* Added definitions for REE 1.8.7-2012.02 and 1.8.7-2009.10.
+* Added definitions for JRuby 1.6.7.
+* Added definitions for Ruby 1.9.2-p318, 1.9.2-p320, and 1.9.3-p194.
 
 #### 20120216
 
