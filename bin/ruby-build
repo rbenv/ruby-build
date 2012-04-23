@@ -89,12 +89,20 @@ make_package() {
   popd >&4
 }
 
+if type curl &>/dev/null; then
+fetch_url() { curl "$@" ;}
+elif type wget &>/dev/null; then
+fetch_url() { wget -O- "$@" ;}
+else
+fetch_url() { echo "curl or wget is required" >&2; exit 1 ;}
+fi
+
 fetch_tarball() {
   local package_name="$1"
   local package_url="$2"
 
   echo "Downloading ${package_url}..." >&2
-  { curl "$package_url" > "${package_name}.tar.gz"
+  { fetch_url "$package_url" > "${package_name}.tar.gz"
     tar xzvf "${package_name}.tar.gz"
   } >&4 2>&1
 }
