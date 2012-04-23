@@ -134,13 +134,22 @@ build_package() {
   done
 }
 
+get_cpu_count() {
+  local cpu_count="2"
+  if [ -e /proc/cpuinfo ]; then
+    cpu_count=`grep 'processor' /proc/cpuinfo | wc -l`
+  fi
+  echo $cpu_count
+}
+
 build_package_standard() {
   local package_name="$1"
+  local cpu_count=$(get_cpu_count)
 
   if [ "${MAKEOPTS+defined}" ]; then
     MAKE_OPTS="$MAKEOPTS"
   elif [ -z "${MAKE_OPTS+defined}" ]; then
-    MAKE_OPTS="-j 2"
+    MAKE_OPTS="-j $cpu_count"
   fi
 
   { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS
