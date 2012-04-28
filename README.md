@@ -53,6 +53,11 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
     $ rbenv install 1.9.2-p290
 
+### Caveats
+
+If you're experiencing some issues after installing some interpreter,
+be sure to view the documentation available in the [wiki](https://github.com/sstephenson/ruby-build/wiki).
+
 ### Version History
 
 #### 20120423
