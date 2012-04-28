@@ -32,5 +32,11 @@ esac
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
+# If RBENV_BUILD_ROOT is set, then always pass keep options to ruby-build
+if [ -n "${RBENV_BUILD_ROOT}" ]; then
+  export RUBY_BUILD_BUILD_PATH="${RBENV_BUILD_ROOT}/${VERSION_NAME}"
+  RUBY_BUILD_OPTIONS+=" -k"
+fi
+
 ruby-build "$DEFINITION" "$PREFIX" "$RUBY_BUILD_OPTIONS"
 rbenv rehash
