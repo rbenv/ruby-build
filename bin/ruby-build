@@ -28,8 +28,8 @@ build_failed() {
     echo "BUILD FAILED"
     echo
 
-    if ! rmdir "${TEMP_PATH}" 2>/dev/null; then
-      echo "Inspect or clean up the working tree at ${TEMP_PATH}"
+    if ! rmdir "${BUILD_PATH}" 2>/dev/null; then
+      echo "Inspect or clean up the working tree at ${BUILD_PATH}"
 
       if file_is_not_empty "$LOG_PATH"; then
         echo "Results logged to ${LOG_PATH}"
@@ -68,7 +68,7 @@ install_package_using() {
   local package_name="$3"
   shift 3
 
-  pushd "$TEMP_PATH" >&4
+  pushd "$BUILD_PATH" >&4
   "fetch_${package_type}" "$package_name" $*
   shift $(($package_type_nargs))
   make_package "$package_name" $*
@@ -404,9 +404,14 @@ fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="${TMP}/ruby-build.${SEED}.log"
-TEMP_PATH="${TMP}/ruby-build.${SEED}"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
+
+if [ -z $RUBY_BUILD_BUILD_PATH ]; then
+  BUILD_PATH="${TMP}/ruby-build.${SEED}"
+else
+  BUILD_PATH=$RUBY_BUILD_BUILD_PATH
+fi
 
 exec 4<> "$LOG_PATH" # open the log file at fd 4
 if [ -n "$VERBOSE" ]; then
@@ -421,7 +426,7 @@ unset RUBYOPT
 unset RUBYLIB
 
 trap build_failed ERR
-mkdir -p "$TEMP_PATH"
+mkdir -p "$BUILD_PATH"
 source "$DEFINITION_PATH"
-rm -fr "$TEMP_PATH"
+rm -fr "$BUILD_PATH"
 trap - ERR
