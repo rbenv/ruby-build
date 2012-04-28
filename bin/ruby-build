@@ -396,6 +396,15 @@ if [ -z "$PREFIX_PATH" ]; then
   usage
 fi
 
+OPTIONS="$3"
+for option in $OPTIONS; do
+  case "$option" in
+    "-k" | "--keep" )
+      KEEP_BUILD_PATH="y"
+      ;;
+  esac
+done
+
 if [ -z "$TMPDIR" ]; then
   TMP="/tmp"
 else
@@ -428,5 +437,5 @@ unset RUBYLIB
 trap build_failed ERR
 mkdir -p "$BUILD_PATH"
 source "$DEFINITION_PATH"
-rm -fr "$BUILD_PATH"
+[ -z "${KEEP_BUILD_PATH}" ] && rm -fr "$BUILD_PATH"
 trap - ERR
