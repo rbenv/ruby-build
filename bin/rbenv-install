@@ -23,10 +23,14 @@ case "$DEFINITION" in
   } >&2
   exit 1
   ;;
+"-k" | "--keep" )
+  [ -z "${RBENV_BUILD_ROOT}" ] && RBENV_BUILD_ROOT="${RBENV_ROOT}/srcs"
+  RUBY_BUILD_OPTIONS+=" -k"
+  ;;
 esac
 
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
-ruby-build "$DEFINITION" "$PREFIX"
+ruby-build "$DEFINITION" "$PREFIX" "$RUBY_BUILD_OPTIONS"
 rbenv rehash
