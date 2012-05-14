@@ -51,7 +51,7 @@ You can use it with [rbenv](https://github.com/sstephenson/rbenv):
 
 ruby-build provides an `rbenv-install` command that shortens this to:
 
-    $ rbenv install 1.9.2-p290
+    $ rbenv-install 1.9.2-p290
 
 ### Version History
 
