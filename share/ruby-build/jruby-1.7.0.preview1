@@ -1,0 +1,1 @@
+install_package "jruby-1.7.0.preview1" "http://ci.jruby.org/snapshots/1.7.x/jruby-bin-1.7.0.preview1.tar.gz" jruby
