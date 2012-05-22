@@ -53,6 +53,14 @@ ruby-build provides an `rbenv-install` command that shortens this to:
 
     $ rbenv install 1.9.2-p290
 
+ruby-build supports $RUBY_BUILD_BUILD_PATH to override the location in which
+sources are downloaded and built. The -k/--keep flags will preserve this path
+after the build is complete.
+
+rbenv-install also supports the -k/--keep flag, and additionally supports an
+environment variable option $RBENV_BUILD_ROOT that when set, will always build
+sources under that location, and keep the sources after build completion.
+
 ### Version History
 
 #### 20120423

@@ -23,10 +23,20 @@ case "$DEFINITION" in
   } >&2
   exit 1
   ;;
+"-k" | "--keep" )
+  [ -z "${RBENV_BUILD_ROOT}" ] && RBENV_BUILD_ROOT="${RBENV_ROOT}/srcs"
+  RUBY_BUILD_OPTIONS+=" -k"
+  ;;
 esac
 
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
-ruby-build "$DEFINITION" "$PREFIX"
+# If RBENV_BUILD_ROOT is set, then always pass keep options to ruby-build
+if [ -n "${RBENV_BUILD_ROOT}" ]; then
+  export RUBY_BUILD_BUILD_PATH="${RBENV_BUILD_ROOT}/${VERSION_NAME}"
+  RUBY_BUILD_OPTIONS+=" -k"
+fi
+
+ruby-build "$DEFINITION" "$PREFIX" "$RUBY_BUILD_OPTIONS"
 rbenv rehash
