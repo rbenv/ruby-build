@@ -146,6 +146,18 @@ include the full build log for build failures.
 
 ## Version History
 
+#### 20120524
+
+* Added definitions for JRuby 1.6.7.2 and 1.7.0-preview1.
+* Removed the definition for JRuby 1.7.0-dev. (In general we do not
+  like to remove definitions, but the JRuby team has deleted the
+  1.7.0-dev package from their servers -- caveat emptor.)
+* Added support for specifying the build location with the
+  `RUBY_BUILD_BUILD_PATH` environment variable.
+* Added a `-k`/`--keep` flag to `ruby-build` and `rbenv install` for
+  keeping the source code around after installation.
+* Updated the readme to emphasize installation as an rbenv plugin.
+
 #### 20120423
 
 * Improved error messages when dependencies are missing.
