@@ -1,0 +1,106 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "RUBY\-BUILD" "1" "January 2012" "" ""
+.
+.SH "NAME"
+\fBruby\-build\fR \- compile and install Rubies
+.
+.SH "SYNOPSIS"
+\fBruby\-build\fR [\fB\-v\fR|\fB\-\-verbose\fR] \fIdefinition\fR \fIprefix\fR
+.
+.br
+\fBruby\-build\fR \fB\-\-definitions\fR
+.
+.br
+\fBruby\-build\fR \fB\-\-version\fR
+.
+.br
+\fBruby\-build\fR [\fB\-h\fR|\fB\-\-help\fR]
+.
+.br
+\fBrbenv install\fR \fIdefinition\fR
+.
+.br
+.
+.SH "DESCRIPTION"
+\fBruby\-build\fR provides a simple way to compile and install different versions of Ruby on UNIX\-like systems\.
+.
+.P
+\fBruby\-build\fR downloads, builds and installs the Ruby version specified in a \fIdefinition\fR into a \fIprefix\fR directory\. Definitions can be chosen from the list of installed definitions or by specifying a file path for a definition\.
+.
+.P
+rbenv(1) users can also use the provided \fBrbenv install\fR command, which installs Rubies into the \fBrbenv\fR directory\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Display compiler messages on standard output\.
+.
+.TP
+\fB\-\-definitions\fR
+List available definitions\.
+.
+.TP
+\fB\-\-version\fR
+Show \fBruby\-build\fR version and exit\.
+.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show usage information and exit\.
+.
+.SH "EXAMPLES"
+Install Ruby 1\.9\.3 (MRI, patch level 0) to \fB~/rubies/mri\-1\.9\.3\fR
+.
+.IP "" 4
+.
+.nf
+
+$ ruby\-build 1\.9\.3\-p0 ~/rubies/mri\-1\.9\.3
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Install Ruby Enterprise Edition 1\.8\.7 (patch level 2011\.03) for rbenv(1):
+.
+.IP "" 4
+.
+.nf
+
+$ rbenv install ree\-1\.8\.7\-2011\.03
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Install Ruby from a custom definition into \fB~/your\-ruby\fR:
+.
+.IP "" 4
+.
+.nf
+
+$ rbenv install /path/to/your/own/ruby/definition ~/your\-ruby
+.
+.fi
+.
+.IP "" 0
+.
+.SH "ENVIRONMENT"
+.
+.TP
+\fBMAKE_OPTS\fR
+Options that are passed to make when building a Ruby\.
+.
+.TP
+\fBMAKEOPTS\fR
+Used instead of \fBMAKE_OPTS\fR when \fBMAKE_OPTS\fR is not defined\.
+.
+.SH "AUTHORS"
+ruby\-build is developed by Sam Stephenson <\fIsam@37signals\.com\fR>\.
+.
+.SH "SEE ALSO"
+rbenv(1)

@@ -1,0 +1,65 @@
+ruby-build(1) -- compile and install Rubies
+===========================================
+
+## SYNOPSIS
+
+`ruby-build` [`-v`|`--verbose`] <definition> <prefix><br>
+`ruby-build` `--definitions`<br>
+`ruby-build` `--version`<br>
+`ruby-build` [`-h`|`--help`]<br>
+`rbenv install` <definition><br>
+
+## DESCRIPTION
+
+**ruby-build** provides a simple way to compile and install different
+versions of Ruby on UNIX-like systems.
+
+`ruby-build` downloads, builds and installs the Ruby version specified
+in a <definition> into a <prefix> directory. Definitions can be chosen
+from the list of installed definitions or by specifying a file path
+for a definition.
+
+rbenv(1) users can also use the provided `rbenv install`
+command, which installs Rubies into the `rbenv` directory.
+
+## OPTIONS
+
+  * `-v`, `--verbose`:
+    Display compiler messages on standard output.
+
+  * `--definitions`:
+    List available definitions.
+
+  * `--version`:
+    Show `ruby-build` version and exit.
+
+  * `-h`, `--help`:
+    Show usage information and exit.
+
+## EXAMPLES
+
+Install Ruby 1.9.3 (MRI, patch level 0) to `~/rubies/mri-1.9.3`
+
+    $ ruby-build 1.9.3-p0 ~/rubies/mri-1.9.3
+
+Install Ruby Enterprise Edition 1.8.7 (patch level 2011.03) for rbenv(1):
+    $ rbenv install ree-1.8.7-2011.03
+
+Install Ruby from a custom definition into `~/your-ruby`:
+    $ rbenv install /path/to/your/own/ruby/definition ~/your-ruby
+
+## ENVIRONMENT
+
+  * `MAKE_OPTS`:
+    Options that are passed to make when building a Ruby.
+
+  * `MAKEOPTS`:
+    Used instead of `MAKE_OPTS` when `MAKE_OPTS` is not defined.
+
+## AUTHORS
+
+ruby-build is developed by Sam Stephenson <<sam@37signals.com>>.
+
+## SEE ALSO
+
+rbenv(1)
