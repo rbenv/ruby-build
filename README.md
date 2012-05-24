@@ -1,9 +1,35 @@
 # ruby-build
 
-ruby-build provides a simple way to compile and install different
-versions of Ruby on UNIX-like systems.
+ruby-build is an [rbenv](https://github.com/sstephenson/rbenv) plugin
+that provides an `rbenv install` command to compile and install
+different versions of Ruby on UNIX-like systems.
 
-### Installing ruby-build
+You can also use ruby-build without rbenv in environments where you
+need precise control over Ruby version installation.
+
+
+## Installation
+
+### Installing as an rbenv plugin (recommended)
+
+Installing ruby-build as an rbenv plugin will give you access to the
+`rbenv install` command.
+
+    $ mkdir -p ~/.rbenv/plugins
+    $ cd ~/.rbenv/plugins
+    $ git clone git://github.com/sstephenson/ruby-build.git
+
+This will install the latest development version of ruby-build into
+the `~/.rbenv/plugins/ruby-build` directory. From that directory, you
+can check out a specific release tag. To update ruby-build, run `git
+pull` to download the latest changes.
+
+### Installing as a standalone program (advanced)
+
+Installing ruby-build as a standalone program will give you access to
+the `ruby-build` command for precise control over Ruby version
+installation. If you have rbenv installed, you will also be able to
+use the `rbenv install` command.
 
     $ git clone git://github.com/sstephenson/ruby-build.git
     $ cd ruby-build
@@ -14,54 +40,111 @@ write permission to `/usr/local`, you will need to run `sudo
 ./install.sh` instead. You can install to a different prefix by
 setting the `PREFIX` environment variable.
 
-If you only intend to use ruby-build via rbenv then you can
-install it locally as a plugin:
+To update ruby-build after it has been installed, run `git pull` in
+your cloned copy of the repository, then re-run the install script.
 
-    $ mkdir -p ~/.rbenv/plugins
-    $ cd ~/.rbenv/plugins
-    $ git clone git://github.com/sstephenson/ruby-build.git
+### Installing with Homebrew (for OS X users)
 
-And if you're using Homebrew, you can just
+Mac OS X users can install ruby-build with the
+[Homebrew](http://mxcl.github.com/homebrew/) package manager. This
+will give you access to the `ruby-build` command. If you have rbenv
+installed, you will also be able to use the `rbenv install` command.
+
+*This is the recommended method of installation if you installed rbenv
+ with Homebrew.*
 
     $ brew install ruby-build
 
-to get the latest release, or
+Or, if you would like to install the latest development release:
 
     $ brew install --HEAD ruby-build
 
-to pull the latest from git.
+
+## Usage
+
+### Using `rbenv install` with rbenv
+
+To install a Ruby version for use with rbenv, run `rbenv install` with
+the exact name of the version you want to install. For example,
+
+    $ rbenv install 1.9.3-p194
+
+Ruby versions will be installed into a directory of the same name
+under `~/.rbenv/versions`.
+
+To see a list of all available Ruby versions, run `rbenv install`
+without any arguments. You may also tab-complete available Ruby
+versions if your rbenv installation is properly configured.
+
+### Using `ruby-build` standalone
+
+If you have installed ruby-build as a standalone program, you can use
+the `ruby-build` command to compile and install Ruby versions into
+specific locations.
+
+Run the `ruby-build` command with the exact name of the version you
+want to install and the full path where you want to install it. For
+example,
+
+    $ ruby-build 1.9.3-p194 ~/local/ruby-1.9.3-p194
+
+To see a list of all available Ruby versions, run `ruby-build
+--definitions`.
+
+Pass the `-v` or `--verbose` flag to `ruby-build` as the first
+argument to see what's happening under the hood.
+
+### Custom definitions
+
+Both `rbenv install` and `ruby-build` accept a path to a custom
+definition file in place of a version name. Custom definitions let you
+develop and install versions of Ruby that are not yet supported by
+ruby-build.
+
+See the [ruby-build built-in
+definitions](https://github.com/sstephenson/ruby-build/tree/share/ruby-build)
+as a starting point for custom definition files.
+
+### Special environment variables
+
+You can set certain environment variables to control the build
+process.
+
+* `TMPDIR` sets the location where ruby-build stores temporary files.
+* `RUBY_BUILD_BUILD_PATH` sets the location in which sources are
+  downloaded and built. By default, this is a subdirectory of
+  `TMPDIR`.
+* `CC` sets the path to the C compiler.
+* `CONFIGURE_OPTS` lets you pass additional options to `./configure`.
+* `MAKE_OPTS` (or `MAKEOPTS`) lets you pass additional options to
+  `make`.
+
+### Keeping the build directory after installation
+
+Both `ruby-build` and `rbenv install` accept the `-k` or `--keep`
+flag, which tells ruby-build to keep the downloaded source after
+installation. This can be useful if you need to use `gdb` and
+`memprof` with Ruby.
+
+Source code will be kept in a parallel directory tree
+`~/.rbenv/sources` when using `--keep` with the `rbenv install`
+command. You should specify the location of the source code with the
+`RUBY_BUILD_BUILD_PATH` environment variable when using `--keep` with
+`ruby-build`.
 
 
-### Installing Ruby
+## Getting Help
 
-To install a Ruby version, run the `ruby-build` command with the path
-to a definition file and the path where you want to install it. (A
-number of [built-in
-definitions](https://github.com/sstephenson/ruby-build/tree/master/share/ruby-build)
-may be specified instead.)
+Please see the [ruby-build
+wiki](https://github.com/sstephenson/ruby-build/wiki) for solutions to
+common problems.
 
-    $ ruby-build 1.9.2-p290 ~/local/ruby-1.9.2-p290
-    ...
-    $ ~/local/ruby-1.9.2-p290/bin/ruby --version
-    ruby 1.9.2p290 (2011-07-09 revision 32553) [x86_64-darwin11.0.0]
+If you can't find an answer on the wiki, open an issue on the [issue
+tracker](https://github.com/sstephenson/ruby-build/issues). Be sure to
+include the full build log for build failures.
 
-You can use it with [rbenv](https://github.com/sstephenson/rbenv):
 
-    $ ruby-build 1.9.2-p290 ~/.rbenv/versions/1.9.2-p290
-
-ruby-build provides an `rbenv-install` command that shortens this to:
-
-    $ rbenv install 1.9.2-p290
-
-ruby-build supports $RUBY_BUILD_BUILD_PATH to override the location in which
-sources are downloaded and built. The -k/--keep flags will preserve this path
-after the build is complete.
-
-rbenv-install also supports the -k/--keep flag, and additionally supports an
-environment variable option $RBENV_BUILD_ROOT that when set, will always build
-sources under that location, and keep the sources after build completion.
-
-### Version History
+## Version History
 
 #### 20120423
 
