@@ -24,7 +24,7 @@ case "$DEFINITION" in
   exit 1
   ;;
 "-k" | "--keep" )
-  [ -z "${RBENV_BUILD_ROOT}" ] && RBENV_BUILD_ROOT="${RBENV_ROOT}/srcs"
+  [ -z "${RBENV_BUILD_ROOT}" ] && RBENV_BUILD_ROOT="${RBENV_ROOT}/sources"
   RUBY_BUILD_OPTIONS+=" -k"
   ;;
 esac
