@@ -25,7 +25,7 @@ case "$DEFINITION" in
   ;;
 "-k" | "--keep" )
   [ -z "${RBENV_BUILD_ROOT}" ] && RBENV_BUILD_ROOT="${RBENV_ROOT}/sources"
-  RUBY_BUILD_OPTIONS+=" -k"
+  RUBY_BUILD_OPTIONS="${RUBY_BUILD_OPTIONS} -k"
   ;;
 esac
 
@@ -35,7 +35,7 @@ PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 # If RBENV_BUILD_ROOT is set, then always pass keep options to ruby-build
 if [ -n "${RBENV_BUILD_ROOT}" ]; then
   export RUBY_BUILD_BUILD_PATH="${RBENV_BUILD_ROOT}/${VERSION_NAME}"
-  RUBY_BUILD_OPTIONS+=" -k"
+  RUBY_BUILD_OPTIONS="${RUBY_BUILD_OPTIONS} -k"
 fi
 
 ruby-build "$DEFINITION" "$PREFIX" "$RUBY_BUILD_OPTIONS"
