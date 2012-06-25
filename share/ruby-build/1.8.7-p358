@@ -1,16 +1,48 @@
+GCC_47_FIX="-O2 -fno-tree-dce -fno-optimize-sibling-calls"
+
 before_install_package() {
+    echo -n "$CFLAGS"
+
     case "$1" in
         ruby-1.8.7-p358)
-            before_ruby_install
+            fix_for_glib_214
+            fix_for_gcc_47
             ;;
         *)
             ;;
     esac
 }
 
-before_ruby_install() {
+after_install_package() {
+    case "$1" in
+        ruby-1.8.7-p358)
+            restore_CFLAGS
+            ;;
+        *)
+            ;;
+    esac
+}
+
+fix_for_glib_214() {
     # this bit of sed-fu was taken from Fedora 16 ruby.spec file
     sed -i.redirect  -e '\@RUBY@s@\.rb >@\.rb | cat >@' ext/dl/depend
+}
+
+fix_for_gcc_47() {
+    if [ -z "${CFLAGS+default}" ]; then 
+        export CFLAGS="$GCC_47_FIX"
+    else
+        SAVED_CFLAGS="$CFLAGS"
+        CFLAGS="$GCC_47_FIX $CFLAGS" 
+    fi
+}
+
+restore_CFLAGS() {
+    if [ -z "${SAVED_CFLAGS+default}" ]; then
+        unset CFLAGS
+    else
+        CFLAGS="$SAVED_CFLAGS"
+    fi
 }
 
 require_gcc
