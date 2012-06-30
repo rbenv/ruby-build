@@ -102,7 +102,7 @@ develop and install versions of Ruby that are not yet supported by
 ruby-build.
 
 See the [ruby-build built-in
-definitions](https://github.com/sstephenson/ruby-build/tree/share/ruby-build)
+definitions](https://github.com/sstephenson/ruby-build/tree/master/share/ruby-build)
 as a starting point for custom definition files.
 
 ### Special environment variables
