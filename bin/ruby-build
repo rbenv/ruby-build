@@ -393,7 +393,11 @@ fi
 
 PREFIX_PATH="$2"
 if [ -z "$PREFIX_PATH" ]; then
-  usage
+  if [ -z "$RUBY_BUILD_PREFIX" ]; then
+    usage
+  else
+    PREFIX_PATH="$RUBY_BUILD_PREFIX$1"
+  fi
 fi
 
 OPTIONS="$3"
