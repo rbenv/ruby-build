@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -e
+
+# Provide rbenv completions
+if [ "$1" = "--complete" ]; then
+  exec ruby-build --definitions
+fi
+
+if [ -z "$RBENV_ROOT" ]; then
+  RBENV_ROOT="${HOME}/.rbenv"
+fi
+
+DEFINITION="$1"
+case "$DEFINITION" in
+"" | -* )
+  { echo "usage: rbenv uninstall VERSION"
+    echo "       rbenv uninstall /path/to/definition"
+    echo
+    if [ -n `which rbenv` ]; then
+      echo "Available versions:"
+      rbenv versions | sed 's/^/  /'
+      echo
+    fi
+  } >&2
+  exit 1
+  ;;
+esac
+
+VERSION_NAME="${DEFINITION##*/}"
+PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
+
+if [ ! -e "$PREFIX" ]; then
+  echo "Given version ($VERSION_NAME) is not installed"
+  exit 1
+fi
+rm -rf "$PREFIX"
+rbenv rehash
