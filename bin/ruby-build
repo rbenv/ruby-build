@@ -138,7 +138,11 @@ build_package() {
   echo "Installing ${package_name}..." >&2
 
   for command in $commands; do
-    "build_package_${command}"
+    if [ "${command:0:1}" = "+" ]; then
+      build_package_patch "${command:1}"
+    else
+      "build_package_${command}"
+    fi
   done
 }
 
@@ -211,6 +215,16 @@ build_package_jruby() {
   ln -fs jruby ruby
   install_jruby_launcher
   remove_windows_files
+}
+
+build_package_patch() {
+  local patch_url=$1
+
+  echo "Downloading ${patch_url}..." >&2
+  { fetch_url "$patch_url" > _rbenv.patch
+    patch -p1 < _rbenv.patch
+    rm _rbenv.patch
+  } >&4 2>&1
 }
 
 install_jruby_launcher() {
