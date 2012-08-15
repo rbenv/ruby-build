@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RUBY_BUILD_VERSION="20120524"
+RUBY_BUILD_VERSION="20120815"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3

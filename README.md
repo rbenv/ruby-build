@@ -146,6 +146,27 @@ include the full build log for build failures.
 
 ## Version History
 
+#### 20120815
+
+* Added a definition for MagLev 1.1.0-dev from git.
+* Added a definition for Ruby 1.8.7-p370. (For those having trouble
+  installing 1.8.7 with newer versions of glibc, please see
+  https://github.com/sstephenson/ruby-build/pull/195#issuecomment-7743664.)
+* Updated the package URL in the definition for JRuby 1.7.0-preview1.
+* Added a definition for JRuby 1.7.0-preview2.
+* Updated the Rubinius 2.0.0-dev definition to use the bundled
+  RubyGems version instead of installing its own.
+* Added an `rbenv uninstall` command for removing installed versions.
+* Improved the option parsing for `ruby-build` and `rbenv-install` so
+  options may be placed in any order, and short options may be
+  combined (e.g. `-kv`).
+* Added a `-l`/`--list` option to `rbenv install` to list all
+  available definitions.
+* Added a `-v`/`--verbose` option to `rbenv install` to invoke
+  `ruby-build` in verbose mode.
+* Documented the `-k`/`--keep` flag in the command-line help for
+  `ruby-build` and `rbenv install`.
+
 #### 20120524
 
 * Added definitions for JRuby 1.6.7.2 and 1.7.0-preview1.
