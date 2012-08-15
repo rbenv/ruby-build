@@ -12,7 +12,7 @@ if [ -z "$RBENV_ROOT" ]; then
 fi
 
 # Load shared library functions
-eval "$(ruby-build --lib)" && lib
+eval "$(ruby-build --lib)"
 
 usage() {
   { echo "usage: rbenv install [-k|--keep] [-v|--verbose] VERSION"

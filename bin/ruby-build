@@ -32,6 +32,7 @@ lib() {
 
   if [ "$1" == "--$FUNCNAME" ]; then
     declare -f "$FUNCNAME"
+    echo "$FUNCNAME \"\$1\";"
     exit
   fi
 }
