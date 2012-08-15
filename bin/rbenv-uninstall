@@ -3,24 +3,32 @@ set -e
 
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
-  exec ruby-build --definitions
+  exec rbenv versions --bare
 fi
 
 if [ -z "$RBENV_ROOT" ]; then
   RBENV_ROOT="${HOME}/.rbenv"
 fi
 
+if [ "$1" = "-f" ]; then
+  FORCE=1
+  shift
+else
+  FORCE=""
+fi
+
 DEFINITION="$1"
 case "$DEFINITION" in
 "" | -* )
-  { echo "usage: rbenv uninstall VERSION"
-    echo "       rbenv uninstall /path/to/definition"
+  { echo "usage: rbenv uninstall [-f] VERSION"
     echo
-    if [ -n `which rbenv` ]; then
-      echo "Available versions:"
-      rbenv versions | sed 's/^/  /'
-      echo
-    fi
+    echo "   -f  Attempt to remove the specified version without prompting"
+    echo "       for confirmation. If the version does not exist, do not"
+    echo "       display an error message."
+    echo
+    echo "Available versions:"
+    rbenv versions --bare | sed 's/^/  /'
+    echo
   } >&2
   exit 1
   ;;
@@ -29,9 +37,20 @@ esac
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
-if [ ! -e "$PREFIX" ]; then
-  echo "Given version ($VERSION_NAME) is not installed"
-  exit 1
+if [ -z "$FORCE" ]; then
+  if [ ! -d "$PREFIX" ]; then
+    echo "rbenv: version \`$VERSION_NAME' not installed" >&2
+    exit 1
+  fi
+
+  read -p "rbenv: remove $PREFIX? "
+  case "$REPLY" in
+  y* | Y* ) ;;
+  * ) exit 1 ;;
+  esac
 fi
-rm -rf "$PREFIX"
-rbenv rehash
+
+if [ -d "$PREFIX" ]; then
+  rm -rf "$PREFIX"
+  rbenv rehash
+fi
