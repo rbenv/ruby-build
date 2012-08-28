@@ -15,9 +15,7 @@ need precise control over Ruby version installation.
 Installing ruby-build as an rbenv plugin will give you access to the
 `rbenv install` command.
 
-    $ mkdir -p ~/.rbenv/plugins
-    $ cd ~/.rbenv/plugins
-    $ git clone git://github.com/sstephenson/ruby-build.git
+    $ git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins
 
 This will install the latest development version of ruby-build into
 the `~/.rbenv/plugins/ruby-build` directory. From that directory, you
