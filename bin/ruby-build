@@ -97,7 +97,7 @@ install_git() {
 }
 
 install_svn() {
- install_package_using "svn" 2 $*
+  install_package_using "svn" 2 $*
 }
 
 install_package_using() {
@@ -168,7 +168,7 @@ fetch_svn() {
   local svn_url="$2"
   local svn_rev="$3"
 
-  echo "Checkout ${svn_url}..." >&2
+  echo "Checking out ${svn_url}..." >&2
 
   if type svn &>/dev/null; then
     svn co -r "$svn_rev" "$svn_url" "${package_name}" >&4 2>&1
