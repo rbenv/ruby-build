@@ -146,6 +146,16 @@ include the full build log for build failures.
 
 ## Version History
 
+#### 20121020
+
+* Added a definition for Ruby 1.9.3-p286
+* Added a definition for JRuby 1.7.0-rc2
+* Added a definition for JRuby 1.7.0-rc1
+* Added a definition for JRuby 1.6.8
+* Added a definition for JRuby 1.5.6
+* Fetch Ruby 2.0.0.dev via Subversion instead of Git
+* Allow hooks to be defined for `rbenv-install`
+
 #### 20120815
 
 * Added a definition for MagLev 1.1.0-dev from git.
