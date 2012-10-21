@@ -72,8 +72,8 @@ the exact name of the version you want to install. For example,
 Ruby versions will be installed into a directory of the same name
 under `~/.rbenv/versions`.
 
-To see a list of all available Ruby versions, run `rbenv install`
-without any arguments. You may also tab-complete available Ruby
+To see a list of all available Ruby versions, run `rbenv install --list`.
+You may also tab-complete available Ruby
 versions if your rbenv installation is properly configured.
 
 ### Using `ruby-build` standalone
