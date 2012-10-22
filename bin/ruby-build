@@ -195,19 +195,38 @@ build_package() {
   done
 }
 
-build_package_standard() {
-  local package_name="$1"
+build_package_configure() {
+  { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS
+  } >&4 2>&1
+}
 
+build_package_make() {
   if [ "${MAKEOPTS+defined}" ]; then
     MAKE_OPTS="$MAKEOPTS"
   elif [ -z "${MAKE_OPTS+defined}" ]; then
     MAKE_OPTS="-j 2"
   fi
 
-  { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS
-    make $MAKE_OPTS
-    make install
+  { make $MAKE_OPTS
   } >&4 2>&1
+}
+
+build_package_install() {
+  { make install
+  } >&4 2>&1
+}
+
+build_package_standard() {
+  local package_name="$1"
+
+  echo "Configuring ${package_name}..." >&2
+  build_package_configure
+
+  echo "Building ${package_name}..." >&2
+  build_package_make
+
+  echo "Installing ${package_name}..." >&2
+  build_package_make_install
 }
 
 build_package_autoconf() {
