@@ -1,0 +1,2 @@
+install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz"
+install_package "ruby-2.0.0-preview1" "http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-preview1.tar.gz"
