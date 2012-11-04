@@ -65,7 +65,7 @@ Or, if you would like to install the latest development release:
 To install a Ruby version for use with rbenv, run `rbenv install` with
 the exact name of the version you want to install. For example,
 
-    $ rbenv install 1.9.3-p194
+    $ rbenv install 1.9.3-p286
 
 Ruby versions will be installed into a directory of the same name
 under `~/.rbenv/versions`.
@@ -84,7 +84,7 @@ Run the `ruby-build` command with the exact name of the version you
 want to install and the full path where you want to install it. For
 example,
 
-    $ ruby-build 1.9.3-p194 ~/local/ruby-1.9.3-p194
+    $ ruby-build 1.9.3-p286 ~/local/ruby-1.9.3-p286
 
 To see a list of all available Ruby versions, run `ruby-build
 --definitions`.
