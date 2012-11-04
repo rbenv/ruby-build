@@ -144,6 +144,10 @@ include the full build log for build failures.
 
 ## Version History
 
+#### 20121104
+* Add a definition for Ruby 2.0.0-preview1
+* Add a definition for Rubinius 2.0.0-rc1
+
 #### 20121022
 * Added a definition for JRuby 1.7.0
 
