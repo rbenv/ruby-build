@@ -101,8 +101,7 @@ To work around this issue, install OpenSSL using homebrew instead:
 
 Then set the CONFIGURE_OPTS environment variable when you build Ruby:
 
-    export CONFIGURE_OPTS="--with-openssl-dir=`brew --prefix openssl`"
-    rbenv install 2.0.0-preview1
+    CONFIGURE_OPTS=--with-openssl-dir=`brew --prefix openssl` rbenv install 2.0.0-preview1
 
 ### Custom definitions
 
