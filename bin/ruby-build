@@ -143,8 +143,11 @@ fetch_tarball() {
   local package_url="$2"
 
   echo "Downloading ${package_url}..." >&2
-  { fetch_url "$package_url" > "${package_name}.tar.gz"
-    tar xzvf "${package_name}.tar.gz"
+  { if [ ! -e "${CACHE_PATH}${package_name}.tar.gz" ]; then
+      fetch_url "$package_url" > "${package_name}.tar.gz"
+      [ -n "${CACHE_PATH}" ] && mv "${package_name}.tar.gz" "${CACHE_PATH}${package_name}.tar.gz"
+    fi
+    tar xzvf "${CACHE_PATH}${package_name}.tar.gz"
   } >&4 2>&1
 }
 
@@ -460,6 +463,10 @@ if [ -z "$TMPDIR" ]; then
   TMP="/tmp"
 else
   TMP="${TMPDIR%/}"
+fi
+
+if [ -n "$CACHE_PATH" ]; then
+  CACHE_PATH="${CACHE_PATH%/}/"
 fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
