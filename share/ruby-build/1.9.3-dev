@@ -1,2 +1,2 @@
 install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz"
-install_svn "ruby-1.9.3-dev" "http://svn.ruby-lang.org/repos/ruby/branches/ruby_1_9_3" "HEAD" autoconf standard
+install_git "ruby-1.9.3-dev" "https://github.com/ruby/ruby.git" "ruby_1_9_3" autoconf standard
