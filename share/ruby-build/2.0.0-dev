@@ -1,2 +1,2 @@
 install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz"
-install_svn "ruby-2.0.0-dev" "http://svn.ruby-lang.org/repos/ruby/trunk" "HEAD" autoconf standard
+install_git "ruby-2.0.0-dev" "https://github.com/ruby/ruby.git" "trunk" autoconf standard
