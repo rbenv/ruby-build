@@ -157,7 +157,7 @@ include the full build log for build failures.
 
 #### 20121110
 * Added a definition for Ruby 1.9.3-p327
-* Fetch Ruby 2.0.0.dev and 1.9.3.dev via Get instead of Subversion
+* Fetch Ruby 2.0.0.dev and 1.9.3.dev via Git instead of Subversion
 
 #### 20121104
 * Added a definition for Ruby 2.0.0-preview1
