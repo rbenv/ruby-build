@@ -143,11 +143,11 @@ fetch_tarball() {
   local package_url="$2"
 
   echo "Downloading ${package_url}..." >&2
-  { if [ ! -e "${CACHE_PATH}${package_name}.tar.gz" ]; then
+  { if [ ! -e "${RUBY_BUILD_CACHE_PATH}${package_name}.tar.gz" ]; then
       fetch_url "$package_url" > "${package_name}.tar.gz"
-      [ -n "${CACHE_PATH}" ] && mv "${package_name}.tar.gz" "${CACHE_PATH}${package_name}.tar.gz"
+      [ -n "${RUBY_BUILD_CACHE_PATH}" ] && mv "${package_name}.tar.gz" "${RUBY_BUILD_CACHE_PATH}${package_name}.tar.gz"
     fi
-    tar xzvf "${CACHE_PATH}${package_name}.tar.gz"
+    tar xzvf "${RUBY_BUILD_CACHE_PATH}${package_name}.tar.gz"
   } >&4 2>&1
 }
 
@@ -465,8 +465,8 @@ else
   TMP="${TMPDIR%/}"
 fi
 
-if [ -n "$CACHE_PATH" ]; then
-  CACHE_PATH="${CACHE_PATH%/}/"
+if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+  RUBY_BUILD_CACHE_PATH="${RUBY_BUILD_CACHE_PATH%/}/"
 fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
