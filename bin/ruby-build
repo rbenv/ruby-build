@@ -147,13 +147,14 @@ fetch_tarball() {
     filename="${RUBY_BUILD_CACHE_PATH}/${filename}"
   fi
 
-  echo "Downloading ${package_url}..." >&2
-  { if [ ! -e "$filename" ]; then
-      fetch_url "$package_url" > "${package_name}.tar.gz"
-      [ -n "$RUBY_BUILD_CACHE_PATH" ] && mv "${package_name}.tar.gz" "$filename"
-    fi
-    tar xzvf "$filename"
-  } >&4 2>&1
+  if [ ! -e "$filename" ]; then
+    echo "Downloading ${package_url}..." >&2
+    { fetch_url "$package_url" > "${package_name}.tar.gz"
+      [ -z "$RUBY_BUILD_CACHE_PATH" ] || mv "${package_name}.tar.gz" "$filename"
+    } >&4 2>&1
+  fi
+
+  tar xzvf "$filename" >&4 2>&1
 }
 
 fetch_git() {
