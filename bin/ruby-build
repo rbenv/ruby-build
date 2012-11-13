@@ -465,8 +465,10 @@ else
   TMP="${TMPDIR%/}"
 fi
 
-if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+if [ -n "$RUBY_BUILD_CACHE_PATH" ] && [ -d "$RUBY_BUILD_CACHE_PATH" ]; then
   RUBY_BUILD_CACHE_PATH="${RUBY_BUILD_CACHE_PATH%/}/"
+else
+  unset RUBY_BUILD_CACHE_PATH
 fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
