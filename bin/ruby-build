@@ -141,13 +141,18 @@ fetch_url() {
 fetch_tarball() {
   local package_name="$1"
   local package_url="$2"
+  local filename="${package_name}.tar.gz"
+
+  if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+    filename="${RUBY_BUILD_CACHE_PATH}/${filename}"
+  fi
 
   echo "Downloading ${package_url}..." >&2
-  { if [ ! -e "${RUBY_BUILD_CACHE_PATH}${package_name}.tar.gz" ]; then
+  { if [ ! -e "$filename" ]; then
       fetch_url "$package_url" > "${package_name}.tar.gz"
-      [ -n "${RUBY_BUILD_CACHE_PATH}" ] && mv "${package_name}.tar.gz" "${RUBY_BUILD_CACHE_PATH}${package_name}.tar.gz"
+      [ -n "$RUBY_BUILD_CACHE_PATH" ] && mv "${package_name}.tar.gz" "$filename"
     fi
-    tar xzvf "${RUBY_BUILD_CACHE_PATH}${package_name}.tar.gz"
+    tar xzvf "$filename"
   } >&4 2>&1
 }
 
@@ -466,7 +471,7 @@ else
 fi
 
 if [ -n "$RUBY_BUILD_CACHE_PATH" ] && [ -d "$RUBY_BUILD_CACHE_PATH" ]; then
-  RUBY_BUILD_CACHE_PATH="${RUBY_BUILD_CACHE_PATH%/}/"
+  RUBY_BUILD_CACHE_PATH="${RUBY_BUILD_CACHE_PATH%/}"
 else
   unset RUBY_BUILD_CACHE_PATH
 fi
