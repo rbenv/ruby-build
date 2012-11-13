@@ -482,10 +482,10 @@ LOG_PATH="${TMP}/ruby-build.${SEED}.log"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
-if [ -z $RUBY_BUILD_BUILD_PATH ]; then
+if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
   BUILD_PATH="${TMP}/ruby-build.${SEED}"
 else
-  BUILD_PATH=$RUBY_BUILD_BUILD_PATH
+  BUILD_PATH="$RUBY_BUILD_BUILD_PATH"
 fi
 
 exec 4<> "$LOG_PATH" # open the log file at fd 4
