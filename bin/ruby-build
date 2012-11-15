@@ -587,6 +587,10 @@ else
   RUBY_BUILD_MIRROR_URL="${RUBY_BUILD_MIRROR_URL%/}"
 fi
 
+if [ -n "$RUBY_BUILD_SKIP_MIRROR" ]; then
+  unset RUBY_BUILD_MIRROR_URL
+fi
+
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="${TMP}/ruby-build.${SEED}.log"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
