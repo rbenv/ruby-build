@@ -112,7 +112,9 @@ install_package_using() {
   make_package "$package_name" $*
   popd >&4
 
-  echo "Installed ${package_name} to ${PREFIX_PATH}" >&2
+  { echo "Installed ${package_name} to ${PREFIX_PATH}"
+    echo
+  } >&2
 }
 
 make_package() {
@@ -127,34 +129,135 @@ make_package() {
   popd >&4
 }
 
-fetch_url() {
+compute_md5() {
+  if type md5 &>/dev/null; then
+    md5 -q
+  elif type openssl &>/dev/null; then
+    openssl md5
+  elif type md5sum &>/dev/null; then
+    local output="$(md5sum -b)"
+    echo "${output% *}"
+  else
+    return 1
+  fi
+}
+
+verify_checksum() {
+  # If there's no MD5 support, return success
+  [ -n "$HAS_MD5_SUPPORT" ] || return 0
+
+  # If the specified filename doesn't exist, return failure
+  local filename="$1"
+  [ -e "$filename" ] || return 1
+
+  # If there's no expected checksum, return success
+  local expected_checksum="$2"
+  [ -n "$expected_checksum" ] || return 0
+
+  # If the computed checksum is empty, return failure
+  local computed_checksum="$(compute_md5 < "$filename")"
+  [ -n "$computed_checksum" ] || return 1
+
+  if [ "$expected_checksum" != "$computed_checksum" ]; then
+    { echo
+      echo "checksum mismatch: ${filename} (file is corrupt)"
+      echo "expected $expected_checksum, got $computed_checksum"
+      echo
+    } >&4
+    return 1
+  fi
+}
+
+http() {
+  local method="$1"
+  local url="$2"
+  [ -n "$url" ] || return 1
+
   if type curl &>/dev/null; then
-    curl "$@"
+    "http_${method}_curl" "$url"
   elif type wget &>/dev/null; then
-    wget -O- "$@"
+    "http_${method}_wget" "$url"
   else
     echo "error: please install \`curl\` or \`wget\` and try again" >&2
     exit 1
   fi
 }
 
+http_head_curl() {
+  curl -sILf "$1" >&4 2>&1
+}
+
+http_get_curl() {
+  curl -sSLf "$1"
+}
+
+http_head_wget() {
+  wget -q --spider "$1" >&4 2>&1
+}
+
+http_get_wget() {
+  wget -nv -O- "$1"
+}
+
 fetch_tarball() {
   local package_name="$1"
   local package_url="$2"
-  local filename="${package_name}.tar.gz"
+  local mirror_url
+
+  local checksum="${package_url#*\#}"
+  if [ -n "$checksum" ]; then
+    package_url="${package_url%%#*}"
+
+    if [ -n "$RUBY_BUILD_MIRROR_URL" ]; then
+      mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
+    fi
+  fi
+
+  local package_filename="${package_name}.tar.gz"
+  symlink_tarball_from_cache "$package_filename" "$checksum" || {
+    echo "Downloading ${package_filename}..." >&2
+    { http head "$mirror_url" &&
+      download_tarball "$mirror_url" "$package_filename" "$checksum"
+    } ||
+    download_tarball "$package_url" "$package_filename" "$checksum"
+  }
+
+  { tar xzvf "$package_filename"
+    rm -f "$package_filename"
+  } >&4 2>&1
+}
+
+symlink_tarball_from_cache() {
+  [ -n "$RUBY_BUILD_CACHE_PATH" ] || return 1
+
+  local package_filename="$1"
+  local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
+  local checksum="$2"
+
+  { verify_checksum "$cached_package_filename" "$checksum"
+    ln -s "$cached_package_filename" "$package_filename"
+  } >&4 2>&1 || return 1
+}
+
+download_tarball() {
+  local package_url="$1"
+  [ -n "$package_url" ] || return 1
+
+  local package_filename="$2"
+  local checksum="$3"
+
+  echo "-> $package_url" >&2
+
+  { http get "$package_url" > "$package_filename"
+    verify_checksum "$package_filename" "$checksum"
+  } >&4 2>&1 || return 1
 
   if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
-    filename="${RUBY_BUILD_CACHE_PATH}/${filename}"
+    local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
+    { mv "$package_filename" "$cached_package_filename"
+      ln -s "$cached_package_filename" "$package_filename"
+    } >&4 2>&1 || return 1
   fi
-
-  if [ ! -e "$filename" ]; then
-    echo "Downloading ${package_url}..." >&2
-    { fetch_url "$package_url" > "${package_name}.tar.gz"
-      [ -z "$RUBY_BUILD_CACHE_PATH" ] || mv "${package_name}.tar.gz" "$filename"
-    } >&4 2>&1
-  fi
-
-  tar xzvf "$filename" >&4 2>&1
 }
 
 fetch_git() {
@@ -475,6 +578,23 @@ if [ -n "$RUBY_BUILD_CACHE_PATH" ] && [ -d "$RUBY_BUILD_CACHE_PATH" ]; then
   RUBY_BUILD_CACHE_PATH="${RUBY_BUILD_CACHE_PATH%/}"
 else
   unset RUBY_BUILD_CACHE_PATH
+fi
+
+if [ -z "$RUBY_BUILD_MIRROR_URL" ]; then
+  RUBY_BUILD_MIRROR_URL="http://cloud.github.com/downloads/sstephenson/ruby-build-download-mirror"
+else
+  RUBY_BUILD_MIRROR_URL="${RUBY_BUILD_MIRROR_URL%/}"
+fi
+
+if [ -n "$RUBY_BUILD_SKIP_MIRROR" ]; then
+  unset RUBY_BUILD_MIRROR_URL
+fi
+
+if echo test | compute_md5 >/dev/null; then
+  HAS_MD5_SUPPORT=1
+else
+  unset HAS_MD5_SUPPORT
+  unset RUBY_BUILD_MIRROR_URL
 fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
