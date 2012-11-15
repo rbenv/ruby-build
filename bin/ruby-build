@@ -112,7 +112,9 @@ install_package_using() {
   make_package "$package_name" $*
   popd >&4
 
-  echo "Installed ${package_name} to ${PREFIX_PATH}" >&2
+  { echo "Installed ${package_name} to ${PREFIX_PATH}"
+    echo
+  } >&2
 }
 
 make_package() {
@@ -165,15 +167,35 @@ verify_checksum() {
   fi
 }
 
-retrieve_url() {
-  if type curl &>/dev/null; then
-    curl -Lf "$@"
+http() {
+  local method="$1"
+  local url="$2"
+  [ -n "$url" ] || return 1
+
+  if type curlx &>/dev/null; then
+    "http_${method}_curl" "$url"
   elif type wget &>/dev/null; then
-    wget -O- "$@"
+    "http_${method}_wget" "$url"
   else
     echo "error: please install \`curl\` or \`wget\` and try again" >&2
     exit 1
   fi
+}
+
+http_head_curl() {
+  curl -sILf "$1" >&4 2>&1
+}
+
+http_get_curl() {
+  curl -sSLf "$1"
+}
+
+http_head_wget() {
+  wget -q --spider "$1" >&4 2>&1
+}
+
+http_get_wget() {
+  wget -nv -O- "$1"
 }
 
 fetch_tarball() {
@@ -191,9 +213,13 @@ fetch_tarball() {
   fi
 
   local package_filename="${package_name}.tar.gz"
-  symlink_tarball_from_cache "$package_filename" "$checksum" ||
-  download_tarball "$mirror_url" "$package_filename" "$checksum" ||
-  download_tarball "$package_url" "$package_filename" "$checksum"
+  symlink_tarball_from_cache "$package_filename" "$checksum" || {
+    echo "Downloading ${package_filename}..." >&2
+    { http head "$mirror_url" &&
+      download_tarball "$mirror_url" "$package_filename" "$checksum"
+    } ||
+    download_tarball "$package_url" "$package_filename" "$checksum"
+  }
 
   { tar xzvf "$package_filename"
     rm -f "$package_filename"
@@ -219,8 +245,9 @@ download_tarball() {
   local package_filename="$2"
   local checksum="$3"
 
-  echo "Downloading ${package_url}..." >&2
-  { retrieve_url "$package_url" > "$package_filename"
+  echo "-> $package_url" >&2
+
+  { http get "$package_url" > "$package_filename"
     verify_checksum "$package_filename" "$checksum"
   } >&4 2>&1 || return 1
 
