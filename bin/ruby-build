@@ -167,7 +167,7 @@ verify_checksum() {
 
 retrieve_url() {
   if type curl &>/dev/null; then
-    curl -f "$@"
+    curl -Lf "$@"
   elif type wget &>/dev/null; then
     wget -O- "$@"
   else
