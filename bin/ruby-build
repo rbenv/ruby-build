@@ -172,7 +172,7 @@ http() {
   local url="$2"
   [ -n "$url" ] || return 1
 
-  if type curlx &>/dev/null; then
+  if type curl &>/dev/null; then
     "http_${method}_curl" "$url"
   elif type wget &>/dev/null; then
     "http_${method}_wget" "$url"
