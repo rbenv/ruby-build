@@ -143,24 +143,20 @@ compute_md5() {
 }
 
 verify_checksum() {
-  if [ -z "$HAS_MD5_SUPPORT" ]; then
-    return 0
-  fi
+  # If there's no MD5 support, return success
+  [ -n "$HAS_MD5_SUPPORT" ] || return 0
 
+  # If the specified filename doesn't exist, return failure
   local filename="$1"
-  if [ ! -e "$filename" ]; then
-    return 1
-  fi
+  [ -e "$filename" ] || return 1
 
+  # If there's no expected checksum, return success
   local expected_checksum="$2"
-  if [ -z "$expected_checksum" ]; then
-    return 0
-  fi
+  [ -n "$expected_checksum" ] || return 0
 
+  # If the computed checksum is empty, return failure
   local computed_checksum="$(compute_md5 < "$filename")"
-  if [ -z "$computed_checksum" ]; then
-    return 1
-  fi
+  [ -n "$computed_checksum" ] || return 1
 
   if [ "$expected_checksum" != "$computed_checksum" ]; then
     { echo
