@@ -1,1 +1,1 @@
-install_package "jruby-1.7.0.preview2" "http://jruby.org.s3.amazonaws.com/downloads/1.7.0.preview2/jruby-bin-1.7.0.preview2.tar.gz" jruby
+install_package "jruby-1.7.0.preview2" "http://jruby.org.s3.amazonaws.com/downloads/1.7.0.preview2/jruby-bin-1.7.0.preview2.tar.gz#e8f1623759590aadbf49e4cc53f1cb61" jruby
