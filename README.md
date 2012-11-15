@@ -123,10 +123,55 @@ process.
 * `RUBY_BUILD_BUILD_PATH` sets the location in which sources are
   downloaded and built. By default, this is a subdirectory of
   `TMPDIR`.
+* `RUBY_BUILD_CACHE_PATH`, if set, specifies a directory to use for
+  caching downloaded package files.
+* `RUBY_BUILD_MIRROR_URL` overrides the default mirror URL root to one
+  of your choosing.
+* `RUBY_BUILD_SKIP_MIRROR`, if set, forces ruby-build to download
+  packages from their original source URLs instead of using a mirror.
 * `CC` sets the path to the C compiler.
 * `CONFIGURE_OPTS` lets you pass additional options to `./configure`.
 * `MAKE_OPTS` (or `MAKEOPTS`) lets you pass additional options to
   `make`.
+
+### Checksum verification
+
+If you have the `md5`, `openssl`, or `md5sum` tool installed,
+ruby-build will automatically verify the MD5 checksum of each
+downloaded package before installing it.
+
+Checksums are optional and specified as anchors on the package URL in
+each definition. (All bundled definitions include checksums.)
+
+### Package download mirrors
+
+ruby-build will first attempt to download package files from a mirror
+hosted on Amazon S3. If a package is not available on the mirror, if
+the mirror is down, or if the download is corrupt, ruby-build will
+fall back to the official URL specified in the defintion file.
+
+You can point ruby-build to another mirror by specifying the
+`RUBY_BUILD_MIRROR_URL` environment variable--useful if you'd like to
+run your own local mirror, for example. Package mirror URLs are
+constructed by joining this variable with the MD5 checksum of the
+package file.
+
+If you don't have an MD5 program installed, ruby-build will skip the
+download mirror and use official URLs instead. You can force
+ruby-build to bypass the mirror by setting the
+`RUBY_BUILD_SKIP_MIRROR` environment variable.
+
+### Package download caching
+
+You can instruct ruby-build to keep a local cache of downloaded
+package files by setting the `RUBY_BUILD_CACHE_PATH` environment
+variable. When set, package files will be kept in this directory after
+the first successful download and reused by subsequent invocations of
+`ruby-build` and `rbenv install`.
+
+The `rbenv install` command defaults this path to `~/.rbenv/cache`, so
+in most cases you can enable download caching simply by creating that
+directory.
 
 ### Keeping the build directory after installation
 
