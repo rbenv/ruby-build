@@ -129,7 +129,7 @@ make_package() {
 
 fetch_url() {
   if type curl &>/dev/null; then
-    curl "$@"
+    curl -f "$@"
   elif type wget &>/dev/null; then
     wget -O- "$@"
   else
