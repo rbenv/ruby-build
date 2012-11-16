@@ -133,7 +133,8 @@ compute_md5() {
   if type md5 &>/dev/null; then
     md5 -q
   elif type openssl &>/dev/null; then
-    openssl md5
+    local output="$(openssl md5)"
+    echo "${output##* }"
   elif type md5sum &>/dev/null; then
     local output="$(md5sum -b)"
     echo "${output% *}"
