@@ -20,6 +20,7 @@ stub() {
   export PATH="${BATS_TEST_DIRNAME}/stubs/${program}:$PATH"
 
   rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
+  touch "${TMP}/${program}-stub-plan"
   for arg in "$@"; do printf "%s\n" "$arg" >> "${TMP}/${program}-stub-plan"; done
 }
 

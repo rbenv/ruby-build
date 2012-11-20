@@ -147,9 +147,9 @@ verify_checksum() {
   # If there's no MD5 support, return success
   [ -n "$HAS_MD5_SUPPORT" ] || return 0
 
-  # If the specified filename doesn't exist, return failure
+  # If the specified filename doesn't exist, return success
   local filename="$1"
-  [ -e "$filename" ] || return 1
+  [ -e "$filename" ] || return 0
 
   # If there's no expected checksum, return success
   local expected_checksum="$2"
@@ -236,9 +236,9 @@ symlink_tarball_from_cache() {
   local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
   local checksum="$2"
 
-  { verify_checksum "$cached_package_filename" "$checksum"
-    ln -s "$cached_package_filename" "$package_filename"
-  } >&4 2>&1 || return 1
+  [ -e "$cached_package_filename" ] || return 1
+  verify_checksum "$cached_package_filename" "$checksum" >&4 2>&1 || return 1
+  ln -s "$cached_package_filename" "$package_filename" >&4 2>&1 || return 1
 }
 
 download_tarball() {
