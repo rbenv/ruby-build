@@ -202,6 +202,20 @@ include the full build log for build failures.
 
 ## Version History
 
+#### 20121120
+* Added optional package checksum support. When a package URL is
+  annotated with an MD5 checksum, ruby-build will use it to verify
+  the contents of the downloaded file. Package URLs in all existing
+  definitions have been updated with checksum annotations.
+* Added an optional package download cache. When the
+  `RUBY_BUILD_CACHE_PATH` environment variable is set to a directory
+  of your choice, ruby-build will store downloaded packages there and
+  reuse them for future installations.
+* Added mirror support for faster package downloads. Packages on the
+  official ruby-build mirror will be served via S3. You can point
+  ruby-build to your own local package mirror by setting the
+  `RUBY_BUILD_MIRROR_URL` environment variable.
+
 #### 20121110
 * Added a definition for Ruby 1.9.3-p327
 * Fetch Ruby 2.0.0.dev and 1.9.3.dev via Git instead of Subversion
@@ -339,7 +353,7 @@ include the full build log for build failures.
 
 (The MIT License)
 
-Copyright (c) 2011 Sam Stephenson
+Copyright (c) 2012 Sam Stephenson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
