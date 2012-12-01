@@ -202,6 +202,9 @@ include the full build log for build failures.
 
 ## Version History
 
+#### 20121201
+* Added a definition for Ruby 2.0.0-preview2
+
 #### 20121120
 * Added optional package checksum support. When a package URL is
   annotated with an MD5 checksum, ruby-build will use it to verify
