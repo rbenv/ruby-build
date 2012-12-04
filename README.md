@@ -202,6 +202,9 @@ include the full build log for build failures.
 
 ## Version History
 
+#### 20121204
+* Added a definition for JRuby 1.7.1
+
 #### 20121201
 * Added a definition for Ruby 2.0.0-preview2
 
