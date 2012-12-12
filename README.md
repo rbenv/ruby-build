@@ -148,9 +148,10 @@ each definition. (All bundled definitions include checksums.)
 ### Package download mirrors
 
 ruby-build will first attempt to download package files from a mirror
-hosted on Amazon S3. If a package is not available on the mirror, if
-the mirror is down, or if the download is corrupt, ruby-build will
-fall back to the official URL specified in the defintion file.
+hosted on Amazon CloudFront. If a package is not available on the
+mirror, if the mirror is down, or if the download is corrupt,
+ruby-build will fall back to the official URL specified in the
+defintion file.
 
 You can point ruby-build to another mirror by specifying the
 `RUBY_BUILD_MIRROR_URL` environment variable--useful if you'd like to
@@ -162,6 +163,9 @@ If you don't have an MD5 program installed, ruby-build will skip the
 download mirror and use official URLs instead. You can force
 ruby-build to bypass the mirror by setting the
 `RUBY_BUILD_SKIP_MIRROR` environment variable.
+
+The official ruby-build download mirror is sponsored by
+[37signals](http://37signals.com/).
 
 ### Package download caching
 
