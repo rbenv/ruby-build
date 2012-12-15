@@ -74,5 +74,9 @@ if [ -n "${RBENV_BUILD_ROOT}" ]; then
   KEEP="-k"
 fi
 
+if [ -z "${RUBY_BUILD_CACHE_PATH}" ] && [ -d "${RBENV_ROOT}/cache" ]; then
+  export RUBY_BUILD_CACHE_PATH="${RBENV_ROOT}/cache"
+fi
+
 ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX"
 rbenv rehash

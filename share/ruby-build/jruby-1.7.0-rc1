@@ -1,1 +1,1 @@
-install_package "jruby-1.7.0.RC1" "http://jruby.org.s3.amazonaws.com/downloads/1.7.0.RC1/jruby-bin-1.7.0.RC1.tar.gz" jruby
+install_package "jruby-1.7.0.RC1" "http://jruby.org.s3.amazonaws.com/downloads/1.7.0.RC1/jruby-bin-1.7.0.RC1.tar.gz#bdddcee3d126cddd9a85b5a066a7e25e" jruby
