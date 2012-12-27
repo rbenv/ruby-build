@@ -1,9 +1,10 @@
 ## Version History
 
-#### HEAD
+#### 20121227
+* Added a definition for Ruby 1.9.3-p362
+* Added a definition for Ruby 1.8.7-p371
 * Moved the default ruby-build mirror from GitHub Downloads to Amazon
   CloudFront.
-* Added a definition for Ruby 1.8.7-p371
 
 #### 20121204
 * Added a definition for JRuby 1.7.1
