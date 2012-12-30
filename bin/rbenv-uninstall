@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+#
+# Usage: rbenv uninstall [-f] <version>
+#
+#    -f  Attempt to remove the specified version without prompting
+#        for confirmation. If the version does not exist, do not
+#        display an error message.
+#
+# See `rbenv versions` for a complete list of installed versions.
+#
 set -e
 
 # Provide rbenv completions
@@ -19,15 +28,9 @@ fi
 DEFINITION="$1"
 case "$DEFINITION" in
 "" | -* )
-  { echo "usage: rbenv uninstall [-f] VERSION"
-    echo
-    echo "   -f  Attempt to remove the specified version without prompting"
-    echo "       for confirmation. If the version does not exist, do not"
-    echo "       display an error message."
-    echo
-    echo "Installed versions:"
-    rbenv versions --bare | sed 's/^/  /'
-    echo
+  # We can remove the sed fallback once rbenv 0.4.0 is widely available.
+  { rbenv-help uninstall 2>/dev/null ||
+    sed -ne '/^#/!q;s/.\{1,2\}//;1,2d;p' < "$0"
   } >&2
   exit 1
   ;;

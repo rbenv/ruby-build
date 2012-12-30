@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#
+# Usage: rbenv install [-k|--keep] [-v|--verbose] <version>
+#        rbenv install [-k|--keep] [-v|--verbose] /path/to/definition
+#        rbenv install -l|--list
+#
+#   -l/--list        List all available versions
+#   -k/--keep        Keep source tree in $RBENV_BUILD_ROOT after installation
+#                    (defaults to $RBENV_ROOT/sources)
+#   -v/--verbose     Verbose mode: print compilation status to stdout
+#
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
@@ -15,17 +25,8 @@ fi
 eval "$(ruby-build --lib)"
 
 usage() {
-  { echo "usage: rbenv install [-k|--keep] [-v|--verbose] VERSION"
-    echo "       rbenv install [-k|--keep] [-v|--verbose] /path/to/definition"
-    echo "       rbenv install -l|--list"
-    echo
-    echo "  -l/--list        List all available versions"
-    echo "  -k/--keep        Keep source tree in \$RBENV_BUILD_ROOT after installation"
-    echo "                   (defaults to ${RBENV_ROOT}/sources)"
-    echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
-    echo
-  } >&2
-
+  # We can remove the sed fallback once rbenv 0.4.0 is widely available.
+  rbenv-help installx 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,2d;p' < "$0"
   [ -z "$1" ] || exit "$1"
 }
 
