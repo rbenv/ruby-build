@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 #
+# Summary: Install a Ruby version using the ruby-build plugin
+#
 # Usage: rbenv install [-k|--keep] [-v|--verbose] <version>
 #        rbenv install [-k|--keep] [-v|--verbose] /path/to/definition
 #        rbenv install -l|--list
@@ -26,7 +28,7 @@ eval "$(ruby-build --lib)"
 
 usage() {
   # We can remove the sed fallback once rbenv 0.4.0 is widely available.
-  rbenv-help install 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,2d;p' < "$0"
+  rbenv-help install 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,4d;p' < "$0"
   [ -z "$1" ] || exit "$1"
 }
 
