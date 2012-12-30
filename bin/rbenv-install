@@ -26,7 +26,7 @@ eval "$(ruby-build --lib)"
 
 usage() {
   # We can remove the sed fallback once rbenv 0.4.0 is widely available.
-  rbenv-help installx 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,2d;p' < "$0"
+  rbenv-help install 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,2d;p' < "$0"
   [ -z "$1" ] || exit "$1"
 }
 
