@@ -85,5 +85,9 @@ if [ -z "${RUBY_BUILD_CACHE_PATH}" ] && [ -d "${RBENV_ROOT}/cache" ]; then
   export RUBY_BUILD_CACHE_PATH="${RBENV_ROOT}/cache"
 fi
 
-ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX"
-rbenv rehash
+if ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX"; then
+  rbenv rehash
+else
+  rm -rf "$PREFIX"
+  exit 1
+fi
