@@ -315,7 +315,11 @@ build_package_standard() {
   if [ "${MAKEOPTS+defined}" ]; then
     MAKE_OPTS="$MAKEOPTS"
   elif [ -z "${MAKE_OPTS+defined}" ]; then
-    MAKE_OPTS="-j 2"
+    if [[ "FreeBSD" = "$(uname)" ]]; then
+      MAKE_OPTS="-B -j 2" # '-j 2' only builds on FreeBSD with the -B argument
+    else
+      MAKE_OPTS="-j 2"
+    fi
   fi
 
   { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS
