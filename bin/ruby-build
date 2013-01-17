@@ -315,10 +315,13 @@ build_package_standard() {
   if [ "${MAKEOPTS+defined}" ]; then
     MAKE_OPTS="$MAKEOPTS"
   elif [ -z "${MAKE_OPTS+defined}" ]; then
-    if [[ "FreeBSD" = "$(uname)" ]]; then
-      MAKE_OPTS="-B -j 2" # '-j 2' only builds on FreeBSD with the -B argument
-    else
+    make --version       &>/dev/null ; PROBE_GCC_MAKE=$?
+    make -V MAKE_VERSION &>/dev/null ; PROBE_BSD_MAKE=$?
+
+    if [ $PROBE_GCC_MAKE -eq 0 ]; then
       MAKE_OPTS="-j 2"
+    elif [ $PROBE_BSD_MAKE -eq 0 ]; then
+      MAKE_OPTS="-B -j 2" # '-j 2' only builds on BSD make with the -B argument
     fi
   fi
 
