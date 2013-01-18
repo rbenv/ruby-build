@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20130118
+* Added a definition for 2.0.0-rc1
+* Added a definition for 1.9.3-p374
+
 #### 20130104
 * Added a definition for JRuby 1.7.2
 
