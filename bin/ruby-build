@@ -406,7 +406,7 @@ after_install_package() {
 
 fix_directory_permissions() {
   # Ensure installed directories are not world-writable to avoid Bundler warnings
-  find "$PREFIX_PATH" -type d -exec chmod go-w {} \;
+  find "$PREFIX_PATH" -type d \( -perm -020 -o -perm -002 \) -exec chmod go-w {} \;
 }
 
 require_gcc() {
