@@ -65,7 +65,7 @@ Or, if you would like to install the latest development release:
 To install a Ruby version for use with rbenv, run `rbenv install` with
 the exact name of the version you want to install. For example,
 
-    rbenv install 1.9.3-p327
+    rbenv install 1.9.3-p374
 
 Ruby versions will be installed into a directory of the same name
 under `~/.rbenv/versions`.
@@ -84,7 +84,7 @@ Run the `ruby-build` command with the exact name of the version you
 want to install and the full path where you want to install it. For
 example,
 
-    ruby-build 1.9.3-p327 ~/local/ruby-1.9.3-p327
+    ruby-build 1.9.3-p374 ~/local/ruby-1.9.3-p374
 
 To see a list of all available Ruby versions, run `ruby-build
 --definitions`.
@@ -103,7 +103,7 @@ instead:
 Then set the `CONFIGURE_OPTS` environment variable when you build
 Ruby:
 
-    CONFIGURE_OPTS=--with-openssl-dir=`brew --prefix openssl` rbenv install 2.0.0-preview1
+    CONFIGURE_OPTS=--with-openssl-dir=`brew --prefix openssl` rbenv install 2.0.0-rc1
 
 ### Custom definitions
 
