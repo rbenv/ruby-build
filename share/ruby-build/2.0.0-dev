@@ -1,1 +1,1 @@
-install_git "ruby-2.0.0-dev" "https://github.com/ruby/ruby.git" "trunk" autoconf standard
+install_git "ruby-2.0.0-dev" "https://github.com/ruby/ruby.git" "trunk" replace_osx_openssl autoconf standard verify_openssl

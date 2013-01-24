@@ -320,10 +320,12 @@ build_package_standard() {
 
   # Support YAML_CONFIGURE_OPTS, RUBY_CONFIGURE_OPTS, etc.
   local package_var_name="$(echo "${package_name%%-*}" | tr a-z A-Z)"
+  local PACKAGE_CONFIGURE="${package_var_name}_CONFIGURE"
+  local PACKAGE_PREFIX_PATH="${package_var_name}_PREFIX_PATH"
   local PACKAGE_CONFIGURE_OPTS="${package_var_name}_CONFIGURE_OPTS"
   local PACKAGE_MAKE_OPTS="${package_var_name}_MAKE_OPTS"
 
-  { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS}
+  { ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS}
     "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
     "$MAKE" install
   } >&4 2>&1
@@ -496,6 +498,51 @@ verify_gcc() {
   fi
 
   echo "$gcc"
+}
+
+build_package_replace_osx_openssl() {
+  # Check for broken OpenSSL build shipped with OSX.
+  if [[ $(type sw_vers) ]] &&
+     [[ "$(openssl version)" = "OpenSSL 0.9.8r 8 Feb 2011" ]]
+  then
+    # Install to a subdirectory since we don't want shims for bin/openssl.
+    OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
+
+    # Put openssl.conf, certs, etc in ~/.rbenv/versions/*/openssl/ssl
+    OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
+
+    # Tell Ruby to use this openssl for its extension.
+    RUBY_CONFIGURE_OPTS="--with-openssl-dir=$OPENSSL_PREFIX_PATH $RUBY_CONFIGURE_OPTS"
+
+    # Normally, we'd use ./config to automatically guess our platform. But
+    # that doesn't work for 64-bit Darwin: it picks 32-bit by default and
+    # asks you to run ./Configure by hand if you want 64-bit. So, here we are:
+    OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure darwin64-x86_64-cc}"
+
+    # Compile with zlib, no kerberos, and do a static build.
+    OPENSSL_CONFIGURE_OPTS="--openssldir=$OPENSSLDIR zlib no-krb5 no-shared"
+
+    # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
+    # gives precedence to the last -j option, so we can override that.
+    OPENSSL_MAKE_OPTS="-j 1"
+
+    install_package "openssl-1.0.1c" "https://www.openssl.org/source/openssl-1.0.1c.tar.gz#ae412727c8c15b67880aef7bd2999b2e" standard install_cacerts_from_keychain
+  fi
+}
+
+# Extract root certs from the system keychain if .pem format and rehash.
+build_package_install_cacerts_from_keychain() {
+  security find-certificate -a -p /Library/Keychains/System.keychain > "$OPENSSLDIR/cacert.pem"
+  c_rehash "$OPENSSLDIR" >&4 2>&1
+}
+
+# Post-install check that the openssl extension was built.
+build_package_verify_openssl() {
+  $PREFIX_PATH/bin/ruby -e 'begin
+    require "openssl"
+  rescue LoadError
+    abort "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
+  end' >&4 2>&1
 }
 
 version() {
