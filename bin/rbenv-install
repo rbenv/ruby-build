@@ -2,11 +2,12 @@
 #
 # Summary: Install a Ruby version using the ruby-build plugin
 #
-# Usage: rbenv install [-k|--keep] [-v|--verbose] <version>
-#        rbenv install [-k|--keep] [-v|--verbose] /path/to/definition
+# Usage: rbenv install [-f|--force] [-k|--keep] [-v|--verbose] <version>
+#        rbenv install [-f|--force] [-k|--keep] [-v|--verbose] <definition-file>
 #        rbenv install -l|--list
 #
 #   -l/--list        List all available versions
+#   -f/--force       Install even if the version appears to be installed already
 #   -k/--keep        Keep source tree in $RBENV_BUILD_ROOT after installation
 #                    (defaults to $RBENV_ROOT/sources)
 #   -v/--verbose     Verbose mode: print compilation status to stdout
@@ -36,6 +37,7 @@ usage() {
   [ -z "$1" ] || exit "$1"
 }
 
+unset FORCE
 unset KEEP
 unset VERBOSE
 
@@ -49,6 +51,9 @@ for option in "${OPTIONS[@]}"; do
     echo "Available versions:"
     ruby-build --definitions | sed 's/^/  /'
     exit
+    ;;
+  "f" | "force" )
+    FORCE=true
     ;;
   "k" | "keep" )
     [ -n "${RBENV_BUILD_ROOT}" ] || RBENV_BUILD_ROOT="${RBENV_ROOT}/sources"
@@ -101,6 +106,18 @@ done
 # compute the installation prefix.
 [ -n "$VERSION_NAME" ] || VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
+
+# If the installation prefix exists, prompt for confirmation unless
+# the --force option was specified.
+if [ -z "$FORCE" ] && [ -d "${PREFIX}/bin" ]; then
+  echo "rbenv: $PREFIX already exists" >&2
+  read -p "continue with installation? (y/N) "
+
+  case "$REPLY" in
+  y* | Y* ) ;;
+  * ) exit 1 ;;
+  esac
+fi
 
 # If RBENV_BUILD_ROOT is set, always pass keep options to ruby-build.
 if [ -n "${RBENV_BUILD_ROOT}" ]; then
