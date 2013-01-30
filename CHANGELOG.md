@@ -1,5 +1,19 @@
 ## Version History
 
+#### 20130129
+* Changed `rbenv install` to attempt to install the local app-specific
+  version when it is invoked without any arguments.
+* Added interactive confirmation to `rbenv install` when the
+  destination prefix exists. Pass `-f` or `--force` to force
+  installation of versions that are already installed.
+* Added support for specifying which program to use for `make` via the
+  `$MAKE` environment variable. FreeBSD users can now instruct
+  ruby-build to use GNU make by setting `MAKE=gmake`.
+* Modified the post-install process to invoke `chmod` only for group-
+  or world-writable directories.
+* Added `before_install` and `after_install` hooks for `rbenv install`
+  plugins to facilitate post-installation automation.
+
 #### 20130118
 * Added a definition for 2.0.0-rc1
 * Added a definition for 1.9.3-p374
