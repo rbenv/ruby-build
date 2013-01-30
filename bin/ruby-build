@@ -319,8 +319,8 @@ build_package_standard() {
   fi
 
   { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS
-    $MAKE $MAKE_OPTS
-    $MAKE install
+    "$MAKE" $MAKE_OPTS
+    "$MAKE" install
   } >&4 2>&1
 }
 
