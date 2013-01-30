@@ -2,8 +2,6 @@
 
 RUBY_BUILD_VERSION="20130118"
 
-MAKE=${MAKE:-make}
-
 set -E
 exec 3<&2 # preserve original stderr at fd 3
 
@@ -576,6 +574,10 @@ if [ -z "$TMPDIR" ]; then
   TMP="/tmp"
 else
   TMP="${TMPDIR%/}"
+fi
+
+if [ -z "$MAKE" ]; then
+  MAKE="make"
 fi
 
 if [ -n "$RUBY_BUILD_CACHE_PATH" ] && [ -d "$RUBY_BUILD_CACHE_PATH" ]; then
