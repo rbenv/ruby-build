@@ -133,6 +133,8 @@ process.
   packages from their original source URLs instead of using a mirror.
 * `CC` sets the path to the C compiler.
 * `CONFIGURE_OPTS` lets you pass additional options to `./configure`.
+* `MAKE` lets you override the command to use for `make`. Useful for
+  specifying GNU make (`gmake`) on some systems.
 * `MAKE_OPTS` (or `MAKEOPTS`) lets you pass additional options to
   `make`.
 
