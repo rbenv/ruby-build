@@ -137,6 +137,9 @@ process.
   specifying GNU make (`gmake`) on some systems.
 * `MAKE_OPTS` (or `MAKEOPTS`) lets you pass additional options to
   `make`.
+* `RUBY_CONFIGURE_OPTS` and `RUBY_MAKE_OPTS` allow you to specify
+  configure and make options for buildling MRI. These variables will
+  be passed to Ruby only, not any dependent packages (e.g. libyaml).
 
 ### Checksum verification
 

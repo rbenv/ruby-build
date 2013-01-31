@@ -305,7 +305,7 @@ build_package() {
   echo "Installing ${package_name}..." >&2
 
   for command in $commands; do
-    "build_package_${command}"
+    "build_package_${command}" "$package_name"
   done
 }
 
@@ -318,8 +318,13 @@ build_package_standard() {
     MAKE_OPTS="-j 2"
   fi
 
-  { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS
-    "$MAKE" $MAKE_OPTS
+  # Support YAML_CONFIGURE_OPTS, RUBY_CONFIGURE_OPTS, etc.
+  local package_var_name="$(echo "${package_name%%-*}" | tr a-z A-Z)"
+  local PACKAGE_CONFIGURE_OPTS="${package_var_name}_CONFIGURE_OPTS"
+  local PACKAGE_MAKE_OPTS="${package_var_name}_MAKE_OPTS"
+
+  { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS}
+    "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
     "$MAKE" install
   } >&4 2>&1
 }
