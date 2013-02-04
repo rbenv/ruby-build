@@ -554,7 +554,7 @@ build_package_install_cacerts_from_keychain() {
 
 # Post-install check that the openssl extension was built.
 build_package_verify_openssl() {
-  $PREFIX_PATH/bin/ruby -e 'begin
+  "$PREFIX_PATH"/bin/ruby -e 'begin
     require "openssl"
   rescue LoadError
     abort "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
