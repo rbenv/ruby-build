@@ -644,8 +644,12 @@ else
   TMP="${TMPDIR%/}"
 fi
 
+if [ -z "$CC" ]; then
+  export CC="cc"
+fi
+
 if [ -z "$MAKE" ]; then
-  MAKE="make"
+  export MAKE="make"
 fi
 
 if [ -n "$RUBY_BUILD_CACHE_PATH" ] && [ -d "$RUBY_BUILD_CACHE_PATH" ]; then
