@@ -518,8 +518,8 @@ verify_gcc() {
 
 build_package_replace_osx_openssl() {
   # Check for broken OpenSSL build shipped with OSX.
-     [[ "$(openssl version)" = "OpenSSL 0.9.8r 8 Feb 2011" ]]
   if [ "$(uname -s)" = "Darwin" ] &&
+     [ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8r 8 Feb 2011" ]
   then
     # Install to a subdirectory since we don't want shims for bin/openssl.
     OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
