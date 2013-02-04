@@ -57,6 +57,10 @@ abs_dirname() {
   cd "$cwd"
 }
 
+capitalize() {
+  printf "%s" "$1" | tr a-z A-Z
+}
+
 build_failed() {
   { echo
     echo "BUILD FAILED"
@@ -309,6 +313,16 @@ build_package() {
   done
 }
 
+package_option() {
+  local package_name="$1"
+  local command_name="$2"
+  local variable="$(capitalize "${package_name}_${command_name}")_OPTS_ARRAY"
+  local array="$variable[@]"
+  shift 2
+  local value=( "${!array}" "$@" )
+  eval "$variable=( \"\${value[@]}\" )"
+}
+
 build_package_standard() {
   local package_name="$1"
 
@@ -319,7 +333,7 @@ build_package_standard() {
   fi
 
   # Support YAML_CONFIGURE_OPTS, RUBY_CONFIGURE_OPTS, etc.
-  local package_var_name="$(echo "${package_name%%-*}" | tr a-z A-Z)"
+  local package_var_name="$(capitalize "${package_name%%-*}")"
   local PACKAGE_CONFIGURE="${package_var_name}_CONFIGURE"
   local PACKAGE_PREFIX_PATH="${package_var_name}_PREFIX_PATH"
   local PACKAGE_CONFIGURE_OPTS="${package_var_name}_CONFIGURE_OPTS"
@@ -514,7 +528,7 @@ build_package_replace_osx_openssl() {
     OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
 
     # Tell Ruby to use this openssl for its extension.
-    RUBY_CONFIGURE_OPTS_ARRAY=( "${RUBY_CONFIGURE_OPTS_ARRAY[@]}" "--with-openssl-dir=$OPENSSL_PREFIX_PATH" )
+    package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
 
     # Normally, we'd use ./config to automatically guess our platform. But
     # that doesn't work for 64-bit Darwin: it picks 32-bit by default and
@@ -522,11 +536,11 @@ build_package_replace_osx_openssl() {
     OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure darwin64-x86_64-cc}"
 
     # Compile with zlib, no kerberos, and do a static build.
-    OPENSSL_CONFIGURE_OPTS_ARRAY=( "${OPENSSL_CONFIGURE_OPTS_ARRAY[@]}" "--openssldir=$OPENSSLDIR" zlib no-krb5 no-shared )
+    package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
 
     # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
     # gives precedence to the last -j option, so we can override that.
-    OPENSSL_MAKE_OPTS="-j 1"
+    package_option openssl make -j 1
 
     install_package "openssl-1.0.1c" "https://www.openssl.org/source/openssl-1.0.1c.tar.gz#ae412727c8c15b67880aef7bd2999b2e" standard install_cacerts_from_keychain
   fi
