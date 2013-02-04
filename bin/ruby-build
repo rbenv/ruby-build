@@ -533,7 +533,12 @@ build_package_replace_osx_openssl() {
     # Normally, we'd use ./config to automatically guess our platform. But
     # that doesn't work for 64-bit Darwin: it picks 32-bit by default and
     # asks you to run ./Configure by hand if you want 64-bit. So, here we are:
-    OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure darwin64-x86_64-cc}"
+    if [ "$(uname -m)" = "x86_64" ]; then
+      local platform="darwin64-x86_64-cc"
+    else
+      local platform="darwin-i386-cc"
+    fi
+    OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure $platform}"
 
     # Compile with zlib, no kerberos, and do a static build.
     package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
