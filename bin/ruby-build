@@ -516,43 +516,41 @@ verify_gcc() {
   echo "$gcc"
 }
 
-build_package_replace_osx_openssl() {
-  # Check for broken OpenSSL build shipped with OSX.
-  if [ "$(uname -s)" = "Darwin" ] &&
-     [ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8r 8 Feb 2011" ]
-  then
-    # Install to a subdirectory since we don't want shims for bin/openssl.
-    OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
-
-    # Put openssl.conf, certs, etc in ~/.rbenv/versions/*/openssl/ssl
-    OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
-
-    # Tell Ruby to use this openssl for its extension.
-    package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
-
-    # Normally, we'd use ./config to automatically guess our platform. But
-    # that doesn't work for 64-bit Darwin: it picks 32-bit by default and
-    # asks you to run ./Configure by hand if you want 64-bit. So, here we are:
-    if [ "$(uname -m)" = "x86_64" ]; then
-      local platform="darwin64-x86_64-cc"
-    else
-      local platform="darwin-i386-cc"
-    fi
-    OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure $platform}"
-
-    # Compile with zlib, no kerberos, and do a static build.
-    package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
-
-    # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
-    # gives precedence to the last -j option, so we can override that.
-    package_option openssl make -j 1
-
-    install_package "openssl-1.0.1c" "https://www.openssl.org/source/openssl-1.0.1c.tar.gz#ae412727c8c15b67880aef7bd2999b2e" standard install_cacerts_from_keychain
-  fi
+has_broken_mac_openssl() {
+  [ "$(uname -s)" = "Darwin" ] &&
+  [ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8r 8 Feb 2011" ]
 }
 
-# Extract root certs from the system keychain if .pem format and rehash.
-build_package_install_cacerts_from_keychain() {
+build_package_mac_openssl() {
+  # Install to a subdirectory since we don't want shims for bin/openssl.
+  OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
+
+  # Put openssl.conf, certs, etc in ~/.rbenv/versions/*/openssl/ssl
+  OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
+
+  # Tell Ruby to use this openssl for its extension.
+  package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
+
+  # Normally, we'd use ./config to automatically guess our platform. But
+  # that doesn't work for 64-bit Darwin: it picks 32-bit by default and
+  # asks you to run ./Configure by hand if you want 64-bit. So, here we are:
+  if [ "$(uname -m)" = "x86_64" ]; then
+    local platform="darwin64-x86_64-cc"
+  else
+    local platform="darwin-i386-cc"
+  fi
+  OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure $platform}"
+
+  # Compile with zlib, no kerberos, and do a static build.
+  package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
+
+  # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
+  # gives precedence to the last -j option, so we can override that.
+  package_option openssl make -j 1
+
+  build_package_standard "$@"
+
+  # Extract root certs from the system keychain if .pem format and rehash.
   security find-certificate -a -p /Library/Keychains/System.keychain > "$OPENSSLDIR/cacert.pem"
   c_rehash "$OPENSSLDIR" >&4 2>&1
 }

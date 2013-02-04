@@ -1,1 +1,5 @@
-install_package "ruby-2.0.0-rc1" "http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-rc1.tar.gz#7d587dde85e0edf7a2e4f6783e6c0e2e" replace_osx_openssl standard verify_openssl
+if has_broken_mac_openssl; then
+  install_package "openssl-1.0.1c" "https://www.openssl.org/source/openssl-1.0.1c.tar.gz#ae412727c8c15b67880aef7bd2999b2e" mac_openssl
+fi
+
+install_package "ruby-2.0.0-rc1" "http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-rc1.tar.gz#7d587dde85e0edf7a2e4f6783e6c0e2e" standard verify_openssl
