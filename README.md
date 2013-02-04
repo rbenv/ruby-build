@@ -92,19 +92,6 @@ To see a list of all available Ruby versions, run `ruby-build
 Pass the `-v` or `--verbose` flag to `ruby-build` as the first
 argument to see what's happening under the hood.
 
-### A note about Ruby 2.0 and Mac OS X
-
-Ruby 2.0 is incompatible with the version of OpenSSL bundled with Mac
-OS X. To work around this issue, install OpenSSL using Homebrew
-instead:
-
-    brew install openssl
-
-Then set the `CONFIGURE_OPTS` environment variable when you build
-Ruby:
-
-    CONFIGURE_OPTS=--with-openssl-dir=`brew --prefix openssl` rbenv install 2.0.0-rc1
-
 ### Custom definitions
 
 Both `rbenv install` and `ruby-build` accept a path to a custom
