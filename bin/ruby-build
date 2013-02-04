@@ -323,10 +323,12 @@ build_package_standard() {
   local PACKAGE_CONFIGURE="${package_var_name}_CONFIGURE"
   local PACKAGE_PREFIX_PATH="${package_var_name}_PREFIX_PATH"
   local PACKAGE_CONFIGURE_OPTS="${package_var_name}_CONFIGURE_OPTS"
+  local PACKAGE_CONFIGURE_OPTS_ARRAY="${package_var_name}_CONFIGURE_OPTS_ARRAY[@]"
   local PACKAGE_MAKE_OPTS="${package_var_name}_MAKE_OPTS"
+  local PACKAGE_MAKE_OPTS_ARRAY="${package_var_name}_MAKE_OPTS_ARRAY[@]"
 
-  { ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS}
-    "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
+  { ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
+    "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
     "$MAKE" install
   } >&4 2>&1
 }
@@ -512,7 +514,7 @@ build_package_replace_osx_openssl() {
     OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
 
     # Tell Ruby to use this openssl for its extension.
-    RUBY_CONFIGURE_OPTS="--with-openssl-dir=$OPENSSL_PREFIX_PATH $RUBY_CONFIGURE_OPTS"
+    RUBY_CONFIGURE_OPTS_ARRAY=( "${RUBY_CONFIGURE_OPTS_ARRAY[@]}" "--with-openssl-dir=$OPENSSL_PREFIX_PATH" )
 
     # Normally, we'd use ./config to automatically guess our platform. But
     # that doesn't work for 64-bit Darwin: it picks 32-bit by default and
@@ -520,7 +522,7 @@ build_package_replace_osx_openssl() {
     OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure darwin64-x86_64-cc}"
 
     # Compile with zlib, no kerberos, and do a static build.
-    OPENSSL_CONFIGURE_OPTS="--openssldir=$OPENSSLDIR zlib no-krb5 no-shared"
+    OPENSSL_CONFIGURE_OPTS_ARRAY=( "${OPENSSL_CONFIGURE_OPTS_ARRAY[@]}" "--openssldir=$OPENSSLDIR" zlib no-krb5 no-shared )
 
     # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
     # gives precedence to the last -j option, so we can override that.
