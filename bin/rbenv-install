@@ -135,6 +135,13 @@ fi
 # Execute `before_install` hooks.
 for hook in "${before_hooks[@]}"; do eval "$hook"; done
 
+# Plan cleanup on unsuccessful installation.
+cleanup() {
+  rm -rf "$PREFIX"
+}
+
+trap cleanup SIGINT
+
 # Invoke `ruby-build` and record the exit status in $STATUS. Run
 # `rbenv rehash` after a successful installation.
 STATUS=0
@@ -144,6 +151,10 @@ ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX" || STATUS="$?"
 for hook in "${after_hooks[@]}"; do eval "$hook"; done
 
 # Run `rbenv-rehash` after a successful installation.
-[ "$STATUS" != "0" ] || rbenv rehash
+if [ "$STATUS" == "0" ]; then
+  rbenv rehash
+else
+  cleanup
+fi
 
 exit "$STATUS"
