@@ -531,15 +531,9 @@ build_package_mac_openssl() {
   # Tell Ruby to use this openssl for its extension.
   package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
 
-  # Normally, we'd use ./config to automatically guess our platform. But
-  # that doesn't work for 64-bit Darwin: it picks 32-bit by default and
-  # asks you to run ./Configure by hand if you want 64-bit. So, here we are:
-  if [ "$(uname -m)" = "x86_64" ]; then
-    local platform="darwin64-x86_64-cc"
-  else
-    local platform="darwin-i386-cc"
-  fi
-  OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-perl ./Configure $platform}"
+  # Hint OpenSSL that we prefer a 64-bit build.
+  export KERNEL_BITS="64"
+  OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}"
 
   # Compile with zlib, no kerberos, and do a static build.
   package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
