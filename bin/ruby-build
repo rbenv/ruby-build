@@ -556,8 +556,10 @@ build_package_mac_openssl() {
 
   build_package_standard "$@"
 
-  # Extract root certs from the system keychain if .pem format and rehash.
-  security find-certificate -a -p /Library/Keychains/System.keychain > "$OPENSSLDIR/cacert.pem"
+  # Extract root certs from the system keychain in .pem format and rehash.
+  local pem_file="$OPENSSLDIR/cacert.pem"
+  security find-certificate -a -p /Library/Keychains/System.keychain > "$pem_file"
+  security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> "$pem_file"
   "$OPENSSL_PREFIX_PATH/bin/c_rehash" "$OPENSSLDIR" >&4 2>&1
 }
 
