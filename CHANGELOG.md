@@ -1,5 +1,11 @@
 ## Version History
 
+#### 20130208
+* Added a definition for 2.0.0-rc2
+
+#### 20130206
+* Added a definition for 1.9.3-p385
+
 #### 20130129
 * Changed `rbenv install` to attempt to install the local app-specific
   version when it is invoked without any arguments.
