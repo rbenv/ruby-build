@@ -552,7 +552,7 @@ build_package_mac_openssl() {
 
   # Extract root certs from the system keychain if .pem format and rehash.
   security find-certificate -a -p /Library/Keychains/System.keychain > "$OPENSSLDIR/cacert.pem"
-  c_rehash "$OPENSSLDIR" >&4 2>&1
+  "$OPENSSL_PREFIX_PATH/bin/c_rehash" "$OPENSSLDIR" >&4 2>&1
 }
 
 # Post-install check that the openssl extension was built.
