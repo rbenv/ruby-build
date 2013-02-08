@@ -57,6 +57,10 @@ abs_dirname() {
   cd "$cwd"
 }
 
+capitalize() {
+  printf "%s" "$1" | tr a-z A-Z
+}
+
 build_failed() {
   { echo
     echo "BUILD FAILED"
@@ -309,6 +313,16 @@ build_package() {
   done
 }
 
+package_option() {
+  local package_name="$1"
+  local command_name="$2"
+  local variable="$(capitalize "${package_name}_${command_name}")_OPTS_ARRAY"
+  local array="$variable[@]"
+  shift 2
+  local value=( "${!array}" "$@" )
+  eval "$variable=( \"\${value[@]}\" )"
+}
+
 build_package_standard() {
   local package_name="$1"
 
@@ -319,12 +333,16 @@ build_package_standard() {
   fi
 
   # Support YAML_CONFIGURE_OPTS, RUBY_CONFIGURE_OPTS, etc.
-  local package_var_name="$(echo "${package_name%%-*}" | tr a-z A-Z)"
+  local package_var_name="$(capitalize "${package_name%%-*}")"
+  local PACKAGE_CONFIGURE="${package_var_name}_CONFIGURE"
+  local PACKAGE_PREFIX_PATH="${package_var_name}_PREFIX_PATH"
   local PACKAGE_CONFIGURE_OPTS="${package_var_name}_CONFIGURE_OPTS"
+  local PACKAGE_CONFIGURE_OPTS_ARRAY="${package_var_name}_CONFIGURE_OPTS_ARRAY[@]"
   local PACKAGE_MAKE_OPTS="${package_var_name}_MAKE_OPTS"
+  local PACKAGE_MAKE_OPTS_ARRAY="${package_var_name}_MAKE_OPTS_ARRAY[@]"
 
-  { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS}
-    "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
+  { ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
+    "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
     "$MAKE" install
   } >&4 2>&1
 }
@@ -498,6 +516,48 @@ verify_gcc() {
   echo "$gcc"
 }
 
+has_broken_mac_openssl() {
+  [ "$(uname -s)" = "Darwin" ] &&
+  [ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8r 8 Feb 2011" ]
+}
+
+build_package_mac_openssl() {
+  # Install to a subdirectory since we don't want shims for bin/openssl.
+  OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
+
+  # Put openssl.conf, certs, etc in ~/.rbenv/versions/*/openssl/ssl
+  OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
+
+  # Tell Ruby to use this openssl for its extension.
+  package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
+
+  # Hint OpenSSL that we prefer a 64-bit build.
+  export KERNEL_BITS="64"
+  OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}"
+
+  # Compile with zlib, no kerberos, and do a static build.
+  package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
+
+  # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
+  # gives precedence to the last -j option, so we can override that.
+  package_option openssl make -j 1
+
+  build_package_standard "$@"
+
+  # Extract root certs from the system keychain if .pem format and rehash.
+  security find-certificate -a -p /Library/Keychains/System.keychain > "$OPENSSLDIR/cacert.pem"
+  "$OPENSSL_PREFIX_PATH/bin/c_rehash" "$OPENSSLDIR" >&4 2>&1
+}
+
+# Post-install check that the openssl extension was built.
+build_package_verify_openssl() {
+  "$RUBY_BIN" -e 'begin
+    require "openssl"
+  rescue LoadError
+    abort "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
+  end' >&4 2>&1
+}
+
 version() {
   echo "ruby-build ${RUBY_BUILD_VERSION}"
 }
@@ -581,8 +641,12 @@ else
   TMP="${TMPDIR%/}"
 fi
 
+if [ -z "$CC" ]; then
+  export CC="cc"
+fi
+
 if [ -z "$MAKE" ]; then
-  MAKE="make"
+  export MAKE="make"
 fi
 
 if [ -n "$RUBY_BUILD_CACHE_PATH" ] && [ -d "$RUBY_BUILD_CACHE_PATH" ]; then

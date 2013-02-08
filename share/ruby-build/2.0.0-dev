@@ -1,1 +1,5 @@
-install_git "ruby-2.0.0-dev" "https://github.com/ruby/ruby.git" "trunk" autoconf standard
+if has_broken_mac_openssl; then
+  install_package "openssl-1.0.1c" "https://www.openssl.org/source/openssl-1.0.1c.tar.gz#ae412727c8c15b67880aef7bd2999b2e" mac_openssl
+fi
+
+install_git "ruby-2.0.0-dev" "https://github.com/ruby/ruby.git" "trunk" autoconf standard verify_openssl
