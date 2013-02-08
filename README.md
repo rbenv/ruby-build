@@ -103,7 +103,7 @@ instead:
 Then set the `CONFIGURE_OPTS` environment variable when you build
 Ruby:
 
-    CONFIGURE_OPTS=--with-openssl-dir=`brew --prefix openssl` rbenv install 2.0.0-rc1
+    CONFIGURE_OPTS=--with-openssl-dir=`brew --prefix openssl` rbenv install 2.0.0-rc2
 
 ### Custom definitions
 
