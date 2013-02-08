@@ -557,7 +557,7 @@ build_package_mac_openssl() {
 
 # Post-install check that the openssl extension was built.
 build_package_verify_openssl() {
-  "$PREFIX_PATH"/bin/ruby -e 'begin
+  "$RUBY_BIN" -e 'begin
     require "openssl"
   rescue LoadError
     abort "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
