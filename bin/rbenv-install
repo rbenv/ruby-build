@@ -31,6 +31,15 @@ fi
 # Load shared library functions
 eval "$(ruby-build --lib)"
 
+# Set environment variables based on OS type
+OS_TYPE=`uname -s`
+case "$OS_TYPE" in
+  FreeBSD)
+    MAKE="gmake"
+    export MAKE
+    ;;
+esac
+
 usage() {
   # We can remove the sed fallback once rbenv 0.4.0 is widely available.
   rbenv-help install 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,4d;p' < "$0"
