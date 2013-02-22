@@ -107,6 +107,8 @@ done
 [ -n "$VERSION_NAME" ] || VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
+[ -d "${PREFIX}" ] && PREFIX_EXISTS=1
+
 # If the installation prefix exists, prompt for confirmation unless
 # the --force option was specified.
 if [ -z "$FORCE" ] && [ -d "${PREFIX}/bin" ]; then
@@ -137,7 +139,7 @@ for hook in "${before_hooks[@]}"; do eval "$hook"; done
 
 # Plan cleanup on unsuccessful installation.
 cleanup() {
-  rm -rf "$PREFIX"
+  [ -z "${PREFIX_EXISTS}" ] && rm -rf "$PREFIX"
 }
 
 trap cleanup SIGINT
