@@ -1,5 +1,10 @@
 ## Version History
 
+#### 20130222
+* Upgraded to OpenSSL 1.0.1e
+* Added a definition for JRuby 1.7.3
+* Added a definition for 1.9.3-p392
+
 #### 20130208
 * Added a definition for 2.0.0-rc2
 * Build OpenSSL for Ruby 2.0 on OS X
