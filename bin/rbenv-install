@@ -107,6 +107,8 @@ done
 [ -n "$VERSION_NAME" ] || VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
+[ -d "${PREFIX}" ] && PREFIX_EXISTS=1
+
 # If the installation prefix exists, prompt for confirmation unless
 # the --force option was specified.
 if [ -z "$FORCE" ] && [ -d "${PREFIX}/bin" ]; then
@@ -135,6 +137,13 @@ fi
 # Execute `before_install` hooks.
 for hook in "${before_hooks[@]}"; do eval "$hook"; done
 
+# Plan cleanup on unsuccessful installation.
+cleanup() {
+  [ -z "${PREFIX_EXISTS}" ] && rm -rf "$PREFIX"
+}
+
+trap cleanup SIGINT
+
 # Invoke `ruby-build` and record the exit status in $STATUS. Run
 # `rbenv rehash` after a successful installation.
 STATUS=0
@@ -144,6 +153,10 @@ ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX" || STATUS="$?"
 for hook in "${after_hooks[@]}"; do eval "$hook"; done
 
 # Run `rbenv-rehash` after a successful installation.
-[ "$STATUS" != "0" ] || rbenv rehash
+if [ "$STATUS" == "0" ]; then
+  rbenv rehash
+else
+  cleanup
+fi
 
 exit "$STATUS"
