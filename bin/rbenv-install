@@ -19,6 +19,10 @@
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
+# Needed to avoid GCC install location confusion: 
+# See https://github.com/sstephenson/ruby-build/issues/287 + comments
+export CC=gcc
+
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
   exec ruby-build --definitions
