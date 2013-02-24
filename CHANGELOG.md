@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20130224
+* Added a definition for 2.0.0-p0 (Happy 20th Birthday, Ruby! :birthday:)
+* Autoclean on unsuccessful installation
+
 #### 20130222
 * Upgraded to OpenSSL 1.0.1e
 * Added a definition for JRuby 1.7.3
