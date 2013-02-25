@@ -1,5 +1,10 @@
 ## Version History
 
+#### 20130225
+* Added a definition for 2.1.0-dev
+* Rename the CAfile to cert.pem
+* Fix exit status of install with verbose
+
 #### 20130224
 * Added a definition for 2.0.0-p0 (Happy 20th Birthday, Ruby! :birthday:)
 * Autoclean on unsuccessful installation
