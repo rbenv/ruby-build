@@ -548,8 +548,8 @@ build_package_mac_openssl() {
   export KERNEL_BITS="64"
   OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}"
 
-  # Compile with zlib, no kerberos, and do a static build.
-  package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
+  # Compile a shared lib with zlib dynamically linked, no kerberos.
+  package_option openssl configure --openssldir="$OPENSSLDIR" zlib-dynamic no-krb5 shared
 
   # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
   # gives precedence to the last -j option, so we can override that.
