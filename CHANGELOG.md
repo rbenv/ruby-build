@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20130226
+* Build a shared openssl to link to Ruby 2.0.0
+
 #### 20130225
 * Added a definition for 2.1.0-dev
 * Rename the CAfile to cert.pem
