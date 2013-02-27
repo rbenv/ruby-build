@@ -352,8 +352,9 @@ build_package_standard() {
   local PACKAGE_CONFIGURE_OPTS_ARRAY="${package_var_name}_CONFIGURE_OPTS_ARRAY[@]"
   local PACKAGE_MAKE_OPTS="${package_var_name}_MAKE_OPTS"
   local PACKAGE_MAKE_OPTS_ARRAY="${package_var_name}_MAKE_OPTS_ARRAY[@]"
+  local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
 
-  { ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
+  { CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}" ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
     "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
     "$MAKE" install
   } >&4 2>&1
@@ -655,9 +656,8 @@ else
   TMP="${TMPDIR%/}"
 fi
 
-if [ -z "$CC" ]; then
-  export CC="cc"
-fi
+# Work around warnings building Ruby 2.0 on Clang 2.x
+RUBY_CFLAGS="$RUBY_CFLAGS -Wno-error=shorten-64-to-32"
 
 if [ -z "$MAKE" ]; then
   export MAKE="make"
