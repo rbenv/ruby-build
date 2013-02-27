@@ -657,7 +657,11 @@ else
 fi
 
 # Work around warnings building Ruby 2.0 on Clang 2.x
-RUBY_CFLAGS="$RUBY_CFLAGS -Wno-error=shorten-64-to-32"
+if type clang &>/dev/null; then
+  if "${CC:-clang}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
+    RUBY_CFLAGS="$RUBY_CFLAGS -Wno-error=shorten-64-to-32"
+  fi
+fi
 
 if [ -z "$MAKE" ]; then
   export MAKE="make"
