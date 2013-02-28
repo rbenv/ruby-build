@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20130227
+* Default Ruby CFLAGS to `-Wno-error=shorten-64-to-32`; don't set `CC
+* Upgrades rubygems for 1.9.1: 1.3.5 -> 1.3.7
+
 #### 20130226
 * Build a shared openssl to link to Ruby 2.0.0
 
