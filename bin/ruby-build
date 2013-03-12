@@ -188,12 +188,13 @@ verify_checksum() {
 http() {
   local method="$1"
   local url="$2"
+  local file="$3"
   [ -n "$url" ] || return 1
 
   if type curl &>/dev/null; then
-    "http_${method}_curl" "$url"
+    "http_${method}_curl" "$url" "$file"
   elif type wget &>/dev/null; then
-    "http_${method}_wget" "$url"
+    "http_${method}_wget" "$url" "$file"
   else
     echo "error: please install \`curl\` or \`wget\` and try again" >&2
     exit 1
@@ -205,7 +206,7 @@ http_head_curl() {
 }
 
 http_get_curl() {
-  curl -qsSLf "$1"
+  curl -C - -o "${2:--}" -qsSLf "$1"
 }
 
 http_head_wget() {
@@ -213,7 +214,7 @@ http_head_wget() {
 }
 
 http_get_wget() {
-  wget -nv -O- "$1"
+  wget -nv -c -O "${2:--}" "$1"
 }
 
 fetch_tarball() {
@@ -266,7 +267,7 @@ download_tarball() {
 
   echo "-> $package_url" >&2
 
-  { http get "$package_url" > "$package_filename"
+  { http get "$package_url" "$package_filename"
     verify_checksum "$package_filename" "$checksum"
   } >&4 2>&1 || return 1
 
