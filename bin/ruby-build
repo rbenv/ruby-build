@@ -641,7 +641,7 @@ elif [ ! -e "$DEFINITION_PATH" ]; then
     DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"
   else
     echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
-    exit 1
+    exit 2
   fi
 fi
 

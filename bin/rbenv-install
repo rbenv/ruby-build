@@ -37,6 +37,15 @@ usage() {
   [ -z "$1" ] || exit "$1"
 }
 
+definitions() {
+  local query="$1"
+  ruby-build --definitions | grep -F "$query" || true
+}
+
+indent() {
+  sed 's/^/  /'
+}
+
 unset FORCE
 unset KEEP
 unset VERBOSE
@@ -49,7 +58,7 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "l" | "list" )
     echo "Available versions:"
-    ruby-build --definitions | sed 's/^/  /'
+    definitions | indent
     exit
     ;;
   "f" | "force" )
@@ -144,10 +153,26 @@ cleanup() {
 
 trap cleanup SIGINT
 
-# Invoke `ruby-build` and record the exit status in $STATUS. Run
-# `rbenv rehash` after a successful installation.
+# Invoke `ruby-build` and record the exit status in $STATUS.
 STATUS=0
 ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX" || STATUS="$?"
+
+# Display a more helpful message if the definition wasn't found.
+if [ "$STATUS" == "2" ]; then
+  { candidates="$(definitions "$DEFINITION")"
+    if [ -n "$candidates" ]; then
+      echo
+      echo "The following versions contain \`$DEFINITION' in the name:"
+      echo "$candidates" | indent
+    fi
+    echo
+    echo "You can list all available versions with \`rbenv install --list'."
+    echo
+    echo "If the version you're looking for is not present, first try upgrading"
+    echo "ruby-build. If it's still missing, open a request on the ruby-build"
+    echo "issue tracker: https://github.com/sstephenson/ruby-build/issues"
+  } >&2
+fi
 
 # Execute `after_install` hooks.
 for hook in "${after_hooks[@]}"; do eval "$hook"; done
