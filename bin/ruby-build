@@ -286,6 +286,20 @@ fetch_git() {
   echo "Cloning ${git_url}..." >&2
 
   if type git &>/dev/null; then
+    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+      pushd "$RUBY_BUILD_CACHE_PATH" >&4
+      local clone_name=$(echo $git_url | sed "s/[^a-z0-9.]/_/g; s/__*/_/g")
+      if [ -e "${clone_name}" ]; then
+        { cd "${clone_name}"
+          git fetch --force "$git_url" "+${git_ref}:${git_ref}" 
+        } >&4 2>&1
+      else
+        git clone --bare --branch "$git_ref" "$git_url" "${clone_name}" >&4 2>&1
+      fi
+      git_url="file://$RUBY_BUILD_CACHE_PATH/${clone_name}"
+      popd >&4
+    fi
+
     git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
   else
     echo "error: please install \`git\` and try again" >&2
