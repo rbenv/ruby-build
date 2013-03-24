@@ -305,6 +305,26 @@ fetch_git() {
     echo "error: please install \`git\` and try again" >&2
     exit 1
   fi
+
+  if [ ! -e "${PREFIX_PATH}" ]; then
+    local pkg_suffix=$(echo ${package_name}  | sed s/^[a-z]*-//)
+    local pfx_suffix=$(basename $PREFIX_PATH | sed s/^[a-z]*-//)
+
+    if [ "${pfx_suffix}" == "${pkg_suffix}" ]; then
+      local revision
+      { pushd "${package_name}"
+        local commit=$(git rev-parse "${git_ref}")
+        if git log -1 | grep git-svn-id > /dev/null; then
+          revision="r$(git log -1 | grep git-svn-id: | sed 's/.*@//; s/ .*//')"
+        else
+          revision="${commit:0:8}"
+        fi
+        popd
+      } >&4 2>&1
+      PREFIX_PATH=$(echo "${PREFIX_PATH}" | sed "s/[a-z0-9]*$/${revision}/")
+      RUBY_BIN="${PREFIX_PATH}/bin/ruby"
+    fi
+  fi
 }
 
 fetch_svn() {
