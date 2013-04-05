@@ -472,8 +472,15 @@ require_gcc() {
         echo "\`llvm-gcc\`. To build older versions of Ruby you must have the official"
         echo "GCC compiler installed on your system."
         echo
-        echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install the official GCC compiler using these"
-        echo "packages: ${esc}[4mhttps://github.com/kennethreitz/osx-gcc-installer/downloads${esc}[0m"
+
+        if type brew &>/dev/null; then
+          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install Homebrew's apple-gcc42 package with this"
+          echo "command: ${esc}[4mbrew tap homebrew/dupes ; brew install apple-gcc42${esc}[0m"
+        else
+          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install the official GCC compiler using these"
+          echo "packages: ${esc}[4mhttps://github.com/kennethreitz/osx-gcc-installer/downloads${esc}[0m"
+        fi
+
         echo
         echo "You will need to install the official GCC compiler to build older"
         echo "versions of Ruby even if you have installed Apple's Command Line Tools"
