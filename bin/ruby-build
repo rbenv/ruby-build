@@ -399,6 +399,18 @@ build_package_rbx() {
   } >&4 2>&1
 }
 
+build_package_mruby() {
+  local package_name="$1"
+
+  { rake
+    mkdir -p "$PREFIX_PATH"
+    cp -R build/host/* "$PREFIX_PATH"
+    cd "$PREFIX_PATH/bin"
+    ln -fs mruby ruby
+    ln -fs mirb irb
+  } >&4 2>&1
+}
+
 build_package_maglev() {
   build_package_copy
 
