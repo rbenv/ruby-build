@@ -1,5 +1,13 @@
 ## Version History
 
+#### 20130408
+* Added a definition for jruby-1.7.4-dev
+* Added a definition for mruby-dev
+* Added a definition for topaz-dev :gem:
+* List matching definitions on ambiguous version specification
+* Use `--continue` when downloading tarball
+* Keep source tarball if `--keep` or `tar xf` fails
+
 #### 20130227
 * Default Ruby CFLAGS to `-Wno-error=shorten-64-to-32`; don't set `CC
 * Upgrades rubygems for 1.9.1: 1.3.5 -> 1.3.7
@@ -13,7 +21,8 @@
 * Fix exit status of install with verbose
 
 #### 20130224
-* Added a definition for 2.0.0-p0 (Happy 20th Birthday, Ruby! :birthday:)
+* Happy 20th :birthday:, Ruby!
+* Added a definition for 2.0.0-p0
 * Autoclean on unsuccessful installation
 
 #### 20130222
