@@ -124,13 +124,9 @@ install_package_using() {
   done
 
   pushd "$BUILD_PATH" >&4
-  "fetch_${package_type}" "${fetch_args[@]}"
-  make_package "${make_args[@]}"
+  [ $PASS == 1 ] && "fetch_${package_type}" "${fetch_args[@]}"
+  [ $PASS == 2 ] && make_package "${make_args[@]}"
   popd >&4
-
-  { echo "Installed ${package_name} to ${PREFIX_PATH}"
-    echo
-  } >&2
 }
 
 make_package() {
@@ -292,10 +288,43 @@ fetch_git() {
   echo "Cloning ${git_url}..." >&2
 
   if type git &>/dev/null; then
+    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+      pushd "$RUBY_BUILD_CACHE_PATH" >&4
+      local clone_name=$(echo $git_url | sed "s/[^A-Za-z0-9.-]/_/g; s/__*/_/g")
+      if [ -e "${clone_name}" ]; then
+        { cd "${clone_name}"
+          git fetch --force "$git_url" "+${git_ref}:${git_ref}" 
+        } >&4 2>&1
+      else
+        git clone --bare --branch "$git_ref" "$git_url" "${clone_name}" >&4 2>&1
+      fi
+      git_url="$RUBY_BUILD_CACHE_PATH/${clone_name}"
+      popd >&4
+    fi
+
     git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
   else
     echo "error: please install \`git\` and try again" >&2
     exit 1
+  fi
+
+  if [ ! -e "${PREFIX_PATH}" ]; then
+    local pkg_suffix=$(echo ${package_name}  | sed s/^[a-z]*-//)
+    local pfx_suffix=$(basename $PREFIX_PATH | sed s/^[a-z]*-//)
+
+    if [ "${pfx_suffix}" == "${pkg_suffix}" ]; then
+      local revision
+      { pushd "${package_name}"
+        local commit=$(git rev-parse "${git_ref}")
+        if git log -1 | grep git-svn-id > /dev/null; then
+          revision="r$(git log -1 | grep git-svn-id: | sed 's/.*@//; s/ .*//')"
+        else
+          revision="${commit:0:8}"
+        fi
+        popd
+      } >&4 2>&1
+      PREFIX_PATH=$(echo "${PREFIX_PATH}" | sed "s/[a-z0-9]*$/${revision}/")
+    fi
   fi
 }
 
@@ -734,7 +763,6 @@ fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="${TMP}/ruby-build.${SEED}.log"
-RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
 if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
@@ -758,6 +786,9 @@ unset RUBYLIB
 
 trap build_failed ERR
 mkdir -p "$BUILD_PATH"
-source "$DEFINITION_PATH"
+PASS=1 source "$DEFINITION_PATH"
+RUBY_BIN="${PREFIX_PATH}/bin/ruby"
+PASS=2 source "$DEFINITION_PATH"
+echo "Installation of ${PREFIX_PATH} complete." >&2
 [ -z "${KEEP_BUILD_PATH}" ] && rm -fr "$BUILD_PATH"
 trap - ERR
