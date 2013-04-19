@@ -61,6 +61,10 @@ capitalize() {
   printf "%s" "$1" | tr a-z A-Z
 }
 
+sanitize() {
+  printf "%s" "$1" | sed "s/[^A-Za-z0-9.-]/_/g; s/__*/_/g"
+}
+
 build_failed() {
   { echo
     echo "BUILD FAILED"
@@ -294,10 +298,10 @@ fetch_git() {
   if type git &>/dev/null; then
     if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
       pushd "$RUBY_BUILD_CACHE_PATH" >&4
-      local clone_name=$(echo $git_url | sed "s/[^A-Za-z0-9.-]/_/g; s/__*/_/g")
+      local clone_name="$(sanitize "$git_url")"
       if [ -e "${clone_name}" ]; then
         { cd "${clone_name}"
-          git fetch --force "$git_url" "+${git_ref}:${git_ref}" 
+          git fetch --force "$git_url" "+${git_ref}:${git_ref}"
         } >&4 2>&1
       else
         git clone --bare --branch "$git_ref" "$git_url" "${clone_name}" >&4 2>&1
