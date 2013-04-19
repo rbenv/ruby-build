@@ -400,6 +400,12 @@ build_package_ree_installer() {
   local options=""
   if [[ "Darwin" = "$(uname)" ]]; then
     options="--no-tcmalloc"
+
+    # Some versions of REE mistakenly detect Tk support
+    # on OS X even though X11 is not installed.
+    if [ ! -d "/usr/include/X11" ]; then
+      options="$options -c --without-tk"
+    fi
   fi
 
   local option
