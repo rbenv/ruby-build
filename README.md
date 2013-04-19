@@ -127,6 +127,8 @@ process.
 * `RUBY_CONFIGURE_OPTS` and `RUBY_MAKE_OPTS` allow you to specify
   configure and make options for buildling MRI. These variables will
   be passed to Ruby only, not any dependent packages (e.g. libyaml).
+* `RUBY_BUILD_GEM_FLAGS` lets you specify additional options for when invoking the `gem` command.
+* `RUBY_BUILD_GEM_INSTALL_FLAGS` lets you specify additional options them `gem install` subcommand.
 
 ### Checksum verification
 
