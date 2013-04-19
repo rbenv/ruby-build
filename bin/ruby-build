@@ -483,7 +483,7 @@ build_package_jruby() {
 
 install_jruby_launcher() {
   cd "${PREFIX_PATH}/bin"
-  { ./ruby gem install jruby-launcher
+  { ./ruby gem ${RUBY_BUILD_GEM_FLAGS} install ${RUBY_BUILD_GEM_INSTALL_FLAGS} jruby-launcher
   } >&4 2>&1
 }
 
