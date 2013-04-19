@@ -402,6 +402,11 @@ build_package_ree_installer() {
     options="--no-tcmalloc"
   fi
 
+  local option
+  for option in $RUBY_CONFIGURE_OPTS; do
+    options="$options -c $option"
+  done
+
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
