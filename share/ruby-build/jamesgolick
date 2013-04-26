@@ -1,0 +1,1 @@
+install_git "jamesgolick" "https://github.com/jamesgolick/ruby.git" "jamesgolick" autoconf standard verify_openssl
