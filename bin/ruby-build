@@ -730,8 +730,12 @@ fi
 
 # Work around warnings building Ruby 2.0 on Clang 2.x:
 # pass -Wno-error=shorten-64-to-32 if the compiler accepts it.
+#
+# When we set CFLAGS, Ruby won't apply its default flags, though. Since clang
+# builds 1.9.x and 2.x only, where -O3 is default, we can safely set that flag.
+# Ensure it's the first flag since later flags take precedence.
 if "${CC:-cc}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
-  RUBY_CFLAGS="$RUBY_CFLAGS -Wno-error=shorten-64-to-32"
+  RUBY_CFLAGS="-O3 -Wno-error=shorten-64-to-32 $RUBY_CFLAGS"
 fi
 
 if [ -z "$MAKE" ]; then
