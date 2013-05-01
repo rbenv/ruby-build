@@ -1,5 +1,12 @@
 ## Version History
 
+#### 20130501
+* Cache git clone directory
+* Restore -O3 default when building with clang
+* Build REE --without-tk on Darwin if X11 is missing
+* Pass $RUBY_CONFIGURE_OPTS to REE installer with -c
+* Default RBENV_VERSION to the globally-specified Ruby
+
 #### 20130408
 * Added a definition for jruby-1.7.4-dev
 * Added a definition for mruby-dev
