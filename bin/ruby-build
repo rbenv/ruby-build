@@ -245,7 +245,7 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
-  { if tar xzvf "$package_filename"; then
+  { if extract "$package_filename"; then
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
@@ -253,6 +253,15 @@ fetch_tarball() {
       fi
     fi
   } >&4 2>&1
+}
+
+extract() {
+  local filename="$1"
+
+  tar xvf "$filename" && return 0
+  echo "tar's compression format detection didn't work -- assuming gzip..."
+  tar xvzf "$filename" && return 0
+  return 1
 }
 
 symlink_tarball_from_cache() {
