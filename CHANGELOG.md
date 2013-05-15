@@ -1,5 +1,11 @@
 ## Version History
 
+#### 20130514
+* Added a definition for Ruby 2.0.0-p195
+* Added a definition for Ruby 1.9.3-p429
+* Added a definition for Ruby 1.9.2-p0
+* Added a definition for Ruby 1.9.1-p430
+
 #### 20130501
 * Cache git clone directory
 * Restore -O3 default when building with clang
@@ -16,7 +22,7 @@
 * Keep source tarball if `--keep` or `tar xf` fails
 
 #### 20130227
-* Default Ruby CFLAGS to `-Wno-error=shorten-64-to-32`; don't set `CC
+* Default Ruby CFLAGS to `-Wno-error=shorten-64-to-32`; don't set `CC`
 * Upgrades rubygems for 1.9.1: 1.3.5 -> 1.3.7
 
 #### 20130226
