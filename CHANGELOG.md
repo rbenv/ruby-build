@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20130518
+* Added a definition for JRuby 1.7.4
+
 #### 20130514
 * Added a definition for Ruby 2.0.0-p195
 * Added a definition for Ruby 1.9.3-p429
@@ -14,7 +17,6 @@
 * Default RBENV_VERSION to the globally-specified Ruby
 
 #### 20130408
-* Added a definition for jruby-1.7.4-dev
 * Added a definition for mruby-dev
 * Added a definition for topaz-dev :gem:
 * List matching definitions on ambiguous version specification
