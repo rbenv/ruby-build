@@ -608,7 +608,7 @@ verify_gcc() {
 
 has_broken_mac_openssl() {
   [ "$(uname -s)" = "Darwin" ] &&
-  [ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8r 8 Feb 2011" ] &&
+  [[ "$(openssl version 2>/dev/null || true)" =~ 'OpenSSL 0\.9\.8' ]] &&
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
 }
 
