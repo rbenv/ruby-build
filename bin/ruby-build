@@ -606,6 +606,13 @@ verify_gcc() {
   echo "$gcc"
 }
 
+build_package_check_homebrew_openssl_dir() {
+  dir="$(brew --prefix openssl 2>/dev/null)"
+  if [ -d "$dir" ]; then
+    RUBY_CONFIGURE_OPTS="$RUBY_CONFIGURE_OPTS --with-openssl-dir=$dir"
+  fi
+}
+
 has_broken_mac_openssl() {
   [ "$(uname -s)" = "Darwin" ] &&
   [[ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8"?* ]] &&
