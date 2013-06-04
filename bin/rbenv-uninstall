@@ -38,6 +38,23 @@ case "$DEFINITION" in
   ;;
 esac
 
+declare -a before_hooks after_hooks
+
+before_uninstall() {
+  local hook="$1"
+  before_hooks["${#before_hooks[@]}"]="$hook"
+}
+
+after_uninstall() {
+  local hook="$1"
+  after_hooks["${#after_hooks[@]}"]="$hook"
+}
+
+for script in $(rbenv-hooks uninstall); do
+  source "$script"
+done
+
+
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
@@ -54,7 +71,11 @@ if [ -z "$FORCE" ]; then
   esac
 fi
 
+for hook in "${before_hooks[@]}"; do eval "$hook"; done
+
 if [ -d "$PREFIX" ]; then
   rm -rf "$PREFIX"
   rbenv rehash
 fi
+
+for hook in "${after_hooks[@]}"; do eval "$hook"; done
