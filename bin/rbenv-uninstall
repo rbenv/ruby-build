@@ -38,6 +38,26 @@ case "$DEFINITION" in
   ;;
 esac
 
+# Define `before_uninstall` and `after_uninstall` functions that allow
+# plugin hooks to register a string of code for execution before or
+# after the uninstallation process.
+declare -a before_hooks after_hooks
+
+before_uninstall() {
+  local hook="$1"
+  before_hooks["${#before_hooks[@]}"]="$hook"
+}
+
+after_uninstall() {
+  local hook="$1"
+  after_hooks["${#after_hooks[@]}"]="$hook"
+}
+
+# Load plugin hooks.
+for script in $(rbenv-hooks uninstall); do
+  source "$script"
+done
+
 VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
@@ -54,7 +74,13 @@ if [ -z "$FORCE" ]; then
   esac
 fi
 
+# Execute `before_uninstall` hooks.
+for hook in "${before_hooks[@]}"; do eval "$hook"; done
+
 if [ -d "$PREFIX" ]; then
   rm -rf "$PREFIX"
   rbenv rehash
 fi
+
+# Execute `after_uninstall` hooks.
+for hook in "${after_hooks[@]}"; do eval "$hook"; done
