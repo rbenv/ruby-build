@@ -172,11 +172,11 @@ verify_checksum() {
   [ -e "$filename" ] || return 0
 
   # If there's no expected checksum, return success
-  local expected_checksum="$2"
+  local expected_checksum=`echo "$2" | tr [A-Z] [a-z]`
   [ -n "$expected_checksum" ] || return 0
 
   # If the computed checksum is empty, return failure
-  local computed_checksum="$(compute_md5 < "$filename")"
+  local computed_checksum=`echo "$(compute_md5 < "$filename")" | tr [A-Z] [a-z]`
   [ -n "$computed_checksum" ] || return 1
 
   if [ "$expected_checksum" != "$computed_checksum" ]; then
