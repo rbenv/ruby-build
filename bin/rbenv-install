@@ -146,7 +146,9 @@ fi
 # REE installer requires an existing Ruby installation to run. An
 # unsatisfied local .ruby-version file can cause the installer to
 # fail.)
-export RBENV_VERSION="$(rbenv global 2>/dev/null || true)"
+if [ -z "${RBENV_VERSION}" ]; then
+  export RBENV_VERSION="$(rbenv global 2>/dev/null || true)"
+fi
 
 
 # Execute `before_install` hooks.
