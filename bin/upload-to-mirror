@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+#
+# Summary: Sets up a mirror for ruby-build into an arbitrary S3 bucket
+#
+# Usage: S3_BUCKET=<your bucket name> upload-to-mirror
+#
+# Depends on: s3cmd
+#
+# set -e
+
+ruby_definitions() {
+  grep -hoe '"[^"#]*#.*"' share/ruby-build/* | sed 's/"//g'
+}
+
+http() {
+  local method="$1"
+  local url="$2"
+  local file="$3"
+  [ -n "$url" ] || return 1
+
+  if type curl &>/dev/null; then
+    "http_${method}_curl" "$url" "$file"
+  elif type wget &>/dev/null; then
+    "http_${method}_wget" "$url" "$file"
+  else
+    echo "error: please install \`curl\` or \`wget\` and try again" >&2
+    exit 1
+  fi
+}
+
+http_head_curl() {
+  curl -qsILf "$1" 2>&1 # >&4
+}
+
+http_get_curl() {
+  # FIXME: I think this params need tuning for autorestarts
+  curl -o "$2" -qsSLf "$1" 2>&1
+  # curl -C - -o "${2:--}" -qsSLf "$1"
+}
+
+http_put_curl() {
+  local filename=$1
+  local checksum=$2
+  local now="$(LC_TIME=C TZ=utc date "+%a, %d %h %Y %T %z")"
+  curl -X PUT \
+    -H "Authorization: AWS ${AWS_ACCESS_KEY}:${AWS_SECRET}" \
+    -H "Date: ${now}" \
+    -F "file=@${filename}" \
+    https://${S3_BUCKET}.s3.amazonaws.com
+}
+#    -F "Content-Type=image/jpeg" \
+
+http_head_wget() {
+  wget -q --spider "$1" 2>&1
+}
+
+http_get_wget() {
+  wget -nv -c -O "${2:--}" "$1"
+}
+
+http_put_wget() {
+  echo "not implemented yet"
+  exit 1
+}
+
+compute_md5() {
+  if type md5 &>/dev/null; then
+    md5 -q
+  elif type openssl &>/dev/null; then
+    local output="$(openssl md5)"
+    echo "${output##* }"
+  elif type md5sum &>/dev/null; then
+    local output="$(md5sum -b)"
+    echo "${output% *}"
+  else
+    return 1
+  fi
+}
+
+verify_checksum() {
+  # If there's no MD5 support, return success
+  [ -n "$HAS_MD5_SUPPORT" ] || return 0
+
+  # If the specified filename doesn't exist, return success
+  local filename="$1"
+  [ -e "$filename" ] || return 0
+
+  # If there's no expected checksum, return success
+  local expected_checksum=`echo "$2" | tr [A-Z] [a-z]`
+  [ -n "$expected_checksum" ] || return 0
+
+  # If the computed checksum is empty, return failure
+  local computed_checksum=`echo "$(compute_md5 < "$filename")" | tr [A-Z] [a-z]`
+  [ -n "$computed_checksum" ] || return 1
+
+  if [ "$expected_checksum" != "$computed_checksum" ]; then
+    { echo
+      echo "checksum mismatch: ${filename} (file is corrupt)"
+      echo "expected $expected_checksum, got $computed_checksum"
+      echo
+    } >&4
+    return 1
+  fi
+}
+
+mirror() {
+  package_url=$1
+  expected_checksum=$2
+
+  if [ -n "$RUBY_LANG_MIRROR_URL" ]; then
+    package_url=${package_url/http\:\/\/ftp.ruby-lang.org/$RUBY_LANG_MIRROR_URL}
+    package_url=${package_url/ftp\:\/\/ftp.ruby-lang.org/$RUBY_LANG_MIRROR_URL}
+  fi
+
+  mkdir -p /tmp/ruby-build/
+  package_filename="/tmp/ruby-build/${expected_checksum}"
+  { http get "$package_url" "$package_filename"
+  } || echo "curl failed: $?"
+
+  local computed_checksum=`echo "$(compute_md5 < "/tmp/ruby-build/${expected_checksum}")" | tr [A-Z] [a-z]`
+
+  [ "$expected_checksum" == "$computed_checksum" ] || return 1
+
+  # FIXME: want to do native S3 puts using curl, but that requires an unfortunate amount of code for signatures
+  # https://github.com/cosmin/s3-bash/blob/master/s3-common-functions
+  # http put $package_filename $computed_checksum
+  # so instead use s3cmd which sucks but is relatively ubiquitous
+  s3cmd -P put $package_filename "s3://${S3_BUCKET}"
+}
+
+
+for def in $(ruby_definitions); do
+  checksum="${def#*#}"
+  package_url="${def%%#*}"
+
+  mirror_url="http://${S3_BUCKET}/${checksum}"
+  # echo $mirror_url
+  { http head "$mirror_url"
+  } ||
+  mirror "$package_url" "$checksum"
+  # echo $package_url
+done
