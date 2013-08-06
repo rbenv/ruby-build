@@ -44,7 +44,7 @@ your cloned copy of the repository, then re-run the install script.
 ### Installing with Homebrew (for OS X users)
 
 Mac OS X users can install ruby-build with the
-[Homebrew](http://mxcl.github.com/homebrew/) package manager. This
+[Homebrew](http://brew.sh) package manager. This
 will give you access to the `ruby-build` command. If you have rbenv
 installed, you will also be able to use the `rbenv install` command.
 
