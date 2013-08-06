@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20130806
+* Change protocol of the ruby-lang.org server from HTTP to FTP
+
 #### 20130628
 * Added a definition for Ruby 2.0.0-p247
 * Added a definition for Ruby 1.9.3-p448
