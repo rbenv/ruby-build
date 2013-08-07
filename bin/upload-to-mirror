@@ -107,6 +107,9 @@ mirror() {
   package_url=$1
   expected_checksum=$2
 
+  # skip anything we already have on S3
+  # this only checks filename and not etag, so a bad upload will still trigger this
+  [[ "$s3_bucket_contents" == *"$expected_checksum"* ]] && return 1
 
   mkdir -p /tmp/ruby-build/
   package_filename="/tmp/ruby-build/${expected_checksum}"
@@ -125,6 +128,7 @@ mirror() {
 }
 
 
+s3_bucket_contents=`s3cmd ls s3://$S3_BUCKET`
 for def in $(ruby_definitions); do
   checksum="${def#*#}"
   package_url="${def%%#*}"
