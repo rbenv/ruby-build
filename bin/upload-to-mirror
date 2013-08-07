@@ -107,10 +107,6 @@ mirror() {
   package_url=$1
   expected_checksum=$2
 
-  if [ -n "$RUBY_LANG_MIRROR_URL" ]; then
-    package_url=${package_url/http\:\/\/ftp.ruby-lang.org/$RUBY_LANG_MIRROR_URL}
-    package_url=${package_url/ftp\:\/\/ftp.ruby-lang.org/$RUBY_LANG_MIRROR_URL}
-  fi
 
   mkdir -p /tmp/ruby-build/
   package_filename="/tmp/ruby-build/${expected_checksum}"
