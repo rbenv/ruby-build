@@ -134,9 +134,8 @@ for def in $(ruby_definitions); do
   package_url="${def%%#*}"
 
   mirror_url="http://${S3_BUCKET}/${checksum}"
-  # echo $mirror_url
+
   { http head "$mirror_url"
   } ||
   mirror "$package_url" "$checksum"
-  # echo $package_url
 done
