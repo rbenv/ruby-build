@@ -231,8 +231,9 @@ fetch_tarball() {
     checksum="${package_url#*#}"
     package_url="${package_url%%#*}"
 
-    if [ -n "$RUBY_BUILD_MIRROR_URL" ]; then
-      mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
+    if [[ ! "${package_name}" =~ ^(openssl|yaml|rubygems).* ]] &&
+      [ -n "$RUBY_BUILD_MIRROR_URL" ]; then
+      mirror_url="${RUBY_BUILD_MIRROR_URL}#$checksum"
     fi
   fi
 
