@@ -359,13 +359,21 @@ package_option() {
   eval "$variable=( \"\${value[@]}\" )"
 }
 
+number_cpus() {
+  case "$(uname -s)" in
+  "Linux") echo $(grep -c ^processor /proc/cpuinfo);;
+  "Darwin") echo $(system_profiler | awk '/Number Of CPUs/{print $4}{next;}');;
+  *) echo "2"
+  esac
+}
+
 build_package_standard() {
   local package_name="$1"
 
   if [ "${MAKEOPTS+defined}" ]; then
     MAKE_OPTS="$MAKEOPTS"
   elif [ -z "${MAKE_OPTS+defined}" ]; then
-    MAKE_OPTS="-j 2"
+    MAKE_OPTS="-j $(number_cpus)"
   fi
 
   # Support YAML_CONFIGURE_OPTS, RUBY_CONFIGURE_OPTS, etc.
