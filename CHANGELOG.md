@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20130901
+* Use www.dnsbalance.ring.gr.jp
+* Do not set the Rubinius gems directory to the prefix
+
 #### 20130806
 * Change protocol of the ruby-lang.org server from HTTP to FTP
 
