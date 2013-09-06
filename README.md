@@ -113,6 +113,8 @@ You can set certain environment variables to control the build process.
 * `RUBY_BUILD_SKIP_MIRROR`, if set, forces ruby-build to download packages from
   their original source URLs instead of using a mirror.
 * `CC` sets the path to the C compiler.
+* `RUBY_CFLAGS` lets you pass additional options to the default `CFLAGS`. Use
+  this to override, for instance, the `-O3` option.
 * `CONFIGURE_OPTS` lets you pass additional options to `./configure`.
 * `MAKE` lets you override the command to use for `make`. Useful for specifying
   GNU make (`gmake`) on some systems.
