@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20130907
+* Revert using mirror site
+
 #### 20130901
 * Use www.dnsbalance.ring.gr.jp
 * Do not set the Rubinius gems directory to the prefix
