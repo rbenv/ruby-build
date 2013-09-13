@@ -137,7 +137,7 @@ definition. (All bundled definitions include checksums.)
 ruby-build will first attempt to download package files from a mirror hosted on
 Amazon CloudFront. If a package is not available on the mirror, if the mirror
 is down, or if the download is corrupt, ruby-build will fall back to the
-official URL specified in the defintion file.
+official URL specified in the definition file.
 
 You can point ruby-build to another mirror by specifying the
 `RUBY_BUILD_MIRROR_URL` environment variable--useful if you'd like to run your
