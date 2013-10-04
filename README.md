@@ -2,7 +2,8 @@
 
 ruby-build is an [rbenv](https://github.com/sstephenson/rbenv) plugin that
 provides an `rbenv install` command to compile and install different versions
-of Ruby on UNIX-like systems.
+of Ruby on UNIX-like systems. You will need to install `make` for ruby-build to
+work.
 
 You can also use ruby-build without rbenv in environments where you need
 precise control over Ruby version installation.
