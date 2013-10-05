@@ -1,0 +1,2 @@
+install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz#36c852831d02cf90508c29852361d01b"
+install_package "rubinius-2.0.0" "https://nodeload.github.com/rubinius/rubinius/tar.gz/v2.0.0#2219a4dd974782e6580a9960f392d57d" rbx
