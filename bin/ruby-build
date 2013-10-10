@@ -428,16 +428,16 @@ build_package_ree_installer() {
 build_package_rbx() {
   local package_name="$1"
 
-  { bundle
+  { safe_bundle
     ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS
-    rake install
+    safe_rake install
   } >&4 2>&1
 }
 
 build_package_mruby() {
   local package_name="$1"
 
-  { rake
+  { safe_rake
     mkdir -p "$PREFIX_PATH"
     cp -R build/host/* "$PREFIX_PATH"
     cd "$PREFIX_PATH/bin"
@@ -663,6 +663,20 @@ build_package_verify_openssl() {
 
 version() {
   echo "ruby-build ${RUBY_BUILD_VERSION}"
+}
+
+safe_bundle() {
+  bundle -v &>/dev/null || { gem install bundler; }
+  bundle
+}
+
+safe_rake() {
+  rake --version &>/dev/null || { gem install rake; }
+  if [ -f "./Gemfile" ]; then
+    bundle exec rake "$@"
+  else
+    rake "$@"
+  fi
 }
 
 usage() {
