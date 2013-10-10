@@ -245,7 +245,16 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
-  { if tar xvf "$package_filename"; then
+  local extract_command=""
+
+  case `detect_compression_type $package_url $package_filename` in
+    "bzip2") extract_command="tar xjvf" ;;
+    "gzip")  extract_command="tar xzvf" ;;
+    # fallback to gzip type
+    *)       extract_command="tar xzvf" ;;
+  esac
+
+  { if $extract_command "$package_filename"; then
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
@@ -253,6 +262,29 @@ fetch_tarball() {
       fi
     fi
   } >&4 2>&1
+}
+
+detect_compression_type() {
+  local package_url="$1"
+  local package_filename="$2"
+  local result=""
+
+  if which file > /dev/null; then
+    local type=`file "$package_filename"`
+    case $type in
+      *"bzip2 compressed data"*) result="bzip2" ;;
+      *"gzip compressed data"*)  result="gzip"  ;;
+    esac
+  fi
+
+  if [ -z "$result" ]; then
+    case $package_url in
+      *.tar.bz2|*.tbz2) result="bzip2" ;;
+      *.tar.gz|*.tgz)   result="gzip"  ;;
+    esac
+  fi
+
+  echo "$result"
 }
 
 symlink_tarball_from_cache() {
