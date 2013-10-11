@@ -236,11 +236,8 @@ fetch_tarball() {
     fi
   fi
 
-  local xbase=${package_url##*/}
-  local xfext=${xbase##*.}
-  local xpref=${xbase%.*}
-
-  local package_filename=$xpref.$xfext
+  local package_filename=${package_url##*/}
+  local package_ext=${package_filename##*.}
 
   symlink_tarball_from_cache "$package_filename" "$checksum" || {
     echo "Downloading ${package_filename}..." >&2
@@ -250,13 +247,15 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
+  local tar_default_args="xvf"
+
+  if [ "$package_ext" == "gz" -o "$package_ext" == "tgz" ]; then
+    tar_default_args+="x"
+  elif [ "$package_ext" == "bz2" ]; then
+    tar_default_args+="j"
+  fi
+
   { if tar xzvf "$package_filename"; then
-      if [ -z "$KEEP_BUILD_PATH" ]; then
-        rm -f "$package_filename"
-      else
-        true
-      fi
-    elif tar xjvf "$package_filename"; then
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
