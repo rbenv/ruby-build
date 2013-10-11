@@ -97,7 +97,15 @@ file_is_not_empty() {
 }
 
 install_package() {
-  install_package_using "tarball" 1 "$@"
+  local nargs
+
+  if [ "$#" -eq 3 ]; then
+    nargs=1
+  else
+    nargs=2
+  fi
+
+  install_package_using "tarball" "$nargs" "$@"
 }
 
 install_git() {
@@ -224,6 +232,7 @@ http_get_wget() {
 fetch_tarball() {
   local package_name="$1"
   local package_url="$2"
+  local format
   local mirror_url
   local checksum
 
@@ -236,7 +245,13 @@ fetch_tarball() {
     fi
   fi
 
-  local package_filename="${package_name}.tar.gz"
+  if [ -n "$3" ]; then
+    format="$3"
+  else
+    format="tar.gz"
+  fi
+
+  local package_filename="${package_name}.${format}"
   symlink_tarball_from_cache "$package_filename" "$checksum" || {
     echo "Downloading ${package_filename}..." >&2
     { http head "$mirror_url" &&
@@ -245,7 +260,7 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
-  { if tar xzvf "$package_filename"; then
+  { if extract "$package_filename"; then
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
@@ -253,6 +268,21 @@ fetch_tarball() {
       fi
     fi
   } >&4 2>&1
+}
+
+extract() {
+  local filename="$1"
+  [ -n "$filename" ] || return 1
+
+  case "$filename" in
+    *.tar.gz)
+      tar xzvf "$filename";;
+    *.tar.bz2)
+      tar xjvf "$filename";;
+    *)
+      echo "unrecognized file extension: $filename" >&2;
+      return 1;;
+  esac
 }
 
 symlink_tarball_from_cache() {
