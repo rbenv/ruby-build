@@ -362,7 +362,7 @@ package_option() {
 number_cpus() {
   case "$(uname -s)" in
   "Linux") echo $(grep -c ^processor /proc/cpuinfo);;
-  "Darwin") echo $(system_profiler | awk '/Number Of CPUs/{print $4}{next;}');;
+  "Darwin") echo $(system_profiler | awk '/Total Number of Cores/{print $5}{next;}');;
   *) echo "2"
   esac
 }
