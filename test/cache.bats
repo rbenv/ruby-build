@@ -11,7 +11,7 @@ setup() {
 
 @test "packages are saved to download cache" {
   stub md5 true
-  stub curl "-*S* : cat package-1.0.0.tar.gz"
+  stub curl "-C - -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${6##*/} \$4"
 
   install_fixture definitions/without-checksum
   [ "$status" -eq 0 ]
@@ -58,7 +58,8 @@ setup() {
   local checksum="83e6d7725e20166024a1eb74cde80677"
 
   stub md5 true "echo invalid" "echo $checksum"
-  stub curl "-*I* : true" "-*S* http://?*/$checksum : cat package-1.0.0.tar.gz"
+  stub curl "-*I* : true" \
+    "-C - -o * -*S* http://?*/$checksum : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$4"
 
   touch "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz"
 
@@ -75,7 +76,7 @@ setup() {
 
 @test "nonexistent cache directory is ignored" {
   stub md5 true
-  stub curl "-*S* : cat package-1.0.0.tar.gz"
+  stub curl "-C - -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${6##*/} \$4"
 
   export RUBY_BUILD_CACHE_PATH="${TMP}/nonexistent"
 

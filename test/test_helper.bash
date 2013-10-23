@@ -14,7 +14,6 @@ stub() {
 
   export "${prefix}_STUB_PLAN"="${TMP}/${program}-stub-plan"
   export "${prefix}_STUB_RUN"="${TMP}/${program}-stub-run"
-  export "${prefix}_STUB_DIR"="$FIXTURE_ROOT"
   export "${prefix}_STUB_END"=
 
   export PATH="${BATS_TEST_DIRNAME}/stubs/${program}:$PATH"
@@ -28,7 +27,6 @@ unstub() {
   local program="$1"
   local prefix="$(echo "$program" | tr a-z A-Z)"
 
-  export "${prefix}_STUB_DIR"=
   export "${prefix}_STUB_END"=1
 
   local path="${BATS_TEST_DIRNAME}/stubs/$program"
