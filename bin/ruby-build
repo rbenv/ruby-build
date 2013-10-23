@@ -438,6 +438,7 @@ build_package_rbx() {
   { bundle
     ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS
     rake install
+    fix_rbx_gem_binstubs "$PREFIX_PATH"
   } >&4 2>&1
 }
 
@@ -521,6 +522,20 @@ after_install_package() {
 fix_directory_permissions() {
   # Ensure installed directories are not world-writable to avoid Bundler warnings
   find "$PREFIX_PATH" -type d \( -perm -020 -o -perm -002 \) -exec chmod go-w {} \;
+}
+
+fix_rbx_gem_binstubs() {
+  local prefix="$1"
+  local gemdir="${prefix}/gems/bin"
+  local bindir="${prefix}/bin"
+  # Symlink Rubinius' `gems/bin/` into `bin/`
+  if [ -d "$gemdir" ]; then
+    for file in "$gemdir"/*; do
+      [ -x "$file" ] && mv "$file" "$bindir"
+    done
+    rm -rf "$gemdir"
+    ln -s ../bin "$gemdir"
+  fi
 }
 
 require_gcc() {
