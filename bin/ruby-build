@@ -699,13 +699,25 @@ usage() {
 }
 
 list_definitions() {
+ if [ ${RBENV_ROOT}/versions ]; then
   { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
-      echo "${definition##*/}"
-    done
+   { for version in "${RBENV_ROOT}/versions/"*; do
+    if [ "${version##*/}" = "${definition##*/}" ]; then
+     echo -n "*"
+     break
+    fi
+   done
+   }
+   echo "${definition##*/}"
+  done
+  }
+ else
+  { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
+   echo "*${definition##*/}"
+   done
   } | sort
+ fi
 }
-
-
 
 unset VERBOSE
 unset KEEP_BUILD_PATH
