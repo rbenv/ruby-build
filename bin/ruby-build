@@ -236,7 +236,14 @@ fetch_tarball() {
     fi
   fi
 
+  local tar_args="xzvf"
   local package_filename="${package_name}.tar.gz"
+
+  if [ "$package_url" != "${package_url%bz2}" ]; then
+    package_filename="${package_filename%.gz}.bz2"
+    tar_args="${tar_args/z/j}"
+  fi
+
   symlink_tarball_from_cache "$package_filename" "$checksum" || {
     echo "Downloading ${package_filename}..." >&2
     { http head "$mirror_url" &&
@@ -245,7 +252,7 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
-  { if tar xzvf "$package_filename"; then
+  { if tar $tar_args "$package_filename"; then
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
