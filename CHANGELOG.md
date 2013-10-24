@@ -1,7 +1,9 @@
 ## Version History
 
-#### 20131018
+#### 20131024
+* Added a definition for JRuby 1.7.6
 * Added a definition for Rubinius 2.1.0
+* Added a definition for Rubinius 2.1.1
 
 #### 20131008
 * Added a definition for JRuby 1.7.5
