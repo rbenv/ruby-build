@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -e
+
+[ -d ./bats/bin ] && export PATH=./bats/bin:"$PATH"
+
+bats -t test
+
+if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then
+  ./script/mirror update "$TRAVIS_COMMIT_RANGE"
+fi
