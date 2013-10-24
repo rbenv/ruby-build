@@ -1,5 +1,27 @@
 ## Version History
 
+#### 20131024
+* Added a definition for JRuby 1.7.6
+* Added a definition for Rubinius 2.1.0
+* Added a definition for Rubinius 2.1.1
+
+#### 20131008
+* Added a definition for JRuby 1.7.5
+* Added a definition for Rubinius 2.0.0
+
+#### 20130923
+* Added a definition for 2.1.0-preview1
+
+#### 20130907
+* Revert using mirror site
+
+#### 20130901
+* Use www.dnsbalance.ring.gr.jp
+* Do not set the Rubinius gems directory to the prefix
+
+#### 20130806
+* Change protocol of the ruby-lang.org server from HTTP to FTP
+
 #### 20130628
 * Added a definition for Ruby 2.0.0-p247
 * Added a definition for Ruby 1.9.3-p448
