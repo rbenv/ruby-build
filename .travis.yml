@@ -1,0 +1,4 @@
+install: git clone https://github.com/sstephenson/bats.git
+script: bats/bin/bats -t test
+# skips unnecessary Ruby-specific setup
+language: c
