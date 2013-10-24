@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Usage: script/mirror update <COMMIT-RANGE>
+#        script/mirror stats
+set -e
+
+commit_range="${1?}"
+
+eval "$(grep RUBY_BUILD_MIRROR_URL= ./bin/ruby-build | head -1)"
+
+test_mirrored() {
+  curl -qsSfIL "$RUBY_BUILD_MIRROR_URL/$1" >/dev/null 2>&1
+}
+
+compute_md5() {
+  local output="$(openssl md5)"
+  echo "${output##* }" | tr '[A-Z]' '[a-z]'
+}
+
+download_package() {
+  curl -qsSfL -o "$2" "$1"
+}
+
+download_and_verify() {
+  local checksum
+  local url="$1"
+  local file="$2"
+  local expected="$3"
+  download_package "$url" "$file"
+  checksum="$(compute_md5 < "$file")"
+  if [ "$checksum" != "$expected" ]; then
+    echo "Error: $url doesn't match its checksum $expected" >&2
+    return 1
+  fi
+}
+
+changed_files() {
+  git diff --name-only --diff-filter=ACMR "$@"
+}
+
+potentially_new_packages() {
+  extract_urls $(changed_files "$1" -- ./share/ruby-build)
+}
+
+extract_urls() {
+  grep -hoe 'http[^"]\+#[^"]\+' "$@"
+}
+
+update() {
+  local url
+  local checksum
+  local file
+  for url in $(potentially_new_packages "$1"); do
+    checksum="${url#*#}"
+    url="${url%#*}"
+    if test_mirrored "$checksum"; then
+      echo "Already mirrored: $url"
+    else
+      echo "Mirroring: $url"
+      file="${TMPDIR:-/tmp}/$checksum"
+      download_and_verify "$url" "$file" "$checksum"
+      ./script/s3-put "$file" "${AMAZON_S3_BUCKET?}"
+    fi
+  done
+}
+
+stats() {
+  local packages=( $(extract_urls ./share/ruby-build/*) )
+  local total="${#packages[@]}"
+  local confirmed=0
+  local checksum
+  for url in "${packages[@]}"; do
+    checksum="${url#*#}"
+    if test_mirrored "$checksum"; then
+      confirmed="$((confirmed + 1))"
+    else
+      echo "failed: $url" >&2
+    fi
+    echo -n "."
+  done
+  echo
+  echo "$confirmed/$total mirrored"
+}
+
+cmd="${1?}"
+shift 1
+"$cmd" "$@"

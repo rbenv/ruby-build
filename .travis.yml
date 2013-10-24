@@ -1,4 +1,8 @@
 install: git clone https://github.com/sstephenson/bats.git
-script: bats/bin/bats -t test
-# skips unnecessary Ruby-specific setup
+script: script/test
 language: c
+env:
+  global:
+    - AMAZON_S3_BUCKET=ruby-build-mirror
+    - AMAZON_ACCESS_KEY_ID=AKIAJKAUQVHU6X4CODDQ
+    - secure: LTSvDP2o72nbECDwWsfwnsiETF4VpqrYN3y/ve68AZIMzfNWDB5vhqzMLU1ltFnSNxd71gTCGX2OEcsxdrfnG+Msu52v8FtJ7lz/b9xn83gGYrGnmEMzARtd1fnuzlWQh/1eNL9jrNl8FDhgjoTqKl2gF6fZBsQxcHRnvRSXcqE=
