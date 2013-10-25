@@ -43,7 +43,9 @@ while IFS= read -r line; do
     # Naively split patterns by whitespace for now.
     # In the future, use a sed script to split while
     # respecting quoting.
+    set -f
     patterns=($patterns)
+    set +f
     arguments=("$@")
 
     # Match the expected argument patterns to actual
