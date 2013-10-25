@@ -2,6 +2,8 @@
 
 set -e
 
+cd "${0%/*}"
+
 if [ -z "${PREFIX}" ]; then
   PREFIX="/usr/local"
 fi
