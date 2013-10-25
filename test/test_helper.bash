@@ -23,7 +23,6 @@ stub() {
   mkdir -p "${TMP}/bin"
   ln -shf "${BATS_TEST_DIRNAME}/stubs/stub" "${TMP}/bin/${program}"
 
-  rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
   touch "${TMP}/${program}-stub-plan"
   for arg in "$@"; do printf "%s\n" "$arg" >> "${TMP}/${program}-stub-plan"; done
 }
@@ -37,6 +36,7 @@ unstub() {
 
   "$path"
   rm -f "$path"
+  rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
 }
 
 install_fixture() {
@@ -45,4 +45,52 @@ install_fixture() {
   [ -n "$destination" ] || destination="$INSTALL_ROOT"
 
   run ruby-build "$FIXTURE_ROOT/$name" "$destination"
+}
+
+assert() {
+  if ! "$@"; then
+    flunk "failed: $@"
+  fi
+}
+
+flunk() {
+  { if [ "$#" -eq 0 ]; then cat -
+    else echo "$@"
+    fi
+  } | sed "s:${TMP}:\${TMP}:g" >&2
+  return 1
+}
+
+assert_success() {
+  if [ "$status" -ne 0 ]; then
+    { echo "command failed with exit status $status"
+      echo "output: $output"
+    } | flunk
+  elif [ "$#" -gt 0 ]; then
+    assert_output "$1"
+  fi
+}
+
+assert_failure() {
+  if [ "$status" -eq 0 ]; then
+    flunk "expected failed exit status"
+  elif [ "$#" -gt 0 ]; then
+    assert_output "$1"
+  fi
+}
+
+assert_equal() {
+  if [ "$1" != "$2" ]; then
+    { echo "expected: $1"
+      echo "actual:   $2"
+    } | flunk
+  fi
+}
+
+assert_output() {
+  local expected
+  if [ $# -eq 0 ]; then expected="$(cat -)"
+  else expected="$1"
+  fi
+  assert_equal "$expected" "$output"
 }
