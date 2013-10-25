@@ -8,7 +8,6 @@ PROGRAM="$(echo "$program" | tr a-z A-Z)"
 
 _STUB_PLAN="${PROGRAM}_STUB_PLAN"
 _STUB_RUN="${PROGRAM}_STUB_RUN"
-_STUB_DIR="${PROGRAM}_STUB_DIR"
 _STUB_INDEX="${PROGRAM}_STUB_INDEX"
 _STUB_RESULT="${PROGRAM}_STUB_RESULT"
 _STUB_END="${PROGRAM}_STUB_END"
@@ -44,7 +43,9 @@ while IFS= read -r line; do
     # Naively split patterns by whitespace for now.
     # In the future, use a sed script to split while
     # respecting quoting.
+    set -f
     patterns=($patterns)
+    set +f
     arguments=("$@")
 
     # Match the expected argument patterns to actual
@@ -62,10 +63,8 @@ while IFS= read -r line; do
     # If the arguments matched, evaluate the command
     # in a subshell. Otherwise, log the failure.
     if [ $result -eq 0 ] ; then
-      dir="$(pwd)"
-      [ ! -d "${!_STUB_DIR}" ] || dir="${!_STUB_DIR}"
       set +e
-      ( cd "$dir" ; eval "$command" )
+      ( eval "$command" )
       status="$?"
       set -e
     else

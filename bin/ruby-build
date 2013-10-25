@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RUBY_BUILD_VERSION="20130208"
+RUBY_BUILD_VERSION="20131024"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
@@ -59,6 +59,10 @@ abs_dirname() {
 
 capitalize() {
   printf "%s" "$1" | tr a-z A-Z
+}
+
+sanitize() {
+  printf "%s" "$1" | sed "s/[^A-Za-z0-9.-]/_/g; s/__*/_/g"
 }
 
 build_failed() {
@@ -168,11 +172,11 @@ verify_checksum() {
   [ -e "$filename" ] || return 0
 
   # If there's no expected checksum, return success
-  local expected_checksum="$2"
+  local expected_checksum=`echo "$2" | tr [A-Z] [a-z]`
   [ -n "$expected_checksum" ] || return 0
 
   # If the computed checksum is empty, return failure
-  local computed_checksum="$(compute_md5 < "$filename")"
+  local computed_checksum=`echo "$(compute_md5 < "$filename")" | tr [A-Z] [a-z]`
   [ -n "$computed_checksum" ] || return 1
 
   if [ "$expected_checksum" != "$computed_checksum" ]; then
@@ -188,12 +192,13 @@ verify_checksum() {
 http() {
   local method="$1"
   local url="$2"
+  local file="$3"
   [ -n "$url" ] || return 1
 
   if type curl &>/dev/null; then
-    "http_${method}_curl" "$url"
+    "http_${method}_curl" "$url" "$file"
   elif type wget &>/dev/null; then
-    "http_${method}_wget" "$url"
+    "http_${method}_wget" "$url" "$file"
   else
     echo "error: please install \`curl\` or \`wget\` and try again" >&2
     exit 1
@@ -205,7 +210,7 @@ http_head_curl() {
 }
 
 http_get_curl() {
-  curl -qsSLf "$1"
+  curl -C - -o "${2:--}" -qsSLf "$1"
 }
 
 http_head_wget() {
@@ -213,7 +218,7 @@ http_head_wget() {
 }
 
 http_get_wget() {
-  wget -nv -O- "$1"
+  wget -nv -c -O "${2:--}" "$1"
 }
 
 fetch_tarball() {
@@ -231,7 +236,14 @@ fetch_tarball() {
     fi
   fi
 
+  local tar_args="xzvf"
   local package_filename="${package_name}.tar.gz"
+
+  if [ "$package_url" != "${package_url%bz2}" ]; then
+    package_filename="${package_filename%.gz}.bz2"
+    tar_args="${tar_args/z/j}"
+  fi
+
   symlink_tarball_from_cache "$package_filename" "$checksum" || {
     echo "Downloading ${package_filename}..." >&2
     { http head "$mirror_url" &&
@@ -240,8 +252,13 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
-  { tar xzvf "$package_filename"
-    rm -f "$package_filename"
+  { if tar $tar_args "$package_filename"; then
+      if [ -z "$KEEP_BUILD_PATH" ]; then
+        rm -f "$package_filename"
+      else
+        true
+      fi
+    fi
   } >&4 2>&1
 }
 
@@ -266,7 +283,7 @@ download_tarball() {
 
   echo "-> $package_url" >&2
 
-  { http get "$package_url" > "$package_filename"
+  { http get "$package_url" "$package_filename"
     verify_checksum "$package_filename" "$checksum"
   } >&4 2>&1 || return 1
 
@@ -286,6 +303,20 @@ fetch_git() {
   echo "Cloning ${git_url}..." >&2
 
   if type git &>/dev/null; then
+    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+      pushd "$RUBY_BUILD_CACHE_PATH" >&4
+      local clone_name="$(sanitize "$git_url")"
+      if [ -e "${clone_name}" ]; then
+        { cd "${clone_name}"
+          git fetch --force "$git_url" "+${git_ref}:${git_ref}"
+        } >&4 2>&1
+      else
+        git clone --bare --branch "$git_ref" "$git_url" "${clone_name}" >&4 2>&1
+      fi
+      git_url="$RUBY_BUILD_CACHE_PATH/${clone_name}"
+      popd >&4
+    fi
+
     git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
   else
     echo "error: please install \`git\` and try again" >&2
@@ -352,9 +383,15 @@ build_package_standard() {
   local PACKAGE_CONFIGURE_OPTS_ARRAY="${package_var_name}_CONFIGURE_OPTS_ARRAY[@]"
   local PACKAGE_MAKE_OPTS="${package_var_name}_MAKE_OPTS"
   local PACKAGE_MAKE_OPTS_ARRAY="${package_var_name}_MAKE_OPTS_ARRAY[@]"
+  local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
 
-  { ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
-    "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
+  ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
+      export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
+    fi
+    ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
+  ) >&4 2>&1
+
+  { "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
     "$MAKE" install
   } >&4 2>&1
 }
@@ -375,7 +412,18 @@ build_package_ree_installer() {
   local options=""
   if [[ "Darwin" = "$(uname)" ]]; then
     options="--no-tcmalloc"
+
+    # Some versions of REE mistakenly detect Tk support
+    # on OS X even though X11 is not installed.
+    if [ ! -d "/usr/include/X11" ]; then
+      options="$options -c --without-tk"
+    fi
   fi
+
+  local option
+  for option in $RUBY_CONFIGURE_OPTS; do
+    options="$options -c $option"
+  done
 
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
@@ -387,8 +435,22 @@ build_package_ree_installer() {
 build_package_rbx() {
   local package_name="$1"
 
-  { ./configure --prefix="$PREFIX_PATH" --gemsdir="$PREFIX_PATH"
+  { bundle
+    ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS
     rake install
+    fix_rbx_gem_binstubs "$PREFIX_PATH"
+  } >&4 2>&1
+}
+
+build_package_mruby() {
+  local package_name="$1"
+
+  { rake
+    mkdir -p "$PREFIX_PATH"
+    cp -R build/host/* "$PREFIX_PATH"
+    cd "$PREFIX_PATH/bin"
+    ln -fs mruby ruby
+    ln -fs mirb irb
   } >&4 2>&1
 }
 
@@ -405,6 +467,24 @@ build_package_maglev() {
   } >&4 2>&1
   echo
   echo "Run 'maglev start' to start up the stone before using 'ruby' or 'irb'"
+}
+
+build_package_topaz() {
+  build_package_copy
+  { cd "${PREFIX_PATH}/bin"
+    echo "Creating symlink for ruby*"
+    ln -fs topaz ruby
+  } >&4 2>&1
+}
+
+topaz_architecture() {
+  case "$(uname -s)" in
+  "Darwin") echo "osx64";;
+  "Linux") [[ "$(uname -m)" = "x86_64" ]] && echo "linux64" || echo "linux32";;
+  *)
+    echo "no nightly builds available" >&2
+    exit 1;;
+  esac
 }
 
 build_package_jruby() {
@@ -444,6 +524,20 @@ fix_directory_permissions() {
   find "$PREFIX_PATH" -type d \( -perm -020 -o -perm -002 \) -exec chmod go-w {} \;
 }
 
+fix_rbx_gem_binstubs() {
+  local prefix="$1"
+  local gemdir="${prefix}/gems/bin"
+  local bindir="${prefix}/bin"
+  # Symlink Rubinius' `gems/bin/` into `bin/`
+  if [ -d "$gemdir" ]; then
+    for file in "$gemdir"/*; do
+      [ -x "$file" ] && mv "$file" "$bindir"
+    done
+    rm -rf "$gemdir"
+    ln -s ../bin "$gemdir"
+  fi
+}
+
 require_gcc() {
   local gcc="$(locate_gcc || true)"
 
@@ -465,8 +559,15 @@ require_gcc() {
         echo "\`llvm-gcc\`. To build older versions of Ruby you must have the official"
         echo "GCC compiler installed on your system."
         echo
-        echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install the official GCC compiler using these"
-        echo "packages: ${esc}[4mhttps://github.com/kennethreitz/osx-gcc-installer/downloads${esc}[0m"
+
+        if type brew &>/dev/null; then
+          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install Homebrew's apple-gcc42 package with this"
+          echo "command: ${esc}[4mbrew tap homebrew/dupes ; brew install apple-gcc42${esc}[0m"
+        else
+          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install the official GCC compiler using these"
+          echo "packages: ${esc}[4mhttps://github.com/kennethreitz/osx-gcc-installer/downloads${esc}[0m"
+        fi
+
         echo
         echo "You will need to install the official GCC compiler to build older"
         echo "versions of Ruby even if you have installed Apple's Command Line Tools"
@@ -528,10 +629,34 @@ verify_gcc() {
   echo "$gcc"
 }
 
+needs_yaml() {
+  [[ "$RUBY_CONFIGURE_OPTS" != *--with-libyaml-dir=* ]] &&
+  ! use_homebrew_yaml
+}
+
+use_homebrew_yaml() {
+  local libdir="$(brew --prefix libyaml 2>/dev/null || true)"
+  if [ -d "$libdir" ]; then
+    package_option ruby configure --with-libyaml-dir="$libdir"
+  else
+    return 1
+  fi
+}
+
 has_broken_mac_openssl() {
   [ "$(uname -s)" = "Darwin" ] &&
-  [ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8r 8 Feb 2011" ] &&
-  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
+  [[ "$(openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8"?* ]] &&
+  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]] &&
+  ! use_homebrew_openssl
+}
+
+use_homebrew_openssl() {
+  local ssldir="$(brew --prefix openssl 2>/dev/null || true)"
+  if [ -d "$ssldir" ]; then
+    package_option ruby configure --with-openssl-dir="$ssldir"
+  else
+    return 1
+  fi
 }
 
 build_package_mac_openssl() {
@@ -548,8 +673,8 @@ build_package_mac_openssl() {
   export KERNEL_BITS="64"
   OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}"
 
-  # Compile with zlib, no kerberos, and do a static build.
-  package_option openssl configure --openssldir="$OPENSSLDIR" zlib no-krb5 no-shared
+  # Compile a shared lib with zlib dynamically linked, no kerberos.
+  package_option openssl configure --openssldir="$OPENSSLDIR" zlib-dynamic no-krb5 shared
 
   # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
   # gives precedence to the last -j option, so we can override that.
@@ -558,10 +683,9 @@ build_package_mac_openssl() {
   build_package_standard "$@"
 
   # Extract root certs from the system keychain in .pem format and rehash.
-  local pem_file="$OPENSSLDIR/cacert.pem"
+  local pem_file="$OPENSSLDIR/cert.pem"
   security find-certificate -a -p /Library/Keychains/System.keychain > "$pem_file"
   security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> "$pem_file"
-  "$OPENSSL_PREFIX_PATH/bin/c_rehash" "$OPENSSLDIR" >&4 2>&1
 }
 
 # Post-install check that the openssl extension was built.
@@ -641,7 +765,7 @@ elif [ ! -e "$DEFINITION_PATH" ]; then
     DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"
   else
     echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
-    exit 1
+    exit 2
   fi
 fi
 
@@ -656,8 +780,14 @@ else
   TMP="${TMPDIR%/}"
 fi
 
-if [ -z "$CC" ]; then
-  export CC="cc"
+# Work around warnings building Ruby 2.0 on Clang 2.x:
+# pass -Wno-error=shorten-64-to-32 if the compiler accepts it.
+#
+# When we set CFLAGS, Ruby won't apply its default flags, though. Since clang
+# builds 1.9.x and 2.x only, where -O3 is default, we can safely set that flag.
+# Ensure it's the first flag since later flags take precedence.
+if "${CC:-cc}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
+  RUBY_CFLAGS="-O3 -Wno-error=shorten-64-to-32 $RUBY_CFLAGS"
 fi
 
 if [ -z "$MAKE" ]; then
@@ -701,7 +831,8 @@ fi
 exec 4<> "$LOG_PATH" # open the log file at fd 4
 if [ -n "$VERBOSE" ]; then
   tail -f "$LOG_PATH" &
-  trap "kill 0" SIGINT SIGTERM EXIT
+  TAIL_PID=$!
+  trap "kill $TAIL_PID" SIGINT SIGTERM EXIT
 fi
 
 export LDFLAGS="-L'${PREFIX_PATH}/lib' ${LDFLAGS}"

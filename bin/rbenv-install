@@ -42,6 +42,15 @@ usage() {
   [ -z "$1" ] || exit "$1"
 }
 
+definitions() {
+  local query="$1"
+  ruby-build --definitions | grep -F "$query" || true
+}
+
+indent() {
+  sed 's/^/  /'
+}
+
 unset FORCE
 unset KEEP
 unset VERBOSE
@@ -54,7 +63,7 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "l" | "list" )
     echo "Available versions:"
-    ruby-build --definitions | sed 's/^/  /'
+    definitions | indent
     exit
     ;;
   "f" | "force" )
@@ -112,6 +121,8 @@ done
 [ -n "$VERSION_NAME" ] || VERSION_NAME="${DEFINITION##*/}"
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
+[ -d "${PREFIX}" ] && PREFIX_EXISTS=1
+
 # If the installation prefix exists, prompt for confirmation unless
 # the --force option was specified.
 if [ -z "$FORCE" ] && [ -d "${PREFIX}/bin" ]; then
@@ -136,19 +147,52 @@ if [ -z "${RUBY_BUILD_CACHE_PATH}" ] && [ -d "${RBENV_ROOT}/cache" ]; then
   export RUBY_BUILD_CACHE_PATH="${RBENV_ROOT}/cache"
 fi
 
+# Default RBENV_VERSION to the globally-specified Ruby version. (The
+# REE installer requires an existing Ruby installation to run. An
+# unsatisfied local .ruby-version file can cause the installer to
+# fail.)
+export RBENV_VERSION="$(rbenv global 2>/dev/null || true)"
+
 
 # Execute `before_install` hooks.
 for hook in "${before_hooks[@]}"; do eval "$hook"; done
 
-# Invoke `ruby-build` and record the exit status in $STATUS. Run
-# `rbenv rehash` after a successful installation.
+# Plan cleanup on unsuccessful installation.
+cleanup() {
+  [ -z "${PREFIX_EXISTS}" ] && rm -rf "$PREFIX"
+}
+
+trap cleanup SIGINT
+
+# Invoke `ruby-build` and record the exit status in $STATUS.
 STATUS=0
 ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX" || STATUS="$?"
+
+# Display a more helpful message if the definition wasn't found.
+if [ "$STATUS" == "2" ]; then
+  { candidates="$(definitions "$DEFINITION")"
+    if [ -n "$candidates" ]; then
+      echo
+      echo "The following versions contain \`$DEFINITION' in the name:"
+      echo "$candidates" | indent
+    fi
+    echo
+    echo "You can list all available versions with \`rbenv install --list'."
+    echo
+    echo "If the version you're looking for is not present, first try upgrading"
+    echo "ruby-build. If it's still missing, open a request on the ruby-build"
+    echo "issue tracker: https://github.com/sstephenson/ruby-build/issues"
+  } >&2
+fi
 
 # Execute `after_install` hooks.
 for hook in "${after_hooks[@]}"; do eval "$hook"; done
 
 # Run `rbenv-rehash` after a successful installation.
-[ "$STATUS" != "0" ] || rbenv rehash
+if [ "$STATUS" == "0" ]; then
+  rbenv rehash
+else
+  cleanup
+fi
 
 exit "$STATUS"
