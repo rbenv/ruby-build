@@ -1,7 +1,11 @@
-export PATH="$BATS_TEST_DIRNAME/../bin:$PATH"
 export TMP="$BATS_TEST_DIRNAME/tmp"
-export FIXTURE_ROOT="$BATS_TEST_DIRNAME/fixtures"
-export INSTALL_ROOT="$TMP/install"
+
+if [ "$FIXTURE_ROOT" != "$BATS_TEST_DIRNAME/fixtures" ]; then
+  export FIXTURE_ROOT="$BATS_TEST_DIRNAME/fixtures"
+  export INSTALL_ROOT="$TMP/install"
+  export PATH="$BATS_TEST_DIRNAME/../bin:$PATH"
+  export PATH="$TMP/bin:$PATH"
+fi
 
 teardown() {
   rm -fr "$TMP"/*
@@ -16,7 +20,8 @@ stub() {
   export "${prefix}_STUB_RUN"="${TMP}/${program}-stub-run"
   export "${prefix}_STUB_END"=
 
-  export PATH="${BATS_TEST_DIRNAME}/stubs/${program}:$PATH"
+  mkdir -p "${TMP}/bin"
+  ln -shf "${BATS_TEST_DIRNAME}/stubs/stub" "${TMP}/bin/${program}"
 
   rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
   touch "${TMP}/${program}-stub-plan"
@@ -26,14 +31,12 @@ stub() {
 unstub() {
   local program="$1"
   local prefix="$(echo "$program" | tr a-z A-Z)"
+  local path="${TMP}/bin/${program}"
 
   export "${prefix}_STUB_END"=1
 
-  local path="${BATS_TEST_DIRNAME}/stubs/$program"
-  local escaped_path="${path//\//\\/}"
-  export PATH="${PATH/${escaped_path}:}"
-
-  "${path}/$program"
+  "$path"
+  rm -f "$path"
 }
 
 install_fixture() {
