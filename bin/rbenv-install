@@ -31,11 +31,6 @@ fi
 # Load shared library functions
 eval "$(ruby-build --lib)"
 
-# Set environment variables based on OSTYPE
-if [ "${OSTYPE}" = "FreeBSD" ]; then
-  export MAKE=${MAKE:-gmake}
-fi
-
 usage() {
   # We can remove the sed fallback once rbenv 0.4.0 is widely available.
   rbenv-help install 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,4d;p' < "$0"
