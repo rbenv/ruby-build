@@ -5,7 +5,7 @@
 
 set -e
 
-cd "${0%/*}"
+cd "${0%/*}" # can we remove this ?
 
 if [ -z "${PREFIX}" ]; then
   PREFIX="/usr/local"
