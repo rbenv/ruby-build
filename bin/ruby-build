@@ -714,7 +714,8 @@ bundle() {
 }
 
 isolated_gem_dependency() {
-  if ! command $1 &>/dev/null; then
+  local output="$(command $1 2>/dev/null || true)"
+  if [ -z "$output" ]; then
     shift 1
     isolated_gem_install "$@"
   fi

@@ -135,7 +135,7 @@ OUT
   chmod -w "$INSTALL_ROOT/bin/mruby"
 
   stub gem false
-  stub rake '--version : true' true
+  stub rake '--version : echo 1' true
 
   run_inline_definition <<DEF
 install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
@@ -149,15 +149,30 @@ DEF
   assert [ -e "$INSTALL_ROOT/bin/irb" ]
 }
 
+@test "mruby strategy fetches rake if missing" {
+  cached_tarball "mruby-1.0" build/host/bin/mruby
+
+  stub rake '--version : false' true
+  stub gem 'install rake -v *10.1.0 : true'
+
+  run_inline_definition <<DEF
+install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
+DEF
+  assert_success
+
+  unstub gem
+  unstub rake
+}
+
 @test "rbx uses bundle then rake" {
   cached_tarball "rubinius-2.0.0" "Gemfile"
 
   stub gem false
   stub rake false
   stub bundle \
-    '--version : true' \
+    '--version : echo 1' \
     ' : echo bundle >> build.log' \
-    '--version : true' \
+    '--version : echo 1' \
     " exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
 
   run_inline_definition <<DEF
