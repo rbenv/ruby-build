@@ -13,7 +13,7 @@ setup() {
 cached_tarball() {
   mkdir -p "$RUBY_BUILD_CACHE_PATH"
   pushd "$RUBY_BUILD_CACHE_PATH" >/dev/null
-  tarball "$1"
+  tarball "$@"
   popd >/dev/null
 }
 
@@ -21,13 +21,19 @@ tarball() {
   local name="$1"
   local path="$PWD/$name"
   local configure="$path/configure"
+  shift 1
 
   mkdir -p "$path"
   cat > "$configure" <<OUT
 #!$BASH
-echo "$name: \$@" > build.log
+echo "$name: \$@" >> build.log
 OUT
   chmod +x "$configure"
+
+  for file; do
+    mkdir -p "$(dirname "${path}/${file}")"
+    touch "${path}/${file}"
+  done
 
   tar czf "${path}.tar.gz" -C "${path%/*}" "$name"
 }
@@ -122,23 +128,18 @@ OUT
 }
 
 @test "mruby strategy overwrites non-writable files" {
-  mkdir -p "$RUBY_BUILD_CACHE_PATH"
-  cd "$RUBY_BUILD_CACHE_PATH"
-  mkdir -p "mruby-1.0/build/host/bin"
-  touch "mruby-1.0/build/host/bin"/{mruby,mirb}
-  tar czf "mruby-1.0.tar.gz" "mruby-1.0"
+  cached_tarball "mruby-1.0" build/host/bin/{mruby,mirb}
 
   mkdir -p "$INSTALL_ROOT/bin"
   touch "$INSTALL_ROOT/bin/mruby"
   chmod -w "$INSTALL_ROOT/bin/mruby"
 
-  cat > "definition" <<DEF
+  stub gem false
+  stub rake '--version : echo 1' true
+
+  run_inline_definition <<DEF
 install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
 DEF
-
-  stub rake true
-
-  run ruby-build "definition" "$INSTALL_ROOT"
   assert_success
 
   unstub rake
@@ -146,4 +147,44 @@ DEF
   assert [ -w "$INSTALL_ROOT/bin/mruby" ]
   assert [ -e "$INSTALL_ROOT/bin/ruby" ]
   assert [ -e "$INSTALL_ROOT/bin/irb" ]
+}
+
+@test "mruby strategy fetches rake if missing" {
+  cached_tarball "mruby-1.0" build/host/bin/mruby
+
+  stub rake '--version : false' true
+  stub gem 'install rake -v *10.1.0 : true'
+
+  run_inline_definition <<DEF
+install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
+DEF
+  assert_success
+
+  unstub gem
+  unstub rake
+}
+
+@test "rbx uses bundle then rake" {
+  cached_tarball "rubinius-2.0.0" "Gemfile"
+
+  stub gem false
+  stub rake false
+  stub bundle \
+    '--version : echo 1' \
+    ' : echo bundle >> build.log' \
+    '--version : echo 1' \
+    " exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
+
+  run_inline_definition <<DEF
+install_package "rubinius-2.0.0" "http://releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
+DEF
+  assert_success
+
+  unstub bundle
+
+  assert_build_log <<OUT
+bundle
+rubinius-2.0.0: --prefix=$INSTALL_ROOT
+bundle exec rake install
+OUT
 }

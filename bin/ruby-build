@@ -699,6 +699,34 @@ build_package_verify_openssl() {
   end' >&4 2>&1
 }
 
+rake() {
+  if [ -e "./Gemfile" ]; then
+    bundle exec rake "$@"
+  else
+    isolated_gem_dependency "rake --version" rake -v '~> 10.1.0'
+    command rake "$@"
+  fi
+}
+
+bundle() {
+  isolated_gem_dependency "bundle --version" bundler -v '~> 1.3.5'
+  command bundle "$@"
+}
+
+isolated_gem_dependency() {
+  local output="$(command $1 2>/dev/null || true)"
+  if [ -z "$output" ]; then
+    shift 1
+    isolated_gem_install "$@"
+  fi
+}
+
+isolated_gem_install() {
+  export GEM_HOME="${PWD}/.gem"
+  export PATH="${GEM_HOME}/bin:${PATH}"
+  gem install "$@"
+}
+
 version() {
   echo "ruby-build ${RUBY_BUILD_VERSION}"
 }
