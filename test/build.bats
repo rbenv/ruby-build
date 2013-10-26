@@ -1,10 +1,24 @@
 #!/usr/bin/env bats
 
 load test_helper
+export RUBY_BUILD_CACHE_PATH="$TMP/cache"
+
+setup() {
+  mkdir -p "$INSTALL_ROOT"
+  stub md5 false
+  stub curl false
+}
+
+cached_tarball() {
+  mkdir -p "$RUBY_BUILD_CACHE_PATH"
+  pushd "$RUBY_BUILD_CACHE_PATH" >/dev/null
+  tarball "$1"
+  popd >/dev/null
+}
 
 tarball() {
   local name="$1"
-  local path="$TMP/$name"
+  local path="$PWD/$name"
   local configure="$path/configure"
 
   mkdir -p "$path"
@@ -14,68 +28,67 @@ echo "$name: \$@" > build.log
 OUT
   chmod +x "$configure"
 
-  tar czf "${path}.tgz" -C "$TMP" "$name"
-  echo "${path}.tgz"
+  tar czf "${path}.tar.gz" -C "${path%/*}" "$name"
 }
 
-stub_download() {
-  stub curl "-C - -o * -*S* $1 : cp '$(tarball "$2")' \$4"
+stub_make_install() {
+  stub make \
+    ' : echo make "$@" >> build.log' \
+    "install : cat build.log >> '$INSTALL_ROOT/build.log'"
+}
+
+assert_build_log() {
+  run cat "$INSTALL_ROOT/build.log"
+  assert_output
 }
 
 @test "yaml is installed for ruby" {
-  mkdir -p "$INSTALL_ROOT/bin"
+  cached_tarball "yaml-0.1.4"
+  cached_tarball "ruby-2.0.0"
 
-  stub md5 false
   stub brew false
-  stub_download "http://pyyaml.org/*" "yaml-0.1.4"
-  stub_download "http://ruby-lang.org/*" "ruby-2.0.0"
-  stub make \
-    ' : echo make "$@" >> build.log' \
-    "install : cp build.log '$INSTALL_ROOT/yaml.log'" \
-    ' : echo make "$@" >> build.log' \
-    "install : cp build.log '$INSTALL_ROOT/ruby.log'"
+  stub_make_install
+  stub_make_install
 
   install_fixture definitions/needs-yaml
   assert_success
 
-  unstub curl
   unstub make
 
-  run cat "$INSTALL_ROOT/yaml.log"
-  assert_output <<OUT
+  assert_build_log <<OUT
 yaml-0.1.4: --prefix=$INSTALL_ROOT
 make -j 2
-OUT
-
-  run cat "$INSTALL_ROOT/ruby.log"
-  assert_output <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
 OUT
 }
 
 @test "yaml is linked from Homebrew" {
+  cached_tarball "ruby-2.0.0"
+
   brew_libdir="$TMP/homebrew-yaml"
-  mkdir -p "$INSTALL_ROOT/bin"
   mkdir -p "$brew_libdir"
 
-  stub md5 false
   stub brew "--prefix libyaml : echo '$brew_libdir'"
-  stub_download "http://ruby-lang.org/*" "ruby-2.0.0"
-  stub make \
-    ' : echo make "$@" >> build.log' \
-    "install : cp build.log '$INSTALL_ROOT/ruby.log'"
+  stub_make_install
 
   install_fixture definitions/needs-yaml
   assert_success
 
   unstub brew
-  unstub curl
   unstub make
 
-  run cat "$INSTALL_ROOT/ruby.log"
-  assert_output <<OUT
+  assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT --with-libyaml-dir=$brew_libdir
 make -j 2
 OUT
+}
+
+@test "custom relative install destination" {
+  export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
+
+  cd "$TMP"
+  install_fixture definitions/without-checksum ./here
+  assert_success
+  assert [ -x ./here/bin/package ]
 }
