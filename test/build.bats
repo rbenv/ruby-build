@@ -142,7 +142,8 @@ OUT
 install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
 DEF
 
-  stub rake true
+  stub gem false
+  stub rake '--version : true' true
 
   run ruby-build "definition" "$INSTALL_ROOT"
   assert_success
@@ -162,8 +163,12 @@ DEF
 install_package "rubinius-2.0.0" "http://releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
 DEF
 
+  stub gem false
   stub rake false
-  stub bundle ' : echo bundle >> build.log' \
+  stub bundle \
+    '--version : true' \
+    ' : echo bundle >> build.log' \
+    '--version : true' \
     " exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
 
   run ruby-build "definition" "$INSTALL_ROOT"

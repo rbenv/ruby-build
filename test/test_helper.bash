@@ -3,8 +3,10 @@ export TMP="$BATS_TEST_DIRNAME/tmp"
 if [ "$FIXTURE_ROOT" != "$BATS_TEST_DIRNAME/fixtures" ]; then
   export FIXTURE_ROOT="$BATS_TEST_DIRNAME/fixtures"
   export INSTALL_ROOT="$TMP/install"
-  export PATH="$BATS_TEST_DIRNAME/../bin:$PATH"
-  export PATH="$TMP/bin:$PATH"
+  PATH=/usr/bin:/usr/sbin:/bin/:/sbin
+  PATH="$BATS_TEST_DIRNAME/../bin:$PATH"
+  PATH="$TMP/bin:$PATH"
+  export PATH
 fi
 
 teardown() {
