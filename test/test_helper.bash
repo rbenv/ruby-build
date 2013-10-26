@@ -44,6 +44,12 @@ unstub() {
   return "$STATUS"
 }
 
+run_inline_definition() {
+  local definition="${TMP}/build-definition"
+  cat > "$definition"
+  run ruby-build "$definition" "${1:-$INSTALL_ROOT}"
+}
+
 install_fixture() {
   local name="$1"
   local destination="$2"
