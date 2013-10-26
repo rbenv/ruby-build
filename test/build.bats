@@ -2,6 +2,7 @@
 
 load test_helper
 export RUBY_BUILD_CACHE_PATH="$TMP/cache"
+export MAKE=make
 
 setup() {
   mkdir -p "$INSTALL_ROOT"
@@ -32,8 +33,8 @@ OUT
 }
 
 stub_make_install() {
-  stub make \
-    ' : echo make "$@" >> build.log' \
+  stub "$MAKE" \
+    " : echo \"$MAKE \$@\" >> build.log" \
     "install : cat build.log >> '$INSTALL_ROOT/build.log'"
 }
 
@@ -91,4 +92,17 @@ OUT
   install_fixture definitions/without-checksum ./here
   assert_success
   assert [ -x ./here/bin/package ]
+}
+
+@test "make on FreeBSD defaults to gmake" {
+  cached_tarball "ruby-2.0.0"
+
+  stub uname "-s : echo FreeBSD"
+  MAKE=gmake stub_make_install
+
+  MAKE= install_fixture definitions/vanilla-ruby
+  assert_success
+
+  unstub gmake
+  unstub uname
 }

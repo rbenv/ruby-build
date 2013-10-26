@@ -793,7 +793,11 @@ if "${CC:-cc}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
 fi
 
 if [ -z "$MAKE" ]; then
-  export MAKE="make"
+  if [[ "FreeBSD" = "$(uname -s)" ]]; then
+    export MAKE="gmake"
+  else
+    export MAKE="make"
+  fi
 fi
 
 if [ -n "$RUBY_BUILD_CACHE_PATH" ] && [ -d "$RUBY_BUILD_CACHE_PATH" ]; then
