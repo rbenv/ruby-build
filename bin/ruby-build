@@ -283,9 +283,12 @@ download_tarball() {
 
   echo "-> $package_url" >&2
 
-  { http get "$package_url" "$package_filename"
-    verify_checksum "$package_filename" "$checksum"
-  } >&4 2>&1 || return 1
+  if http get "$package_url" "$package_filename" >&4 2>&1; then
+    verify_checksum "$package_filename" "$checksum" >&4 2>&1 || return 1
+  else
+    echo "error: failed to download $package_filename" >&2
+    return 1
+  fi
 
   if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
     local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"

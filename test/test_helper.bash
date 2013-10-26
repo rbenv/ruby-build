@@ -94,3 +94,12 @@ assert_output() {
   fi
   assert_equal "$expected" "$output"
 }
+
+assert_output_contains() {
+  local expected="$1"
+  echo "$output" | grep -F "$expected" >/dev/null || {
+    { echo "expected output to contain $expected"
+      echo "actual: $output"
+    } | flunk
+  }
+}
