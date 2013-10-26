@@ -244,13 +244,12 @@ fetch_tarball() {
     tar_args="${tar_args/z/j}"
   fi
 
-  symlink_tarball_from_cache "$package_filename" "$checksum" || {
+  if ! symlink_tarball_from_cache "$package_filename" "$checksum"; then
     echo "Downloading ${package_filename}..." >&2
-    { http head "$mirror_url" &&
-      download_tarball "$mirror_url" "$package_filename" "$checksum"
-    } ||
+    http head "$mirror_url" &&
+    download_tarball "$mirror_url" "$package_filename" "$checksum" ||
     download_tarball "$package_url" "$package_filename" "$checksum"
-  }
+  fi
 
   { if tar $tar_args "$package_filename"; then
       if [ -z "$KEEP_BUILD_PATH" ]; then
