@@ -1,6 +1,9 @@
 install: git clone https://github.com/sstephenson/bats.git
 script: script/test
 language: c
+notifications:
+  email:
+    on_success: never
 env:
   global:
     - AMAZON_S3_BUCKET=ruby-build-mirror
