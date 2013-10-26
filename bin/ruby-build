@@ -699,6 +699,14 @@ build_package_verify_openssl() {
   end' >&4 2>&1
 }
 
+rake() {
+  if [ -e "./Gemfile" ]; then
+    bundle exec rake "$@"
+  else
+    command rake "$@"
+  fi
+}
+
 version() {
   echo "ruby-build ${RUBY_BUILD_VERSION}"
 }

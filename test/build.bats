@@ -13,7 +13,7 @@ setup() {
 cached_tarball() {
   mkdir -p "$RUBY_BUILD_CACHE_PATH"
   pushd "$RUBY_BUILD_CACHE_PATH" >/dev/null
-  tarball "$1"
+  tarball "$@"
   popd >/dev/null
 }
 
@@ -21,13 +21,19 @@ tarball() {
   local name="$1"
   local path="$PWD/$name"
   local configure="$path/configure"
+  shift 1
 
   mkdir -p "$path"
   cat > "$configure" <<OUT
 #!$BASH
-echo "$name: \$@" > build.log
+echo "$name: \$@" >> build.log
 OUT
   chmod +x "$configure"
+
+  for file; do
+    mkdir -p "$(dirname "${path}/${file}")"
+    touch "${path}/${file}"
+  done
 
   tar czf "${path}.tar.gz" -C "${path%/*}" "$name"
 }
@@ -146,4 +152,28 @@ DEF
   assert [ -w "$INSTALL_ROOT/bin/mruby" ]
   assert [ -e "$INSTALL_ROOT/bin/ruby" ]
   assert [ -e "$INSTALL_ROOT/bin/irb" ]
+}
+
+@test "rbx uses bundle then rake" {
+  cached_tarball "rubinius-2.0.0" "Gemfile"
+
+  cd "$TMP"
+  cat > "definition" <<DEF
+install_package "rubinius-2.0.0" "http://releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
+DEF
+
+  stub rake false
+  stub bundle ' : echo bundle >> build.log' \
+    " exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
+
+  run ruby-build "definition" "$INSTALL_ROOT"
+  assert_success
+
+  unstub bundle
+
+  assert_build_log <<OUT
+bundle
+rubinius-2.0.0: --prefix=$INSTALL_ROOT
+bundle exec rake install
+OUT
 }
