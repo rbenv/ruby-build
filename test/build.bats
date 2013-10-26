@@ -83,3 +83,12 @@ ruby-2.0.0: --prefix=$INSTALL_ROOT --with-libyaml-dir=$brew_libdir
 make -j 2
 OUT
 }
+
+@test "custom relative install destination" {
+  export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
+
+  cd "$TMP"
+  install_fixture definitions/without-checksum ./here
+  assert_success
+  assert [ -x ./here/bin/package ]
+}
