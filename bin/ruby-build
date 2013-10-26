@@ -449,7 +449,7 @@ build_package_mruby() {
 
   { rake
     mkdir -p "$PREFIX_PATH"
-    cp -R build/host/* "$PREFIX_PATH"
+    cp -fR build/host/* "$PREFIX_PATH"
     cd "$PREFIX_PATH/bin"
     ln -fs mruby ruby
     ln -fs mirb irb
@@ -510,7 +510,7 @@ remove_windows_files() {
 
 build_package_copy() {
   mkdir -p "$PREFIX_PATH"
-  cp -R . "$PREFIX_PATH"
+  cp -fR . "$PREFIX_PATH"
 }
 
 before_install_package() {

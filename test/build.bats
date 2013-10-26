@@ -106,3 +106,44 @@ OUT
   unstub gmake
   unstub uname
 }
+
+@test "copy strategy forces overwrite" {
+  export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
+
+  mkdir -p "$INSTALL_ROOT/bin"
+  touch "$INSTALL_ROOT/bin/package"
+  chmod -w "$INSTALL_ROOT/bin/package"
+
+  install_fixture definitions/without-checksum
+  assert_success
+
+  run "$INSTALL_ROOT/bin/package" "world"
+  assert_success "hello world"
+}
+
+@test "mruby strategy overwrites non-writable files" {
+  mkdir -p "$RUBY_BUILD_CACHE_PATH"
+  cd "$RUBY_BUILD_CACHE_PATH"
+  mkdir -p "mruby-1.0/build/host/bin"
+  touch "mruby-1.0/build/host/bin"/{mruby,mirb}
+  tar czf "mruby-1.0.tar.gz" "mruby-1.0"
+
+  mkdir -p "$INSTALL_ROOT/bin"
+  touch "$INSTALL_ROOT/bin/mruby"
+  chmod -w "$INSTALL_ROOT/bin/mruby"
+
+  cat > "definition" <<DEF
+install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
+DEF
+
+  stub rake true
+
+  run ruby-build "definition" "$INSTALL_ROOT"
+  assert_success
+
+  unstub rake
+
+  assert [ -w "$INSTALL_ROOT/bin/mruby" ]
+  assert [ -e "$INSTALL_ROOT/bin/ruby" ]
+  assert [ -e "$INSTALL_ROOT/bin/irb" ]
+}
