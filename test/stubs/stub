@@ -11,6 +11,11 @@ _STUB_RUN="${PROGRAM}_STUB_RUN"
 _STUB_INDEX="${PROGRAM}_STUB_INDEX"
 _STUB_RESULT="${PROGRAM}_STUB_RESULT"
 _STUB_END="${PROGRAM}_STUB_END"
+_STUB_DEBUG="${PROGRAM}_STUB_DEBUG"
+
+if [ -n "${!_STUB_DEBUG}" ]; then
+  echo "$program" "$@" >&${!_STUB_DEBUG}
+fi
 
 [ -e "${!_STUB_PLAN}" ] || exit 1
 [ -n "${!_STUB_RUN}" ] || eval "${_STUB_RUN}"="${TMPDIR}/${program}-stub-run"
