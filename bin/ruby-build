@@ -841,6 +841,11 @@ else
   TMP="${TMPDIR%/}"
 fi
 
+if [ ! -w "$TMP" ] || [ ! -x "$TMP" ]; then
+  echo "ruby-build: TMPDIR=$TMP is set to a non-accessible location" >&2
+  exit 1
+fi
+
 # Work around warnings building Ruby 2.0 on Clang 2.x:
 # pass -Wno-error=shorten-64-to-32 if the compiler accepts it.
 #
