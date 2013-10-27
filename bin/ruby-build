@@ -835,8 +835,8 @@ if [ -n "$VERBOSE" ]; then
   trap "kill $TAIL_PID" SIGINT SIGTERM EXIT
 fi
 
-export LDFLAGS="-L'${PREFIX_PATH}/lib' ${LDFLAGS}"
-export CPPFLAGS="-I'${PREFIX_PATH}/include' ${CPPFLAGS}"
+export LDFLAGS="-L${PREFIX_PATH}/lib ${LDFLAGS}"
+export CPPFLAGS="-I${PREFIX_PATH}/include ${CPPFLAGS}"
 
 unset RUBYOPT
 unset RUBYLIB
