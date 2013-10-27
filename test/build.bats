@@ -3,6 +3,7 @@
 load test_helper
 export RUBY_BUILD_CACHE_PATH="$TMP/cache"
 export MAKE=make
+export MAKE_OPTS="-j 2"
 
 setup() {
   mkdir -p "$INSTALL_ROOT"
@@ -88,6 +89,51 @@ OUT
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT --with-libyaml-dir=$brew_libdir
 make -j 2
+OUT
+}
+
+@test "number of CPU cores defaults to 2" {
+  cached_tarball "ruby-2.0.0"
+
+  stub uname '-s : echo Darwin'
+  stub sysctl false
+  stub_make_install
+
+  export -n MAKE_OPTS
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+OUT
+}
+
+@test "number of CPU cores is detected on Mac" {
+  cached_tarball "ruby-2.0.0"
+
+  stub uname '-s : echo Darwin'
+  stub sysctl '-n hw.ncpu : echo 4'
+  stub_make_install
+
+  export -n MAKE_OPTS
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub sysctl
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 4
 OUT
 }
 

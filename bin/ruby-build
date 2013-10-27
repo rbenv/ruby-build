@@ -96,6 +96,17 @@ file_is_not_empty() {
   fi
 }
 
+num_cpu_cores() {
+  local num=""
+  if [ "Darwin" = "$(uname -s)" ]; then
+    num="$(sysctl -n hw.ncpu 2>/dev/null || true)"
+  elif [ -r /proc/cpuinfo ]; then
+    num="$(grep -c ^processor /proc/cpuinfo)"
+    [ "$num" -gt 0 ] || num=""
+  fi
+  echo "${num:-2}"
+}
+
 install_package() {
   install_package_using "tarball" 1 "$@"
 }
@@ -374,7 +385,7 @@ build_package_standard() {
   if [ "${MAKEOPTS+defined}" ]; then
     MAKE_OPTS="$MAKEOPTS"
   elif [ -z "${MAKE_OPTS+defined}" ]; then
-    MAKE_OPTS="-j 2"
+    MAKE_OPTS="-j $(num_cpu_cores)"
   fi
 
   # Support YAML_CONFIGURE_OPTS, RUBY_CONFIGURE_OPTS, etc.
