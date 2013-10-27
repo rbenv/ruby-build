@@ -234,3 +234,21 @@ rubinius-2.0.0: --prefix=$INSTALL_ROOT
 bundle exec rake install
 OUT
 }
+
+@test "non-writable TMPDIR aborts build" {
+  export TMPDIR="${TMP}/build"
+  mkdir -p "$TMPDIR"
+  chmod -w "$TMPDIR"
+
+  run_inline_definition <<<""
+  assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
+}
+
+@test "non-executable TMPDIR aborts build" {
+  export TMPDIR="${TMP}/build"
+  mkdir -p "$TMPDIR"
+  chmod -x "$TMPDIR"
+
+  run_inline_definition <<<""
+  assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
+}
