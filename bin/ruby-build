@@ -699,6 +699,16 @@ build_package_verify_openssl() {
   end' >&4 2>&1
 }
 
+# Ensure that directories listed in LDFLAGS exist
+build_package_ldflags_dirs() {
+  local arg
+  for arg in $LDFLAGS; do
+    case "$arg" in
+    -L* ) mkdir -p "${arg#-L}" ;;
+    esac
+  done
+}
+
 rake() {
   if [ -e "./Gemfile" ]; then
     bundle exec rake "$@"
