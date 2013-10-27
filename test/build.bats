@@ -240,7 +240,8 @@ OUT
   mkdir -p "$TMPDIR"
   chmod -w "$TMPDIR"
 
-  run_inline_definition <<<""
+  touch "${TMP}/build-definition"
+  run ruby-build "${TMP}/build-definition" "$INSTALL_ROOT"
   assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
 }
 
@@ -249,6 +250,7 @@ OUT
   mkdir -p "$TMPDIR"
   chmod -x "$TMPDIR"
 
-  run_inline_definition <<<""
+  touch "${TMP}/build-definition"
+  run ruby-build "${TMP}/build-definition" "$INSTALL_ROOT"
   assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
 }
