@@ -422,15 +422,11 @@ build_package_ruby() {
 }
 
 build_package_ree_installer() {
+  build_package_auto_tcltk
+
   local options=""
   if [[ "Darwin" = "$(uname)" ]]; then
     options="--no-tcmalloc"
-
-    # Some versions of REE mistakenly detect Tk support
-    # on OS X even though X11 is not installed.
-    if [ ! -d "/usr/include/X11" ]; then
-      options="$options -c --without-tk"
-    fi
   fi
 
   local option
@@ -718,6 +714,18 @@ build_package_ldflags_dirs() {
     -L* ) mkdir -p "${arg#-L}" ;;
     esac
   done
+}
+
+build_package_auto_tcltk() {
+  if [ "Darwin" = "$(uname -s)" ] && [ ! -d /usr/include/X11 ]; then
+    if [ -d /opt/X11/include ]; then
+      if [[ "$CPPFLAGS" != *-I/opt/X11/include* ]]; then
+        export CPPFLAGS="-I/opt/X11/include $CPPFLAGS"
+      fi
+    else
+      package_option ruby configure --without-tk
+    fi
+  fi
 }
 
 rake() {
