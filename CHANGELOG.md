@@ -1,5 +1,6 @@
 ## Version History
 
+#### 20131028
 * Abort early for invalid TMPDIR
 * Enable compiling Ruby 1.8 on OS X 10.8+ without extra flags
 * Detect number of CPU cores used for `make`
