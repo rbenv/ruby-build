@@ -430,7 +430,7 @@ build_package_ree_installer() {
   fi
 
   local option
-  for option in $RUBY_CONFIGURE_OPTS; do
+  for option in $RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[@]}; do
     options="$options -c $option"
   done
 
