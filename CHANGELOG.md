@@ -1,5 +1,9 @@
 ## Version History
 
+* Install the Rubinius bundle in isolation
+* Fix false "BUILD FAILED" message when installing Rubinius
+* Fix installing REE on OS X 10.8+ with no XQuartz
+
 #### 20131028
 * Abort early for invalid TMPDIR
 * Enable compiling Ruby 1.8 on OS X 10.8+ without extra flags
