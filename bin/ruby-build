@@ -444,7 +444,7 @@ build_package_ree_installer() {
 build_package_rbx() {
   local package_name="$1"
 
-  { bundle
+  { bundle --path=vendor/bundle
     ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
@@ -743,11 +743,13 @@ bundle() {
 }
 
 isolated_gem_dependency() {
-  local output="$(command $1 2>/dev/null || true)"
-  if [ -z "$output" ]; then
+  set +E
+  ( command $1 &>/dev/null ) || {
+    set -E
     shift 1
     isolated_gem_install "$@"
-  fi
+  }
+  set -E
 }
 
 isolated_gem_install() {

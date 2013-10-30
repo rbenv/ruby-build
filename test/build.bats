@@ -217,7 +217,7 @@ DEF
   stub rake false
   stub bundle \
     '--version : echo 1' \
-    ' : echo bundle >> build.log' \
+    ' : echo bundle "$@" >> build.log' \
     '--version : echo 1' \
     " exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
 
@@ -229,7 +229,7 @@ DEF
   unstub bundle
 
   assert_build_log <<OUT
-bundle
+bundle --path=vendor/bundle
 rubinius-2.0.0: --prefix=$INSTALL_ROOT
 bundle exec rake install
 OUT
