@@ -159,6 +159,35 @@ OUT
   unstub uname
 }
 
+@test "can use RUBY_CONFIGURE to apply a patch" {
+  cached_tarball "ruby-2.0.0"
+
+  cat > "${TMP}/custom-configure" <<CONF
+#!$BASH
+apply -p1 -i /my/patch.diff
+exec ./configure "\$@"
+CONF
+  chmod +x "${TMP}/custom-configure"
+
+  stub apply 'echo apply "$@" >> build.log'
+  stub_make_install
+
+  export RUBY_CONFIGURE="${TMP}/custom-configure"
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/pub/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub make
+  unstub apply
+
+  assert_build_log <<OUT
+apply -p1 -i /my/patch.diff
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+OUT
+}
+
 @test "copy strategy forces overwrite" {
   export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
 
