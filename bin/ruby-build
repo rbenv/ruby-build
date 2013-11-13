@@ -101,7 +101,7 @@ num_cpu_cores() {
   if [ "Darwin" = "$(uname -s)" ]; then
     num="$(sysctl -n hw.ncpu 2>/dev/null || true)"
   elif [ -r /proc/cpuinfo ]; then
-    num="$(grep -c ^processor /proc/cpuinfo)"
+    num="$(grep ^processor /proc/cpuinfo | wc -l)"
     [ "$num" -gt 0 ] || num=""
   fi
   echo "${num:-2}"
