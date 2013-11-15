@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20131115
+* Added a definition for JRuby 1.7.7
+* Added a definition for JRuby 1.7.8
+
 #### 20131030
 * Install the Rubinius bundle in isolation
 * Fix false "BUILD FAILED" message when installing Rubinius
