@@ -1,5 +1,9 @@
 ## Version History
 
+#### XXXX
+* Added a definition for 1.9.3-p484
+* Added a definition for 2.0.0-p353
+
 #### 20131115
 * Added a definition for JRuby 1.7.7
 * Added a definition for JRuby 1.7.8
