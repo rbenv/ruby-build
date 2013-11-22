@@ -27,7 +27,7 @@ tarball() {
   mkdir -p "$path"
   cat > "$configure" <<OUT
 #!$BASH
-echo "$name: \$@" >> build.log
+echo "$name: \$@" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} >> build.log
 OUT
   chmod +x "$configure"
 
@@ -259,7 +259,7 @@ DEF
 
   assert_build_log <<OUT
 bundle --path=vendor/bundle
-rubinius-2.0.0: --prefix=$INSTALL_ROOT
+rubinius-2.0.0: --prefix=$INSTALL_ROOT RUBYOPT=-rubygems
 bundle exec rake install
 OUT
 }
