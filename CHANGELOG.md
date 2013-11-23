@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20131122.1
+* Fix typo in 2.1.0-preview2 definition
+
 #### 20131122
 * Added a definition for 1.9.3-p484
 * Added a definition for 2.0.0-p353
