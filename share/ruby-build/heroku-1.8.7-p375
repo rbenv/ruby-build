@@ -1,0 +1,3 @@
+require_gcc
+install_package "ruby-1_8_7_375" "https://github.com/heroku/ruby/archive/v1_8_7_375.tar.gz#c4a92e56b636f0d8eca6f09de3f4ca17" autoconf auto_tcltk standard
+install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz#0c95a9869914ba1a45bf71d3b8048420" ruby
