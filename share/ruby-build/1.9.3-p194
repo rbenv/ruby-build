@@ -1,2 +1,12 @@
+before_install_package() {
+  local PACKAGE_DIR=$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+  case "$1" in
+  ruby-* )
+    # patch is from here https://bugs.ruby-lang.org/projects/ruby-trunk/repository/revisions/41808/diff
+    patch -p0 -i "$PACKAGE_DIR/patches/changeset_r41808.diff"
+    ;;
+  esac
+}
+
 install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz#36c852831d02cf90508c29852361d01b" --if needs_yaml
 install_package "ruby-1.9.3-p194" "http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p194.tar.gz#bc0c715c69da4d1d8bd57069c19f6c0e"
