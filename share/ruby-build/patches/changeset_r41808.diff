@@ -1,29 +1,8 @@
-Index: ChangeLog
-===================================================================
---- ChangeLog	(revision 41807)
-+++ ChangeLog	(revision 41808)
-@@ -1,3 +1,16 @@
-+Sat Jul  6 07:37:43 2013  Martin Bosslet  <Martin.Bosslet@gmail.com>
-+
-+	* ext/openssl/ossl_pkey_ec.c: Ensure compatibility to builds of
-+	  OpenSSL with OPENSSL_NO_EC2M defined, but OPENSSL_NO_EC not
-+	  defined.
-+	* test/openssl/test_pkey_ec.rb: Iterate over built-in curves
-+	  (and assert their non-emptiness!) instead of hard-coding them, as
-+	  this may cause problems with respect to the different availability
-+	  of individual curves in individual OpenSSL builds.
-+	  [ruby-core:54881] [Bug #8384]
-+
-+	  Thanks to Vit Ondruch for providing the patch!
-+
- Thu Jun 27 20:11:52 2013  NAKAMURA Usaku  <usa@ruby-lang.org>
- 
- 	* ext/openssl/lib/openssl/ssl-inernal.rb (verify_certificate_identity):
 Index: ext/openssl/ossl_pkey_ec.c
 ===================================================================
 --- ext/openssl/ossl_pkey_ec.c	(revision 41807)
 +++ ext/openssl/ossl_pkey_ec.c	(revision 41808)
-@@ -762,8 +762,10 @@
+@@ -757,8 +757,10 @@
                  method = EC_GFp_mont_method();
              } else if (id == s_GFp_nist) {
                  method = EC_GFp_nist_method();
@@ -34,7 +13,7 @@ Index: ext/openssl/ossl_pkey_ec.c
              }
  
              if (method) {
-@@ -817,8 +819,10 @@
+@@ -812,8 +814,10 @@
  
              if (id == s_GFp) {
                  new_curve = EC_GROUP_new_curve_GFp;
