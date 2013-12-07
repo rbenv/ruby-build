@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20131206
+* Added a definition for JRuby 1.7.9
+
 #### 20131122.1
 * Fix typo in 2.1.0-preview2 definition
 
