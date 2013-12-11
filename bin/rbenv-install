@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 #
-# Summary: Install a Ruby version using the ruby-build plugin
+# Summary: Install a Ruby version using ruby-build
 #
-# Usage: rbenv install [-fkvp] <version>
-#        rbenv install [-fkvp] <definition-file>
+# Usage: rbenv install [-f] [-kvp] <version>
+#        rbenv install [-f] [-kvp] <definition-file>
 #        rbenv install -l|--list
 #
 #   -l/--list        List all available versions
 #   -f/--force       Install even if the version appears to be installed already
+#
+#   ruby-build options:
+#
 #   -k/--keep        Keep source tree in $RBENV_BUILD_ROOT after installation
 #                    (defaults to $RBENV_ROOT/sources)
 #   -v/--verbose     Verbose mode: print compilation status to stdout
