@@ -71,6 +71,30 @@ make -j 2
 OUT
 }
 
+@test "apply ruby patch before building" {
+  cached_tarball "yaml-0.1.4"
+  cached_tarball "ruby-2.0.0"
+
+  stub brew false
+  stub_make_install
+  stub_make_install
+  stub patch ' : echo patch "$@" >> build.log'
+
+  install_fixture --patch definitions/needs-yaml
+  assert_success
+
+  unstub make
+  unstub patch
+
+  assert_build_log <<OUT
+yaml-0.1.4: --prefix=$INSTALL_ROOT
+make -j 2
+patch -p0 -i -
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+OUT
+}
+
 @test "yaml is linked from Homebrew" {
   cached_tarball "ruby-2.0.0"
 

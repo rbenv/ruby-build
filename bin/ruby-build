@@ -364,6 +364,8 @@ build_package() {
 
   echo "Installing ${package_name}..." >&2
 
+  [ -n "$HAS_PATCH" ] && apply_ruby_patch "$package_name"
+
   for command in $commands; do
     "build_package_${command}" "$package_name"
   done
@@ -770,13 +772,21 @@ isolated_gem_install() {
   gem install "$@"
 }
 
+apply_ruby_patch() {
+  case "$1" in
+  ruby-* | jruby-* | rubinius-* )
+    patch -p0 -i "${2:--}"
+    ;;
+  esac
+}
+
 version() {
   echo "ruby-build ${RUBY_BUILD_VERSION}"
 }
 
 usage() {
   { version
-    echo "usage: ruby-build [-k|--keep] [-v|--verbose] definition prefix"
+    echo "usage: ruby-build [-k|--keep] [-v|--verbose] [-p|--patch] definition prefix"
     echo "       ruby-build --definitions"
   } >&2
 
@@ -796,6 +806,7 @@ list_definitions() {
 
 unset VERBOSE
 unset KEEP_BUILD_PATH
+unset HAS_PATCH
 RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
 
 parse_options "$@"
@@ -807,6 +818,7 @@ for option in "${OPTIONS[@]}"; do
     { echo
       echo "  -k/--keep        Do not remove source tree after installation"
       echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
+      echo "  -p/--patch       Apply a patch from stdin before building"
       echo "  --definitions    List all built-in definitions"
       echo
     } >&2
@@ -821,6 +833,9 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "v" | "verbose" )
     VERBOSE=true
+    ;;
+  "p" | "patch" )
+    HAS_PATCH=true
     ;;
   "version" )
     version
