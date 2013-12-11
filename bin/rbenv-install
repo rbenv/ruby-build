@@ -2,8 +2,8 @@
 #
 # Summary: Install a Ruby version using the ruby-build plugin
 #
-# Usage: rbenv install [-f|--force] [-k|--keep] [-v|--verbose] [-p|--patch] <version>
-#        rbenv install [-f|--force] [-k|--keep] [-v|--verbose] [-p|--patch] <definition-file>
+# Usage: rbenv install [-fkvp] <version>
+#        rbenv install [-fkvp] <definition-file>
 #        rbenv install -l|--list
 #
 #   -l/--list        List all available versions
