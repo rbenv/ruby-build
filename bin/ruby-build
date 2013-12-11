@@ -537,10 +537,14 @@ fix_rbx_gem_binstubs() {
   local prefix="$1"
   local gemdir="${prefix}/gems/bin"
   local bindir="${prefix}/bin"
+  local file binstub
   # Symlink Rubinius' `gems/bin/` into `bin/`
   if [ -d "$gemdir" ]; then
     for file in "$gemdir"/*; do
-      [ -x "$file" ] && mv "$file" "$bindir"
+      binstub="${bindir}/${file##*/}"
+      rm -f "$binstub"
+      sed -E "s:^#\!.+:#\!${bindir}/ruby:" < "$file" > "$binstub"
+      chmod +x "$binstub"
     done
     rm -rf "$gemdir"
     ln -s ../bin "$gemdir"
