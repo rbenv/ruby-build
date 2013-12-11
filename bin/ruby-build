@@ -448,6 +448,7 @@ build_package_rbx() {
     RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
+    fix_rbx_irb "$PREFIX_PATH"
   } >&4 2>&1
 }
 
@@ -549,6 +550,13 @@ fix_rbx_gem_binstubs() {
     rm -rf "$gemdir"
     ln -s ../bin "$gemdir"
   fi
+}
+
+fix_rbx_irb() {
+  local prefix="$1"
+  "${prefix}/bin/irb" --version &>/dev/null ||
+    "${prefix}/bin/gem" install rubysl-tracer -v '~> 2.0' --no-rdoc --no-ri &>/dev/null ||
+    true
 }
 
 require_gcc() {
