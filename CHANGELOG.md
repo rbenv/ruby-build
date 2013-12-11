@@ -1,5 +1,10 @@
 ## Version History
 
+#### 20131211
+* Fix extracting topaz-dev archive
+* Auto-detect and link to Homebrew's readline
+* Fix irb, rake, rdoc, ri for rbx-2.2.1
+
 #### 20131206
 * Added a definition for JRuby 1.7.9
 
