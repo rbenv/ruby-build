@@ -507,12 +507,21 @@ build_package_jruby() {
   ln -fs jruby ruby
   install_jruby_launcher
   remove_windows_files
+  fix_jruby_shebangs
 }
 
 install_jruby_launcher() {
   cd "${PREFIX_PATH}/bin"
   { ./ruby gem install jruby-launcher
   } >&4 2>&1
+}
+
+fix_jruby_shebangs() {
+  for file in "${PREFIX_PATH}/bin"/*; do
+    if [ "$(head -c 20 "$file")" = "#!/usr/bin/env jruby" ]; then
+      sed -i -E "1s:.+:#\!${PREFIX_PATH}/bin/jruby:" "$file"
+    fi
+  done
 }
 
 remove_windows_files() {
