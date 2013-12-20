@@ -123,6 +123,25 @@ You can set certain environment variables to control the build process.
   make options for buildling MRI. These variables will be passed to Ruby only,
   not any dependent packages (e.g. libyaml).
 
+### Applying patches to Ruby before compiling
+
+Both `rbenv install` and `ruby-build` support the `--patch` (`-p`) flag that
+signals that a patch from stdin should be applied to Ruby, JRuby, or Rubinius
+source code before the `./configure` and compilation steps.
+
+Example usage:
+
+```sh
+# applying a single patch
+$ rbenv install --patch 1.9.3-p429 < /path/to/ruby.patch
+
+# applying a patch from HTTP
+$ rbenv install --patch 1.9.3-p429 < <(curl -sSL http://git.io/ruby.patch)
+
+# applying multiple patches
+$ cat fix1.patch fix2.patch | rbenv install --patch 1.9.3-p429
+```
+
 ### Checksum verification
 
 If you have the `md5`, `openssl`, or `md5sum` tool installed, ruby-build will
