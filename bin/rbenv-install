@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 #
-# Summary: Install a Ruby version using the ruby-build plugin
+# Summary: Install a Ruby version using ruby-build
 #
-# Usage: rbenv install [-f|--force] [-k|--keep] [-v|--verbose] <version>
-#        rbenv install [-f|--force] [-k|--keep] [-v|--verbose] <definition-file>
+# Usage: rbenv install [-f] [-kvp] <version>
+#        rbenv install [-f] [-kvp] <definition-file>
 #        rbenv install -l|--list
 #
 #   -l/--list        List all available versions
 #   -f/--force       Install even if the version appears to be installed already
+#
+#   ruby-build options:
+#
 #   -k/--keep        Keep source tree in $RBENV_BUILD_ROOT after installation
 #                    (defaults to $RBENV_ROOT/sources)
 #   -v/--verbose     Verbose mode: print compilation status to stdout
+#   -p/--patch       Apply a patch from stdin before building
 #
 # For detailed information on installing Ruby versions with
 # ruby-build, including a list of environment variables for adjusting
@@ -49,6 +53,7 @@ indent() {
 unset FORCE
 unset KEEP
 unset VERBOSE
+unset HAS_PATCH
 
 parse_options "$@"
 for option in "${OPTIONS[@]}"; do
@@ -69,6 +74,9 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "v" | "verbose" )
     VERBOSE="-v"
+    ;;
+  "p" | "patch" )
+    HAS_PATCH="-p"
     ;;
   "version" )
     exec ruby-build --version
@@ -161,7 +169,7 @@ trap cleanup SIGINT
 
 # Invoke `ruby-build` and record the exit status in $STATUS.
 STATUS=0
-ruby-build $KEEP $VERBOSE "$DEFINITION" "$PREFIX" || STATUS="$?"
+ruby-build $KEEP $VERBOSE $HAS_PATCH "$DEFINITION" "$PREFIX" || STATUS="$?"
 
 # Display a more helpful message if the definition wasn't found.
 if [ "$STATUS" == "2" ]; then

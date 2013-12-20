@@ -51,11 +51,18 @@ run_inline_definition() {
 }
 
 install_fixture() {
+  local args
+
+  while [ "${1#-}" != "$1" ]; do
+    args="$args $1"
+    shift 1
+  done
+
   local name="$1"
   local destination="$2"
   [ -n "$destination" ] || destination="$INSTALL_ROOT"
 
-  run ruby-build "$FIXTURE_ROOT/$name" "$destination"
+  run ruby-build $args "$FIXTURE_ROOT/$name" "$destination"
 }
 
 assert() {
