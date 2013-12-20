@@ -1,5 +1,10 @@
 ## Version History
 
+#### 20131220
+* Transform JRuby shebangs to absolute paths, fixing edge-case recursion in rbenv
+* Add `--patch` command-line option to patch Ruby from stdin before building
+* Add Ruby 2.1.0-rc1
+
 #### 20131211
 * Fix extracting topaz-dev archive
 * Auto-detect and link to Homebrew's readline
