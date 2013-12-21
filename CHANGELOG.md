@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20131220.1
+* Fix JRuby installation on non-BSD systems
+
 #### 20131220
 * Transform JRuby shebangs to absolute paths, fixing edge-case recursion in rbenv
 * Add `--patch` command-line option to patch Ruby from stdin before building
