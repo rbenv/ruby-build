@@ -11,6 +11,13 @@ setup() {
   stub curl false
 }
 
+executable() {
+  local file="$1"
+  mkdir -p "${file%/*}"
+  cat > "$file"
+  chmod +x "$file"
+}
+
 cached_tarball() {
   mkdir -p "$RUBY_BUILD_CACHE_PATH"
   pushd "$RUBY_BUILD_CACHE_PATH" >/dev/null
@@ -24,12 +31,10 @@ tarball() {
   local configure="$path/configure"
   shift 1
 
-  mkdir -p "$path"
-  cat > "$configure" <<OUT
+  executable "$configure" <<OUT
 #!$BASH
 echo "$name: \$@" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} >> build.log
 OUT
-  chmod +x "$configure"
 
   for file; do
     mkdir -p "$(dirname "${path}/${file}")"
@@ -230,12 +235,11 @@ OUT
 @test "can use RUBY_CONFIGURE to apply a patch" {
   cached_tarball "ruby-2.0.0"
 
-  cat > "${TMP}/custom-configure" <<CONF
+  executable "${TMP}/custom-configure" <<CONF
 #!$BASH
 apply -p1 -i /my/patch.diff
 exec ./configure "\$@"
 CONF
-  chmod +x "${TMP}/custom-configure"
 
   stub apply 'echo apply "$@" >> build.log'
   stub_make_install
@@ -329,6 +333,41 @@ DEF
 bundle --path=vendor/bundle
 rubinius-2.0.0: --prefix=$INSTALL_ROOT RUBYOPT=-rubygems
 bundle exec rake install
+OUT
+}
+
+@test "JRuby build" {
+  executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/jruby" <<OUT
+#!${BASH}
+echo jruby "\$@" >> ../build.log
+OUT
+  executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/gem" <<OUT
+#!/usr/bin/env jruby
+nice gem things
+OUT
+  cached_tarball "jruby-1.7.9" bin/foo.exe bin/bar.dll bin/baz.bat
+
+  run_inline_definition <<DEF
+install_package "jruby-1.7.9" "http://jruby.org/downloads/jruby-bin-1.7.9.tar.gz" jruby
+DEF
+  assert_success
+
+  assert_build_log <<OUT
+jruby gem install jruby-launcher
+OUT
+
+  run ls "${INSTALL_ROOT}/bin"
+  assert_output <<OUT
+gem
+jruby
+ruby
+OUT
+
+  assert [ -x "${INSTALL_ROOT}/bin/gem" ]
+  run cat "${INSTALL_ROOT}/bin/gem"
+  assert_output <<OUT
+#!${INSTALL_ROOT}/bin/jruby
+nice gem things
 OUT
 }
 
