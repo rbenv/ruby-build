@@ -1,5 +1,12 @@
 ## Version History
 
+#### 20131225
+* Add Ruby 2.2.0-dev
+* Add Ruby 2.1.0-p0
+* Update Ruby 2.1.0-dev git branch
+* Add Ruby 1.9.2-p326
+* Add Ruby 1.8.7-p375
+
 #### 20131220.1
 * Fix JRuby installation on non-BSD systems
 
