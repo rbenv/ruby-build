@@ -1,8 +1,11 @@
 ## Version History
 
+#### 20131225.1
+* Fix typos in Ruby 2.1.0, 2.1.0-dev, and 2.2.0-dev definitions
+
 #### 20131225
 * Add Ruby 2.2.0-dev
-* Add Ruby 2.1.0-p0
+* Add Ruby 2.1.0
 * Update Ruby 2.1.0-dev git branch
 * Add Ruby 1.9.2-p326
 * Add Ruby 1.8.7-p375
