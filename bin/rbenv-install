@@ -113,10 +113,10 @@ after_install() {
   after_hooks["${#after_hooks[@]}"]="$hook"
 }
 
-# Load plugin hooks.
-for script in $(rbenv-hooks install); do
-  source "$script"
-done
+OLDIFS="$IFS"
+IFS=$'\n' scripts=(`rbenv-hooks install`)
+IFS="$OLDIFS"
+for script in "${scripts[@]}"; do source "$script"; done
 
 
 # Set VERSION_NAME from $DEFINITION, if it is not already set. Then

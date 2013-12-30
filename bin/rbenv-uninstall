@@ -50,9 +50,10 @@ after_uninstall() {
   after_hooks["${#after_hooks[@]}"]="$hook"
 }
 
-for script in $(rbenv-hooks uninstall); do
-  source "$script"
-done
+OLDIFS="$IFS"
+IFS=$'\n' scripts=(`rbenv-hooks uninstall`)
+IFS="$OLDIFS"
+for script in "${scripts[@]}"; do source "$script"; done
 
 
 VERSION_NAME="${DEFINITION##*/}"
