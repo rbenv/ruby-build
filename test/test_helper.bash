@@ -15,7 +15,7 @@ teardown() {
 
 stub() {
   local program="$1"
-  local prefix="$(echo "$program" | tr a-z A-Z)"
+  local prefix="$(echo "$program" | tr a-z- A-Z_)"
   shift
 
   export "${prefix}_STUB_PLAN"="${TMP}/${program}-stub-plan"
@@ -31,7 +31,7 @@ stub() {
 
 unstub() {
   local program="$1"
-  local prefix="$(echo "$program" | tr a-z A-Z)"
+  local prefix="$(echo "$program" | tr a-z- A-Z_)"
   local path="${TMP}/bin/${program}"
 
   export "${prefix}_STUB_END"=1
