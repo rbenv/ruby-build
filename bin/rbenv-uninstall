@@ -76,7 +76,7 @@ for hook in "${before_hooks[@]}"; do eval "$hook"; done
 
 if [ -d "$PREFIX" ]; then
   rm -rf "$PREFIX"
-  rbenv rehash
+  rbenv-rehash
 fi
 
 for hook in "${after_hooks[@]}"; do eval "$hook"; done
