@@ -3,7 +3,7 @@ set -e
 
 status=0
 program="${0##*/}"
-PROGRAM="$(echo "$program" | tr a-z A-Z)"
+PROGRAM="$(echo "$program" | tr a-z- A-Z_)"
 [ -n "$TMPDIR" ] || TMPDIR="/tmp"
 
 _STUB_PLAN="${PROGRAM}_STUB_PLAN"

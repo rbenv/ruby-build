@@ -94,7 +94,7 @@ unset VERSION_NAME
 # version is specified by rbenv. Show usage instructions if a local
 # version is not specified.
 DEFINITION="${ARGUMENTS[0]}"
-[ -n "$DEFINITION" ] || DEFINITION="$(rbenv local 2>/dev/null || true)"
+[ -n "$DEFINITION" ] || DEFINITION="$(rbenv-local 2>/dev/null || true)"
 [ -n "$DEFINITION" ] || usage 1
 
 
@@ -113,10 +113,10 @@ after_install() {
   after_hooks["${#after_hooks[@]}"]="$hook"
 }
 
-# Load plugin hooks.
-for script in $(rbenv-hooks install); do
-  source "$script"
-done
+OLDIFS="$IFS"
+IFS=$'\n' scripts=(`rbenv-hooks install`)
+IFS="$OLDIFS"
+for script in "${scripts[@]}"; do source "$script"; done
 
 
 # Set VERSION_NAME from $DEFINITION, if it is not already set. Then
@@ -154,7 +154,7 @@ fi
 # REE installer requires an existing Ruby installation to run. An
 # unsatisfied local .ruby-version file can cause the installer to
 # fail.)
-export RBENV_VERSION="$(rbenv global 2>/dev/null || true)"
+export RBENV_VERSION="$(rbenv-global 2>/dev/null || true)"
 
 
 # Execute `before_install` hooks.
@@ -193,7 +193,7 @@ for hook in "${after_hooks[@]}"; do eval "$hook"; done
 
 # Run `rbenv-rehash` after a successful installation.
 if [ "$STATUS" == "0" ]; then
-  rbenv rehash
+  rbenv-rehash
 else
   cleanup
 fi
