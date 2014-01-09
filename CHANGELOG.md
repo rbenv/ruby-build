@@ -1,7 +1,9 @@
 ## Version History
 
-#### 20131226
+#### 20140110
+* Add JRuby 1.7.10
 * Add Rubinius 2.2.2
+* Add Rubinius 2.2.3
 
 #### 20131225.1
 * Fix typos in Ruby 2.1.0, 2.1.0-dev, and 2.2.0-dev definitions
