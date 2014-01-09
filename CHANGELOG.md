@@ -1,5 +1,8 @@
 ## Version History
 
+#### 20140110.1
+* Fix bug in JRuby 1.7.10 definition
+
 #### 20140110
 * Add JRuby 1.7.10
 * Add Rubinius 2.2.2
