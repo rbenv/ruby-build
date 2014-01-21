@@ -822,7 +822,7 @@ list_definitions() {
   { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
       echo "${definition##*/}"
     done
-  } | sort
+  } | sort --version-sort
 }
 
 
