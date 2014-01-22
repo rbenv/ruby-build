@@ -239,6 +239,26 @@ make install DOGE="such wow"
 OUT
 }
 
+@test "setting MAKE_INSTALL_OPTS to a multi-word string" {
+  cached_tarball "ruby-2.0.0"
+
+  stub_make_install
+
+  export MAKE_INSTALL_OPTS="DOGE=\"such wow\""
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+make install DOGE="such wow"
+OUT
+}
+
 @test "custom relative install destination" {
   export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
 
