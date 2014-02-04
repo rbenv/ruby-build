@@ -56,7 +56,7 @@ assert_build_log() {
 }
 
 @test "yaml is installed for ruby" {
-  cached_tarball "yaml-0.1.4"
+  cached_tarball "yaml-0.1.5"
   cached_tarball "ruby-2.0.0"
 
   stub brew false
@@ -69,7 +69,7 @@ assert_build_log() {
   unstub make
 
   assert_build_log <<OUT
-yaml-0.1.4: --prefix=$INSTALL_ROOT
+yaml-0.1.5: --prefix=$INSTALL_ROOT
 make -j 2
 make install
 ruby-2.0.0: --prefix=$INSTALL_ROOT
@@ -79,7 +79,7 @@ OUT
 }
 
 @test "apply ruby patch before building" {
-  cached_tarball "yaml-0.1.4"
+  cached_tarball "yaml-0.1.5"
   cached_tarball "ruby-2.0.0"
 
   stub brew false
@@ -94,7 +94,7 @@ OUT
   unstub patch
 
   assert_build_log <<OUT
-yaml-0.1.4: --prefix=$INSTALL_ROOT
+yaml-0.1.5: --prefix=$INSTALL_ROOT
 make -j 2
 make install
 patch -p0 -i -
