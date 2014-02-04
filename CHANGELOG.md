@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20140204
+* Update libyaml to version 0.1.5
+* Add Rubinius 2.2.4
+
 #### 20140110.1
 * Fix bug in JRuby 1.7.10 definition
 
