@@ -507,6 +507,7 @@ build_package_jruby() {
   build_package_copy
   cd "${PREFIX_PATH}/bin"
   ln -fs jruby ruby
+  chmod +x ruby
   install_jruby_launcher
   remove_windows_files
   fix_jruby_shebangs
