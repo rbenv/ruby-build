@@ -65,6 +65,12 @@ sanitize() {
   printf "%s" "$1" | sed "s/[^A-Za-z0-9.-]/_/g; s/__*/_/g"
 }
 
+colorize() {
+  if [ -t 1 ]; then printf "\e[%sm%s\e[m" "$1" "$2"
+  else echo -n "$2"
+  fi
+}
+
 build_failed() {
   { echo
     echo "BUILD FAILED"
@@ -577,18 +583,10 @@ fix_rbx_irb() {
 }
 
 require_java7() {
-  local version=`java -version 2>&1`
-  if [ $? -eq 0 ]
-  then
-    if [[ $version == *1.[78]* ]]
-    then
-      return 0
-    else
-      echo "jruby-9000-dev requires Java 7 - please install a 1.7 compatible JRE, or ensure it is on your path"
-      return 1
-    fi
-  else
-    echo "Couldn't execute Java - please install a 1.7 compatible JRE, or ensure it is on your path"
+  local version="$(java -version 2>/dev/null | head -1)"
+  if [[ $version != *1.[789]* ]]; then
+    colorize 1 "ERROR" >&3
+    echo ": Java 7 required. Please install a 1.7-compatible JRE." >&3
     return 1
   fi
 }

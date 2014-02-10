@@ -421,6 +421,46 @@ nice gem things
 OUT
 }
 
+@test "JRuby Java 7 missing" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java false
+
+  run_inline_definition <<DEF
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_failure <<OUT
+ERROR: Java 7 required. Please install a 1.7-compatible JRE.
+OUT
+}
+
+@test "JRuby Java is outdated" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java '-version : echo java version "1.6.0_21"'
+
+  run_inline_definition <<DEF
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_failure <<OUT
+ERROR: Java 7 required. Please install a 1.7-compatible JRE.
+OUT
+}
+
+@test "JRuby Java 7 up-to-date" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java '-version : echo java version "1.7.0_21"'
+
+  run_inline_definition <<DEF
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_success
+}
+
 @test "non-writable TMPDIR aborts build" {
   export TMPDIR="${TMP}/build"
   mkdir -p "$TMPDIR"
