@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20140210
+* Add Rubinius 2.2.4
+* Add JRuby 9000-dev
+
 #### 20140204
 * Add Rubinius 2.2.4
 * Update libyaml to version 0.1.5
