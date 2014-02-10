@@ -595,15 +595,16 @@ require_gcc() {
   local gcc="$(locate_gcc || true)"
 
   if [ -z "$gcc" ]; then
-    local esc=$'\033'
     { echo
-      echo "${esc}[1mERROR${esc}[0m: This package must be compiled with GCC, but ruby-build couldn't"
+      colorize 1 "ERROR"
+      echo ": This package must be compiled with GCC, but ruby-build couldn't"
       echo "find a suitable \`gcc\` executable on your system. Please install GCC"
       echo "and try again."
       echo
 
       if [ "$(uname -s)" = "Darwin" ]; then
-        echo "${esc}[1mDETAILS${esc}[0m: Apple no longer includes the official GCC compiler with Xcode"
+        colorize 1 "DETAILS"
+        echo ": Apple no longer includes the official GCC compiler with Xcode"
         echo "as of version 4.2. Instead, the \`gcc\` executable is a symlink to"
         echo "\`llvm-gcc\`, a modified version of GCC which outputs LLVM bytecode."
         echo
@@ -613,14 +614,18 @@ require_gcc() {
         echo "GCC compiler installed on your system."
         echo
 
+        colorize 1 "TO FIX THE PROBLEM"
         if type brew &>/dev/null; then
-          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install Homebrew's apple-gcc42 package with this"
-          echo "command: ${esc}[4mbrew tap homebrew/dupes ; brew install apple-gcc42${esc}[0m"
+          echo ": Install Homebrew's apple-gcc42 package with this"
+          echo -n "command: "
+          colorize 4 "brew tap homebrew/dupes ; brew install apple-gcc42"
         else
-          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install the official GCC compiler using these"
-          echo "packages: ${esc}[4mhttps://github.com/kennethreitz/osx-gcc-installer/downloads${esc}[0m"
+          echo ": Install the official GCC compiler using these"
+          echo -n "packages: "
+          colorize 4 "https://github.com/kennethreitz/osx-gcc-installer/downloads"
         fi
 
+        echo
         echo
         echo "You will need to install the official GCC compiler to build older"
         echo "versions of Ruby even if you have installed Apple's Command Line Tools"
