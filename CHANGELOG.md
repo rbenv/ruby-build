@@ -1,5 +1,10 @@
 ## Version History
 
+#### 20140214
+* Install libyaml 0.1.5 for Ruby 2.x
+* Require Java 7 for jruby-9000-dev
+* Update MagLev branch from master-1.9 to master
+
 #### 20140210
 * Add Rubinius 2.2.4
 * Add JRuby 9000-dev
