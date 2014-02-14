@@ -1,1 +1,1 @@
-install_git "maglev-2.0.0-dev" "https://github.com/MagLev/maglev.git" "master-1.9" maglev
+install_git "maglev-2.0.0-dev" "https://github.com/MagLev/maglev.git" "master" maglev
