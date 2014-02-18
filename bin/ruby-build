@@ -583,7 +583,7 @@ fix_rbx_irb() {
 }
 
 require_java7() {
-  local version="$(java -version 2>/dev/null | head -1)"
+  local version="$(java -version 2>&1 | head -1)"
   if [[ $version != *1.[789]* ]]; then
     colorize 1 "ERROR" >&3
     echo ": Java 7 required. Please install a 1.7-compatible JRE." >&3
