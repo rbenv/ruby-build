@@ -438,7 +438,7 @@ OUT
 @test "JRuby Java is outdated" {
   cached_tarball "jruby-9000.dev" bin/jruby
 
-  stub java '-version : echo java version "1.6.0_21"'
+  stub java '-version : echo java version "1.6.0_21" >&2'
 
   run_inline_definition <<DEF
 require_java7
@@ -452,7 +452,7 @@ OUT
 @test "JRuby Java 7 up-to-date" {
   cached_tarball "jruby-9000.dev" bin/jruby
 
-  stub java '-version : echo java version "1.7.0_21"'
+  stub java '-version : echo java version "1.7.0_21" >&2'
 
   run_inline_definition <<DEF
 require_java7
