@@ -845,7 +845,7 @@ list_definitions() {
   { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
       echo "${definition##*/}"
     done
-  } | sort --version-sort
+  } | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n
 }
 
 
