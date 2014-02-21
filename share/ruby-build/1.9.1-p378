@@ -1,4 +1,4 @@
 require_gcc
-install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz#36c852831d02cf90508c29852361d01b" --if needs_yaml
+install_package "yaml-0.1.5" "http://pyyaml.org/download/libyaml/yaml-0.1.5.tar.gz#24f6093c1e840ca5df2eb09291a1dbf1" --if needs_yaml
 install_package "ruby-1.9.1-p378" "http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.1-p378.tar.gz#9fc5941bda150ac0a33b299e1e53654c"
 install_package "rubygems-1.3.7" "http://production.cf.rubygems.org/rubygems/rubygems-1.3.7.tgz#e85cfadd025ff6ab689375adbf344bbe" ruby

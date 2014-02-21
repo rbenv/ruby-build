@@ -1,4 +1,4 @@
 require_gcc
-install_package "yaml-0.1.4" "http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz#36c852831d02cf90508c29852361d01b" --if needs_yaml
+install_package "yaml-0.1.5" "http://pyyaml.org/download/libyaml/yaml-0.1.5.tar.gz#24f6093c1e840ca5df2eb09291a1dbf1" --if needs_yaml
 install_package "ruby-1.9.2-p290" "http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p290.tar.gz#604da71839a6ae02b5b5b5e1b792d5eb"
 install_package "rubygems-1.8.23" "http://production.cf.rubygems.org/rubygems/rubygems-1.8.23.tgz#178b0ebae78dbb46963c51ad29bb6bd9" ruby

@@ -1,5 +1,21 @@
 ## Version History
 
+#### 20140214
+* Install libyaml 0.1.5 for Ruby 2.x
+* Require Java 7 for jruby-9000-dev
+* Update MagLev branch from master-1.9 to master
+
+#### 20140210
+* Add Rubinius 2.2.4
+* Add JRuby 9000-dev
+
+#### 20140204
+* Add Rubinius 2.2.4
+* Update libyaml to version 0.1.5
+
+Note: If Psych::LIBYAML_VERSION < '0.1.5' you should update and rebuild Ruby.
+For more informaton see CVE-2013-6393.
+
 #### 20140110.1
 * Fix bug in JRuby 1.7.10 definition
 

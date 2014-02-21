@@ -1,0 +1,2 @@
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/snapshots/master/jruby-dist-9000.dev-bin.tar.gz" jruby
