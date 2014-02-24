@@ -1,5 +1,10 @@
 ## Version History
 
+#### 20140224
+* Add Ruby 1.9.3-p545
+* Add mruby 1.0.0
+* Improve Java 7 detection
+
 #### 20140214
 * Install libyaml 0.1.5 for Ruby 2.x
 * Require Java 7 for jruby-9000-dev
