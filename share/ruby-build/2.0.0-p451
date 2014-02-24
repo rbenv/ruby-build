@@ -1,0 +1,2 @@
+install_package "openssl-1.0.1e" "https://www.openssl.org/source/openssl-1.0.1e.tar.gz#66bf6f10f060d561929de96f9dfe5b8c" mac_openssl --if has_broken_mac_openssl
+install_package "ruby-2.0.0-p451" "http://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p451.tar.gz#9227787a9636551f1749ee8394b5ffe5" standard verify_openssl
