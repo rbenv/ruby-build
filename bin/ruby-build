@@ -531,8 +531,7 @@ build_package_jrubygraal() {
 }
 
 graal_architecture() {
-  if [ "$(uname -m)" != "x86_64" ]
-  then
+  if [ "$(uname -m)" != "x86_64" ]; then
     echo "no nightly builds available" >&2
     exit 1
   fi
