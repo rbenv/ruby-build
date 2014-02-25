@@ -105,12 +105,27 @@ assert_equal() {
   fi
 }
 
+assert_not_equal() {
+  if [ "$1" == "$2" ]; then
+    { echo "not expected: $2"
+    } | flunk
+  fi
+}
+
 assert_output() {
   local expected
   if [ $# -eq 0 ]; then expected="$(cat -)"
   else expected="$1"
   fi
   assert_equal "$expected" "$output"
+}
+
+assert_not_output() {
+  local expected
+  if [ $# -eq 0 ]; then expected="$(cat -)"
+  else expected="$1"
+  fi
+  assert_not_equal "$expected" "$output"
 }
 
 assert_output_contains() {

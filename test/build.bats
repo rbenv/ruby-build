@@ -55,6 +55,11 @@ assert_build_log() {
   assert_output
 }
 
+assert_not_build_log() {
+  run cat "$INSTALL_ROOT/build.log"
+  assert_not_output
+}
+
 @test "yaml is installed for ruby" {
   cached_tarball "yaml-0.1.5"
   cached_tarball "ruby-2.0.0"
@@ -418,6 +423,23 @@ OUT
   assert_output <<OUT
 #!${INSTALL_ROOT}/bin/jruby
 nice gem things
+OUT
+}
+
+@test "JRuby+Graal does not install launchers" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  executable "${RUBY_BUILD_CACHE_PATH}/jruby-9000.dev/bin/jruby" <<OUT
+#!${BASH}
+this file uses graalvm
+OUT
+
+  run_inline_definition <<DEF
+install_package "jruby-9000.dev" "http://lafo.ssw.uni-linz.ac.at/graalvm/jruby-dist-9000+graal-$(graal_architecture).dev-bin.tar.gz" jruby
+DEF
+
+  assert_not_build_log <<OUT
+jruby gem install jruby-launcher
 OUT
 }
 
