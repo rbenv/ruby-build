@@ -519,17 +519,6 @@ build_package_jruby() {
   fix_jruby_shebangs
 }
 
-build_package_jrubygraal() {
-  build_package_copy
-  cd "${PREFIX_PATH}/bin"
-  ln -fs jruby ruby
-  chmod +x ruby
-  # We don't want the launcher gem, because we've modified the launcher scripts
-  #install_jruby_launcher
-  remove_windows_files
-  fix_jruby_shebangs
-}
-
 graal_architecture() {
   if [ "$(uname -m)" != "x86_64" ]; then
     echo "no nightly builds available" >&2
@@ -546,9 +535,13 @@ graal_architecture() {
 }
 
 install_jruby_launcher() {
-  cd "${PREFIX_PATH}/bin"
-  { ./ruby gem install jruby-launcher
-  } >&4 2>&1
+  # If this version of JRuby has been modified for Graal, don't overwrite the
+  # launcher scripts
+  if ! grep -q graalvm "${PREFIX_PATH}/bin/jruby"; then
+    cd "${PREFIX_PATH}/bin"
+    { ./ruby gem install jruby-launcher
+    } >&4 2>&1
+  fi
 }
 
 fix_jruby_shebangs() {
