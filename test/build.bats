@@ -421,6 +421,22 @@ nice gem things
 OUT
 }
 
+@test "JRuby+Graal does not install launchers" {
+  executable "${RUBY_BUILD_CACHE_PATH}/jruby-9000.dev/bin/jruby" <<OUT
+#!${BASH}
+# graalvm
+echo jruby "\$@" >> ../build.log
+OUT
+  cached_tarball "jruby-9000.dev"
+
+  run_inline_definition <<DEF
+install_package "jruby-9000.dev" "http://lafo.ssw.uni-linz.ac.at/jruby-9000+graal-macosx-x86_64.tar.gz" jruby
+DEF
+  assert_success
+
+  assert [ ! -e "$INSTALL_ROOT/build.log" ]
+}
+
 @test "JRuby Java 7 missing" {
   cached_tarball "jruby-9000.dev" bin/jruby
 
