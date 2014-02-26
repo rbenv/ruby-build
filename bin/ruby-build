@@ -912,7 +912,7 @@ done
 DEFINITION_PATH="${ARGUMENTS[0]}"
 if [ -z "$DEFINITION_PATH" ]; then
   usage
-elif [ ! -e "$DEFINITION_PATH" ]; then
+elif [ ! -f "$DEFINITION_PATH" ]; then
   BUILTIN_DEFINITION_PATH="${RUBY_BUILD_ROOT}/share/ruby-build/${DEFINITION_PATH}"
   if [ -e "$BUILTIN_DEFINITION_PATH" ]; then
     DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"
