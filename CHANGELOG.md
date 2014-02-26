@@ -1,5 +1,9 @@
 ## Version History
 
+#### 20140225
+* Add JRuby 1.7.10
+* Add support for JRuby 9000 bundled with the Graal VM
+
 #### 20140224.1
 * Add Ruby 2.0.0-p451
 * Add Ruby 2.1.1
