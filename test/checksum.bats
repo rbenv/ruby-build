@@ -68,3 +68,46 @@ export RUBY_BUILD_CACHE_PATH=
   unstub curl
   unstub md5
 }
+
+@test "existing tarball in build location is reused" {
+  stub md5 true "echo 83e6d7725e20166024a1eb74cde80677"
+  stub curl false
+  stub wget false
+
+  export -n RUBY_BUILD_CACHE_PATH
+  export RUBY_BUILD_BUILD_PATH="${TMP}/build"
+
+  mkdir -p "$RUBY_BUILD_BUILD_PATH"
+  ln -s "${FIXTURE_ROOT}/package-1.0.0.tar.gz" "$RUBY_BUILD_BUILD_PATH"
+
+  run_inline_definition <<DEF
+install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz#83e6d7725e20166024a1eb74cde80677" copy
+DEF
+
+  assert_success
+  [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub md5
+}
+
+@test "existing tarball in build location is discarded if not matching checksum" {
+  stub md5 true \
+    "echo invalid" \
+    "echo 83e6d7725e20166024a1eb74cde80677"
+  stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+
+  export -n RUBY_BUILD_CACHE_PATH
+  export RUBY_BUILD_BUILD_PATH="${TMP}/build"
+
+  mkdir -p "$RUBY_BUILD_BUILD_PATH"
+  touch "${RUBY_BUILD_BUILD_PATH}/package-1.0.0.tar.gz"
+
+  run_inline_definition <<DEF
+install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz#83e6d7725e20166024a1eb74cde80677" copy
+DEF
+
+  assert_success
+  [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub md5
+}
