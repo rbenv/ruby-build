@@ -227,7 +227,7 @@ http_head_curl() {
 }
 
 http_get_curl() {
-  curl -C - -o "${2:--}" -qsSLf "$1"
+  curl -q -o "${2:--}" -sSLf "$1"
 }
 
 http_head_wget() {
@@ -235,7 +235,7 @@ http_head_wget() {
 }
 
 http_get_wget() {
-  wget -nv -c -O "${2:--}" "$1"
+  wget -nv -O "${2:--}" "$1"
 }
 
 fetch_tarball() {
