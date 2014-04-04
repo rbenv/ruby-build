@@ -1,0 +1,1 @@
+install_package "jruby-9000.dev" "http://lafo.ssw.uni-linz.ac.at/graalvm/jruby-dist-9000+graal-$(graal_architecture).dev-bin.tar.gz" jruby

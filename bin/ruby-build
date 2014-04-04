@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RUBY_BUILD_VERSION="20131122.1"
+RUBY_BUILD_VERSION="20140225"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
@@ -63,6 +63,12 @@ capitalize() {
 
 sanitize() {
   printf "%s" "$1" | sed "s/[^A-Za-z0-9.-]/_/g; s/__*/_/g"
+}
+
+colorize() {
+  if [ -t 1 ]; then printf "\e[%sm%s\e[m" "$1" "$2"
+  else echo -n "$2"
+  fi
 }
 
 build_failed() {
@@ -221,7 +227,7 @@ http_head_curl() {
 }
 
 http_get_curl() {
-  curl -C - -o "${2:--}" -qsSLf "$1"
+  curl -q -o "${2:--}" -sSLf "$1"
 }
 
 http_head_wget() {
@@ -229,7 +235,7 @@ http_head_wget() {
 }
 
 http_get_wget() {
-  wget -nv -c -O "${2:--}" "$1"
+  wget -nv -O "${2:--}" "$1"
 }
 
 fetch_tarball() {
@@ -255,7 +261,7 @@ fetch_tarball() {
     tar_args="${tar_args/z/j}"
   fi
 
-  if ! symlink_tarball_from_cache "$package_filename" "$checksum"; then
+  if ! reuse_existing_tarball "$package_filename" "$checksum"; then
     echo "Downloading ${package_filename}..." >&2
     http head "$mirror_url" &&
     download_tarball "$mirror_url" "$package_filename" "$checksum" ||
@@ -272,12 +278,18 @@ fetch_tarball() {
   } >&4 2>&1
 }
 
-symlink_tarball_from_cache() {
-  [ -n "$RUBY_BUILD_CACHE_PATH" ] || return 1
-
+reuse_existing_tarball() {
   local package_filename="$1"
-  local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
   local checksum="$2"
+
+  # Reuse existing file in build location
+  if [ -e "$package_filename" ] && verify_checksum "$package_filename" "$checksum"; then
+    return 0
+  fi
+
+  # Reuse previously downloaded file in cache location
+  [ -n "$RUBY_BUILD_CACHE_PATH" ] || return 1
+  local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
 
   [ -e "$cached_package_filename" ] || return 1
   verify_checksum "$cached_package_filename" "$checksum" >&4 2>&1 || return 1
@@ -364,6 +376,8 @@ build_package() {
 
   echo "Installing ${package_name}..." >&2
 
+  [ -n "$HAS_PATCH" ] && apply_ruby_patch "$package_name"
+
   for command in $commands; do
     "build_package_${command}" "$package_name"
   done
@@ -396,7 +410,11 @@ build_package_standard() {
   local PACKAGE_CONFIGURE_OPTS_ARRAY="${package_var_name}_CONFIGURE_OPTS_ARRAY[@]"
   local PACKAGE_MAKE_OPTS="${package_var_name}_MAKE_OPTS"
   local PACKAGE_MAKE_OPTS_ARRAY="${package_var_name}_MAKE_OPTS_ARRAY[@]"
+  local PACKAGE_MAKE_INSTALL_OPTS="${package_var_name}_MAKE_INSTALL_OPTS"
+  local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
   local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
+
+  [ "$package_var_name" = "RUBY" ] && use_homebrew_readline || true
 
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
       export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
@@ -405,7 +423,7 @@ build_package_standard() {
   ) >&4 2>&1
 
   { "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
-    "$MAKE" install
+    "$MAKE" install $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}"
   } >&4 2>&1
 }
 
@@ -448,6 +466,7 @@ build_package_rbx() {
     RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
+    fix_rbx_irb "$PREFIX_PATH"
   } >&4 2>&1
 }
 
@@ -500,14 +519,44 @@ build_package_jruby() {
   build_package_copy
   cd "${PREFIX_PATH}/bin"
   ln -fs jruby ruby
+  chmod +x ruby
   install_jruby_launcher
   remove_windows_files
+  fix_jruby_shebangs
+}
+
+graal_architecture() {
+  if [ "$(uname -m)" != "x86_64" ]; then
+    echo "no nightly builds available" >&2
+    exit 1
+  fi
+
+  case "$(uname -s)" in
+  "Darwin") echo "macosx-x86_64";;
+  "Linux") echo "linux-x86_64";;
+  *)
+    echo "no nightly builds available" >&2
+    exit 1;;
+  esac
 }
 
 install_jruby_launcher() {
-  cd "${PREFIX_PATH}/bin"
-  { ./ruby gem install jruby-launcher
-  } >&4 2>&1
+  # If this version of JRuby has been modified for Graal, don't overwrite the
+  # launcher scripts
+  if ! grep -q graalvm "${PREFIX_PATH}/bin/jruby"; then
+    cd "${PREFIX_PATH}/bin"
+    { ./ruby gem install jruby-launcher
+    } >&4 2>&1
+  fi
+}
+
+fix_jruby_shebangs() {
+  for file in "${PREFIX_PATH}/bin"/*; do
+    if [ "$(head -c 20 "$file")" = "#!/usr/bin/env jruby" ]; then
+      sed -i.bak "1 s:.*:#\!${PREFIX_PATH}\/bin\/jruby:" "$file"
+      rm "$file".bak
+    fi
+  done
 }
 
 remove_windows_files() {
@@ -537,13 +586,33 @@ fix_rbx_gem_binstubs() {
   local prefix="$1"
   local gemdir="${prefix}/gems/bin"
   local bindir="${prefix}/bin"
+  local file binstub
   # Symlink Rubinius' `gems/bin/` into `bin/`
   if [ -d "$gemdir" ]; then
     for file in "$gemdir"/*; do
-      [ -x "$file" ] && mv "$file" "$bindir"
+      binstub="${bindir}/${file##*/}"
+      rm -f "$binstub"
+      sed -E "s:^#\!.+:#\!${bindir}/ruby:" < "$file" > "$binstub"
+      chmod +x "$binstub"
     done
     rm -rf "$gemdir"
     ln -s ../bin "$gemdir"
+  fi
+}
+
+fix_rbx_irb() {
+  local prefix="$1"
+  "${prefix}/bin/irb" --version &>/dev/null ||
+    "${prefix}/bin/gem" install rubysl-tracer -v '~> 2.0' --no-rdoc --no-ri &>/dev/null ||
+    true
+}
+
+require_java7() {
+  local version="$(java -version 2>&1 | head -1)"
+  if [[ $version != *1.[789]* ]]; then
+    colorize 1 "ERROR" >&3
+    echo ": Java 7 required. Please install a 1.7-compatible JRE." >&3
+    return 1
   fi
 }
 
@@ -551,15 +620,16 @@ require_gcc() {
   local gcc="$(locate_gcc || true)"
 
   if [ -z "$gcc" ]; then
-    local esc=$'\033'
     { echo
-      echo "${esc}[1mERROR${esc}[0m: This package must be compiled with GCC, but ruby-build couldn't"
+      colorize 1 "ERROR"
+      echo ": This package must be compiled with GCC, but ruby-build couldn't"
       echo "find a suitable \`gcc\` executable on your system. Please install GCC"
       echo "and try again."
       echo
 
       if [ "$(uname -s)" = "Darwin" ]; then
-        echo "${esc}[1mDETAILS${esc}[0m: Apple no longer includes the official GCC compiler with Xcode"
+        colorize 1 "DETAILS"
+        echo ": Apple no longer includes the official GCC compiler with Xcode"
         echo "as of version 4.2. Instead, the \`gcc\` executable is a symlink to"
         echo "\`llvm-gcc\`, a modified version of GCC which outputs LLVM bytecode."
         echo
@@ -569,14 +639,18 @@ require_gcc() {
         echo "GCC compiler installed on your system."
         echo
 
+        colorize 1 "TO FIX THE PROBLEM"
         if type brew &>/dev/null; then
-          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install Homebrew's apple-gcc42 package with this"
-          echo "command: ${esc}[4mbrew tap homebrew/dupes ; brew install apple-gcc42${esc}[0m"
+          echo ": Install Homebrew's apple-gcc42 package with this"
+          echo -n "command: "
+          colorize 4 "brew tap homebrew/dupes ; brew install apple-gcc42"
         else
-          echo "${esc}[1mTO FIX THE PROBLEM${esc}[0m: Install the official GCC compiler using these"
-          echo "packages: ${esc}[4mhttps://github.com/kennethreitz/osx-gcc-installer/downloads${esc}[0m"
+          echo ": Install the official GCC compiler using these"
+          echo -n "packages: "
+          colorize 4 "https://github.com/kennethreitz/osx-gcc-installer/downloads"
         fi
 
+        echo
         echo
         echo "You will need to install the official GCC compiler to build older"
         echo "versions of Ruby even if you have installed Apple's Command Line Tools"
@@ -649,6 +723,17 @@ use_homebrew_yaml() {
     package_option ruby configure --with-libyaml-dir="$libdir"
   else
     return 1
+  fi
+}
+
+use_homebrew_readline() {
+  if [[ "$RUBY_CONFIGURE_OPTS" != *--with-readline-dir=* ]]; then
+    local libdir="$(brew --prefix readline 2>/dev/null || true)"
+    if [ -d "$libdir" ]; then
+      package_option ruby configure --with-readline-dir="$libdir"
+    else
+      return 1
+    fi
   fi
 }
 
@@ -758,13 +843,21 @@ isolated_gem_install() {
   gem install "$@"
 }
 
+apply_ruby_patch() {
+  case "$1" in
+  ruby-* | jruby-* | rubinius-* )
+    patch -p0 -i "${2:--}"
+    ;;
+  esac
+}
+
 version() {
   echo "ruby-build ${RUBY_BUILD_VERSION}"
 }
 
 usage() {
   { version
-    echo "usage: ruby-build [-k|--keep] [-v|--verbose] definition prefix"
+    echo "usage: ruby-build [-k|--keep] [-v|--verbose] [-p|--patch] definition prefix"
     echo "       ruby-build --definitions"
   } >&2
 
@@ -784,6 +877,7 @@ list_definitions() {
 
 unset VERBOSE
 unset KEEP_BUILD_PATH
+unset HAS_PATCH
 RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
 
 parse_options "$@"
@@ -795,6 +889,7 @@ for option in "${OPTIONS[@]}"; do
     { echo
       echo "  -k/--keep        Do not remove source tree after installation"
       echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
+      echo "  -p/--patch       Apply a patch from stdin before building"
       echo "  --definitions    List all built-in definitions"
       echo
     } >&2
@@ -810,6 +905,9 @@ for option in "${OPTIONS[@]}"; do
   "v" | "verbose" )
     VERBOSE=true
     ;;
+  "p" | "patch" )
+    HAS_PATCH=true
+    ;;
   "version" )
     version
     exit 0
@@ -820,7 +918,7 @@ done
 DEFINITION_PATH="${ARGUMENTS[0]}"
 if [ -z "$DEFINITION_PATH" ]; then
   usage
-elif [ ! -e "$DEFINITION_PATH" ]; then
+elif [ ! -f "$DEFINITION_PATH" ]; then
   BUILTIN_DEFINITION_PATH="${RUBY_BUILD_ROOT}/share/ruby-build/${DEFINITION_PATH}"
   if [ -e "$BUILTIN_DEFINITION_PATH" ]; then
     DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"

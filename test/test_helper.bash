@@ -15,7 +15,7 @@ teardown() {
 
 stub() {
   local program="$1"
-  local prefix="$(echo "$program" | tr a-z A-Z)"
+  local prefix="$(echo "$program" | tr a-z- A-Z_)"
   shift
 
   export "${prefix}_STUB_PLAN"="${TMP}/${program}-stub-plan"
@@ -31,7 +31,7 @@ stub() {
 
 unstub() {
   local program="$1"
-  local prefix="$(echo "$program" | tr a-z A-Z)"
+  local prefix="$(echo "$program" | tr a-z- A-Z_)"
   local path="${TMP}/bin/${program}"
 
   export "${prefix}_STUB_END"=1
@@ -51,11 +51,18 @@ run_inline_definition() {
 }
 
 install_fixture() {
+  local args
+
+  while [ "${1#-}" != "$1" ]; do
+    args="$args $1"
+    shift 1
+  done
+
   local name="$1"
   local destination="$2"
   [ -n "$destination" ] || destination="$INSTALL_ROOT"
 
-  run ruby-build "$FIXTURE_ROOT/$name" "$destination"
+  run ruby-build $args "$FIXTURE_ROOT/$name" "$destination"
 }
 
 assert() {

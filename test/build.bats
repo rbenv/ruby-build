@@ -11,6 +11,13 @@ setup() {
   stub curl false
 }
 
+executable() {
+  local file="$1"
+  mkdir -p "${file%/*}"
+  cat > "$file"
+  chmod +x "$file"
+}
+
 cached_tarball() {
   mkdir -p "$RUBY_BUILD_CACHE_PATH"
   pushd "$RUBY_BUILD_CACHE_PATH" >/dev/null
@@ -24,12 +31,10 @@ tarball() {
   local configure="$path/configure"
   shift 1
 
-  mkdir -p "$path"
-  cat > "$configure" <<OUT
+  executable "$configure" <<OUT
 #!$BASH
 echo "$name: \$@" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} >> build.log
 OUT
-  chmod +x "$configure"
 
   for file; do
     mkdir -p "$(dirname "${path}/${file}")"
@@ -42,7 +47,7 @@ OUT
 stub_make_install() {
   stub "$MAKE" \
     " : echo \"$MAKE \$@\" >> build.log" \
-    "install : cat build.log >> '$INSTALL_ROOT/build.log'"
+    "install : echo \"$MAKE \$@\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
 }
 
 assert_build_log() {
@@ -51,7 +56,7 @@ assert_build_log() {
 }
 
 @test "yaml is installed for ruby" {
-  cached_tarball "yaml-0.1.4"
+  cached_tarball "yaml-0.1.6"
   cached_tarball "ruby-2.0.0"
 
   stub brew false
@@ -64,10 +69,38 @@ assert_build_log() {
   unstub make
 
   assert_build_log <<OUT
-yaml-0.1.4: --prefix=$INSTALL_ROOT
+yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
+make install
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
+make install
+OUT
+}
+
+@test "apply ruby patch before building" {
+  cached_tarball "yaml-0.1.6"
+  cached_tarball "ruby-2.0.0"
+
+  stub brew false
+  stub_make_install
+  stub_make_install
+  stub patch ' : echo patch "$@" >> build.log'
+
+  install_fixture --patch definitions/needs-yaml
+  assert_success
+
+  unstub make
+  unstub patch
+
+  assert_build_log <<OUT
+yaml-0.1.6: --prefix=$INSTALL_ROOT
+make -j 2
+make install
+patch -p0 -i -
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+make install
 OUT
 }
 
@@ -77,7 +110,7 @@ OUT
   brew_libdir="$TMP/homebrew-yaml"
   mkdir -p "$brew_libdir"
 
-  stub brew "--prefix libyaml : echo '$brew_libdir'"
+  stub brew "--prefix libyaml : echo '$brew_libdir'" false
   stub_make_install
 
   install_fixture definitions/needs-yaml
@@ -89,6 +122,53 @@ OUT
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT --with-libyaml-dir=$brew_libdir
 make -j 2
+make install
+OUT
+}
+
+@test "readline is linked from Homebrew" {
+  cached_tarball "ruby-2.0.0"
+
+  readline_libdir="$TMP/homebrew-readline"
+  mkdir -p "$readline_libdir"
+
+  stub brew "--prefix readline : echo '$readline_libdir'"
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: --prefix=$INSTALL_ROOT --with-readline-dir=$readline_libdir
+make -j 2
+make install
+OUT
+}
+
+@test "readline is not linked from Homebrew when explicitly defined" {
+  cached_tarball "ruby-2.0.0"
+
+  stub brew
+  stub_make_install
+
+  export RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom'
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: --prefix=$INSTALL_ROOT --with-readline-dir=/custom
+make -j 2
+make install
 OUT
 }
 
@@ -111,6 +191,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
+make install
 OUT
 }
 
@@ -134,6 +215,47 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 4
+make install
+OUT
+}
+
+@test "setting RUBY_MAKE_INSTALL_OPTS to a multi-word string" {
+  cached_tarball "ruby-2.0.0"
+
+  stub_make_install
+
+  export RUBY_MAKE_INSTALL_OPTS="DOGE=\"such wow\""
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+make install DOGE="such wow"
+OUT
+}
+
+@test "setting MAKE_INSTALL_OPTS to a multi-word string" {
+  cached_tarball "ruby-2.0.0"
+
+  stub_make_install
+
+  export MAKE_INSTALL_OPTS="DOGE=\"such wow\""
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+make install DOGE="such wow"
 OUT
 }
 
@@ -162,12 +284,11 @@ OUT
 @test "can use RUBY_CONFIGURE to apply a patch" {
   cached_tarball "ruby-2.0.0"
 
-  cat > "${TMP}/custom-configure" <<CONF
+  executable "${TMP}/custom-configure" <<CONF
 #!$BASH
 apply -p1 -i /my/patch.diff
 exec ./configure "\$@"
 CONF
-  chmod +x "${TMP}/custom-configure"
 
   stub apply 'echo apply "$@" >> build.log'
   stub_make_install
@@ -185,6 +306,7 @@ DEF
 apply -p1 -i /my/patch.diff
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
+make install
 OUT
 }
 
@@ -262,6 +384,97 @@ bundle --path=vendor/bundle
 rubinius-2.0.0: --prefix=$INSTALL_ROOT RUBYOPT=-rubygems
 bundle exec rake install
 OUT
+}
+
+@test "JRuby build" {
+  executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/jruby" <<OUT
+#!${BASH}
+echo jruby "\$@" >> ../build.log
+OUT
+  executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/gem" <<OUT
+#!/usr/bin/env jruby
+nice gem things
+OUT
+  cached_tarball "jruby-1.7.9" bin/foo.exe bin/bar.dll bin/baz.bat
+
+  run_inline_definition <<DEF
+install_package "jruby-1.7.9" "http://jruby.org/downloads/jruby-bin-1.7.9.tar.gz" jruby
+DEF
+  assert_success
+
+  assert_build_log <<OUT
+jruby gem install jruby-launcher
+OUT
+
+  run ls "${INSTALL_ROOT}/bin"
+  assert_output <<OUT
+gem
+jruby
+ruby
+OUT
+
+  assert [ -x "${INSTALL_ROOT}/bin/gem" ]
+  run cat "${INSTALL_ROOT}/bin/gem"
+  assert_output <<OUT
+#!${INSTALL_ROOT}/bin/jruby
+nice gem things
+OUT
+}
+
+@test "JRuby+Graal does not install launchers" {
+  executable "${RUBY_BUILD_CACHE_PATH}/jruby-9000.dev/bin/jruby" <<OUT
+#!${BASH}
+# graalvm
+echo jruby "\$@" >> ../build.log
+OUT
+  cached_tarball "jruby-9000.dev"
+
+  run_inline_definition <<DEF
+install_package "jruby-9000.dev" "http://lafo.ssw.uni-linz.ac.at/jruby-9000+graal-macosx-x86_64.tar.gz" jruby
+DEF
+  assert_success
+
+  assert [ ! -e "$INSTALL_ROOT/build.log" ]
+}
+
+@test "JRuby Java 7 missing" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java false
+
+  run_inline_definition <<DEF
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_failure <<OUT
+ERROR: Java 7 required. Please install a 1.7-compatible JRE.
+OUT
+}
+
+@test "JRuby Java is outdated" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java '-version : echo java version "1.6.0_21" >&2'
+
+  run_inline_definition <<DEF
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_failure <<OUT
+ERROR: Java 7 required. Please install a 1.7-compatible JRE.
+OUT
+}
+
+@test "JRuby Java 7 up-to-date" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java '-version : echo java version "1.7.0_21" >&2'
+
+  run_inline_definition <<DEF
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_success
 }
 
 @test "non-writable TMPDIR aborts build" {
