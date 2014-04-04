@@ -8,7 +8,7 @@
 #
 #   -l/--list        List all available versions
 #   -f/--force       Install even if the version appears to be installed already
-#   -n/--noforce     Don't install if the version appears to be installed already
+#   -s/--skip-existing Skip if the version appears to be installed already
 #
 #   ruby-build options:
 #
@@ -52,7 +52,7 @@ indent() {
 }
 
 unset FORCE
-unset NOFORCE
+unset SKIP_EXISTING
 unset KEEP
 unset VERBOSE
 unset HAS_PATCH
@@ -71,8 +71,8 @@ for option in "${OPTIONS[@]}"; do
   "f" | "force" )
     FORCE=true
     ;;
-  "n" | "noforce" )
-    NOFORCE=true
+  "s" | "skip-existing" )
+    SKIP_EXISTING=true
     ;;
   "k" | "keep" )
     [ -n "${RBENV_BUILD_ROOT}" ] || RBENV_BUILD_ROOT="${RBENV_ROOT}/sources"
@@ -134,7 +134,7 @@ PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 # If the installation prefix exists, prompt for confirmation unless
 # the --force option was specified.
 if [ -d "${PREFIX}/bin" ]; then
-  if [ -z "$FORCE" ] && [ -z "$NOFORCE" ]; then
+  if [ -z "$FORCE" ] && [ -z "$SKIP_EXISTING" ]; then
     echo "rbenv: $PREFIX already exists" >&2
     read -p "continue with installation? (y/N) "
 
@@ -142,7 +142,7 @@ if [ -d "${PREFIX}/bin" ]; then
     y* | Y* ) ;;
     * ) exit 1 ;;
     esac
-  elif [ -n "$NOFORCE" ]; then
+  elif [ -n "$SKIP_EXISTING" ]; then
     # Since we know the ruby version is already installed, and are opting to
     # not force installation of existing versions, we just `exit 0` here to
     # leave things happy
