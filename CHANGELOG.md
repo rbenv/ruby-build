@@ -1,6 +1,6 @@
 ## Version History
 
-#### (no release)
+#### 20140405
 * Avoid sed with extended regexp
 * Add `rbenv install --skip-existing <VERSION>` option
 * Avoid re-downloading if there's a valid tarball in build location
