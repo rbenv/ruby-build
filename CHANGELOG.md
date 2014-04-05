@@ -1,6 +1,12 @@
 ## Version History
 
 #### (no release)
+* Avoid sed with extended regexp
+* Add `rbenv install --skip-existing <VERSION>` option
+* Avoid re-downloading if there's a valid tarball in build location
+* Fix re-downloading tarball when destination file already exists
+* Add Rubinius 2.2.6
+* Fixes check for user-specified build definition
 * Upgrade libyaml 0.1.6 for CVE-2014-2525
 
 #### 20140225
