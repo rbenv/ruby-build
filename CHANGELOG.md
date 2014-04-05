@@ -1,7 +1,6 @@
 ## Version History
 
 #### (no release)
-
 * Upgrade libyaml 0.1.6 for CVE-2014-2525
 
 #### 20140225
