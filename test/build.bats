@@ -424,6 +424,7 @@ OUT
   run cat "${INSTALL_ROOT}/bin/rake"
   assert_output <<OUT
 #!${INSTALL_ROOT}/bin/ruby
+#!rbx
 puts 'rake'
 OUT
 
@@ -431,6 +432,7 @@ OUT
   run cat "${INSTALL_ROOT}/bin/irb"
   assert_output <<OUT
 #!${INSTALL_ROOT}/bin/ruby
+#!rbx
 print '>>'
 OUT
 }
