@@ -1,5 +1,9 @@
 ## Version History
 
+#### (no release)
+
+* Upgrade libyaml 0.1.6 for CVE-2014-2525
+
 #### 20140225
 * Add JRuby 1.7.11
 * Add support for JRuby 9000 bundled with the Graal VM
