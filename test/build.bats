@@ -386,6 +386,57 @@ bundle exec rake install
 OUT
 }
 
+@test "fixes rbx binstubs" {
+  executable "${RUBY_BUILD_CACHE_PATH}/rubinius-2.0.0/gems/bin/rake" <<OUT
+#!rbx
+puts 'rake'
+OUT
+  executable "${RUBY_BUILD_CACHE_PATH}/rubinius-2.0.0/gems/bin/irb" <<OUT
+#!rbx
+print '>>'
+OUT
+  cached_tarball "rubinius-2.0.0" bin/ruby
+
+  stub bundle '--version : echo 1' true
+  stub rake \
+    '--version : echo 1' \
+    "install : mkdir -p '$INSTALL_ROOT'; cp -fR . '$INSTALL_ROOT'"
+
+  run_inline_definition <<DEF
+install_package "rubinius-2.0.0" "http://releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
+DEF
+  assert_success
+
+  unstub bundle
+  unstub rake
+
+  run ls "${INSTALL_ROOT}/bin"
+  assert_output <<OUT
+irb
+rake
+ruby
+OUT
+
+  run $(type -p greadlink readlink | head -1) "${INSTALL_ROOT}/gems/bin"
+  assert_success '../bin'
+
+  assert [ -x "${INSTALL_ROOT}/bin/rake" ]
+  run cat "${INSTALL_ROOT}/bin/rake"
+  assert_output <<OUT
+#!${INSTALL_ROOT}/bin/ruby
+#!rbx
+puts 'rake'
+OUT
+
+  assert [ -x "${INSTALL_ROOT}/bin/irb" ]
+  run cat "${INSTALL_ROOT}/bin/irb"
+  assert_output <<OUT
+#!${INSTALL_ROOT}/bin/ruby
+#!rbx
+print '>>'
+OUT
+}
+
 @test "JRuby build" {
   executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/jruby" <<OUT
 #!${BASH}
