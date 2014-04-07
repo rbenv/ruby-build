@@ -7,6 +7,9 @@ of Ruby on UNIX-like systems.
 You can also use ruby-build without rbenv in environments where you need
 precise control over Ruby version installation.
 
+See the [list of releases](https://github.com/sstephenson/ruby-build/releases)
+for changes in each version.
+
 
 ## Installation
 
