@@ -357,9 +357,9 @@ fetch_git() {
       pushd "$RUBY_BUILD_CACHE_PATH" >&4
       local clone_name="$(sanitize "$git_url")"
       if [ -e "${clone_name}" ]; then
-        { cd "${clone_name}"
+        ( cd "${clone_name}"
           git fetch --force "$git_url" "+${git_ref}:${git_ref}"
-        } >&4 2>&1
+        ) >&4 2>&1
       else
         git clone --bare --branch "$git_ref" "$git_url" "${clone_name}" >&4 2>&1
       fi
@@ -367,7 +367,13 @@ fetch_git() {
       popd >&4
     fi
 
-    git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
+    if [ -e "${package_name}" ]; then
+      ( cd "${package_name}"
+        git fetch --force --update-head-ok "$git_url" "+${git_ref}:${git_ref}"
+      ) >&4 2>&1
+    else
+      git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
+    fi
   else
     echo "error: please install \`git\` and try again" >&2
     exit 1
