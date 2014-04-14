@@ -1,3 +1,3 @@
 require_gcc
-install_package "ruby-1.8.7-p371" "http://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p371.tar.gz#653f07bb45f03d0bf3910491288764df" auto_tcltk standard
-install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz#0c95a9869914ba1a45bf71d3b8048420" ruby
+install_package "ruby-1.8.7-p371" "http://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p371.tar.gz#e60a322f8f2a616eba01651f5ab620e7e48e4f8adfe711aec61cc74a91d54d3c" auto_tcltk standard
+install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz#cb5261818b931b5ea2cb54bc1d583c47823543fcf9682f0d6298849091c1cea7" ruby
