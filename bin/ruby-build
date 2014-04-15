@@ -167,15 +167,15 @@ make_package() {
 }
 
 compute_sha2() {
+  local output=""
   if type shasum &>/dev/null; then
-    # shasum -a 256 -b
-    local output="$(shasum -a 256 -b)"
+    output="$(shasum -a 256 -b)"
     echo "${output% *}"
   elif type openssl &>/dev/null; then
-    local output="$(openssl dgst -sha256)"
+    output="$(openssl dgst -sha256)"
     echo "${output##* }"
   elif type sha256sum &>/dev/null; then
-    local output="$(sha256sum --quiet)"
+    output="$(sha256sum --quiet)"
     echo "${output% *}"
   else
     return 1
