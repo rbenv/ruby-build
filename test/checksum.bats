@@ -6,7 +6,7 @@ export RUBY_BUILD_CACHE_PATH=
 
 
 @test "package URL without checksum" {
-  stub md5 true
+  stub shasum true
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/without-checksum
@@ -14,12 +14,12 @@ export RUBY_BUILD_CACHE_PATH=
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
-  unstub md5
+  unstub shasum
 }
 
 
 @test "package URL with valid checksum" {
-  stub md5 true "echo 83e6d7725e20166024a1eb74cde80677"
+  stub shasum true "echo ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
@@ -27,12 +27,12 @@ export RUBY_BUILD_CACHE_PATH=
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
-  unstub md5
+  unstub shasum
 }
 
 
 @test "package URL with invalid checksum" {
-  stub md5 true "echo 83e6d7725e20166024a1eb74cde80677"
+  stub shasum true "echo ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-invalid-checksum
@@ -40,12 +40,12 @@ export RUBY_BUILD_CACHE_PATH=
   [ ! -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
-  unstub md5
+  unstub shasum
 }
 
 
-@test "package URL with checksum but no MD5 support" {
-  stub md5 false
+@test "package URL with checksum but no shasum support" {
+  stub shasum false
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
@@ -53,12 +53,12 @@ export RUBY_BUILD_CACHE_PATH=
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
-  unstub md5
+  unstub shasum
 }
 
 
 @test "package with invalid checksum" {
-  stub md5 true "echo invalid"
+  stub shasum true "echo invalid"
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
@@ -66,11 +66,11 @@ export RUBY_BUILD_CACHE_PATH=
   [ ! -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
-  unstub md5
+  unstub shasum
 }
 
 @test "existing tarball in build location is reused" {
-  stub md5 true "echo 83e6d7725e20166024a1eb74cde80677"
+  stub shasum true "echo ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   stub curl false
   stub wget false
 
@@ -81,19 +81,19 @@ export RUBY_BUILD_CACHE_PATH=
   ln -s "${FIXTURE_ROOT}/package-1.0.0.tar.gz" "$RUBY_BUILD_BUILD_PATH"
 
   run_inline_definition <<DEF
-install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz#83e6d7725e20166024a1eb74cde80677" copy
+install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz#ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5" copy
 DEF
 
   assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
-  unstub md5
+  unstub shasum
 }
 
 @test "existing tarball in build location is discarded if not matching checksum" {
-  stub md5 true \
+  stub shasum true \
     "echo invalid" \
-    "echo 83e6d7725e20166024a1eb74cde80677"
+    "echo ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   export -n RUBY_BUILD_CACHE_PATH
@@ -103,11 +103,11 @@ DEF
   touch "${RUBY_BUILD_BUILD_PATH}/package-1.0.0.tar.gz"
 
   run_inline_definition <<DEF
-install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz#83e6d7725e20166024a1eb74cde80677" copy
+install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz#ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5" copy
 DEF
 
   assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
-  unstub md5
+  unstub shasum
 }
