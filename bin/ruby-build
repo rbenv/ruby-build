@@ -167,7 +167,7 @@ make_package() {
 }
 
 compute_sha2() {
-  local output=""
+  local output
   if type shasum &>/dev/null; then
     output="$(shasum -a 256 -b)"
     echo "${output% *}"
