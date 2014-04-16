@@ -182,9 +182,25 @@ compute_sha2() {
   fi
 }
 
+compute_md5() {
+  local output
+  if type md5 &>/dev/null; then
+    md5 -q
+  elif type openssl &>/dev/null; then
+    output="$(openssl md5)" || return 1
+    echo "${output##* }"
+  elif type md5sum &>/dev/null; then
+    output="$(md5sum -b)" || return 1
+    echo "${output% *}"
+  else
+    return 1
+  fi
+}
+
 verify_checksum() {
   # If there's no SHA2 support, return success
   [ -n "$HAS_SHA2_SUPPORT" ] || return 0
+  local checksum_command="compute_sha2"
 
   # If the specified filename doesn't exist, return success
   local filename="$1"
@@ -194,8 +210,15 @@ verify_checksum() {
   local expected_checksum=`echo "$2" | tr [A-Z] [a-z]`
   [ -n "$expected_checksum" ] || return 0
 
+  # If the checksum length is 32 chars, assume MD5, otherwise SHA2
+  local checksum_length=${#expected_checksum}
+  if [ "$checksum_length" -eq 32 ]; then
+    [ -n "$HAS_MD5_SUPPORT" ] || return 0
+    checksum_command="compute_md5"
+  fi
+
   # If the computed checksum is empty, return failure
-  local computed_checksum=`echo "$(compute_sha2 < "$filename")" | tr [A-Z] [a-z]`
+  computed_checksum=`echo "$($checksum_command < "$filename")" | tr [A-Z] [a-z]`
   [ -n "$computed_checksum" ] || return 1
 
   if [ "$expected_checksum" != "$computed_checksum" ]; then
@@ -989,6 +1012,12 @@ if echo test | compute_sha2 >/dev/null; then
 else
   unset HAS_SHA2_SUPPORT
   unset RUBY_BUILD_MIRROR_URL
+fi
+
+if echo test | compute_md5 >/dev/null; then
+  HAS_MD5_SUPPORT=1
+else
+  unset HAS_MD5_SUPPORT
 fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"

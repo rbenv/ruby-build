@@ -57,6 +57,32 @@ export RUBY_BUILD_CACHE_PATH=
 }
 
 
+@test "package URL with valid md5 checksum" {
+  stub md5 true "echo 83e6d7725e20166024a1eb74cde80677"
+  stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+
+  install_fixture definitions/with-md5-checksum
+  [ "$status" -eq 0 ]
+  [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub curl
+  unstub md5
+}
+
+
+@test "package URL with md5 checksum but no md5 support" {
+  stub md5 false
+  stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+
+  install_fixture definitions/with-md5-checksum
+  [ "$status" -eq 0 ]
+  [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub curl
+  unstub md5
+}
+
+
 @test "package with invalid checksum" {
   stub shasum true "echo invalid"
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
