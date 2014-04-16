@@ -218,7 +218,7 @@ verify_checksum() {
   fi
 
   # If the computed checksum is empty, return failure
-  computed_checksum=`echo "$($checksum_command < "$filename")" | tr [A-Z] [a-z]`
+  local computed_checksum=`echo "$($checksum_command < "$filename")" | tr [A-Z] [a-z]`
   [ -n "$computed_checksum" ] || return 1
 
   if [ "$expected_checksum" != "$computed_checksum" ]; then
