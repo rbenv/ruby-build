@@ -4,6 +4,11 @@ load test_helper
 export RUBY_BUILD_SKIP_MIRROR=1
 export RUBY_BUILD_CACHE_PATH=
 
+setup() {
+  export RUBY_BUILD_BUILD_PATH="${TMP}/source"
+  mkdir -p "${RUBY_BUILD_BUILD_PATH}"
+}
+
 @test "failed download displays error message" {
   stub curl false
 
@@ -29,10 +34,12 @@ OUT
 }
 
 @test "updating existing git repository" {
-  stub git "fetch --force --update-head-ok http://example.com/packages/package.git +master:master : true"
+  mkdir -p "${RUBY_BUILD_BUILD_PATH}/package-dev"
+  stub git \
+    "fetch --depth 1 origin +master : true" \
+    "checkout -q -B master origin/master : true"
 
   run_inline_definition <<DEF
-mkdir "\${BUILD_PATH}/package-dev"
 install_git "package-dev" "http://example.com/packages/package.git" master copy
 DEF
   assert_success
