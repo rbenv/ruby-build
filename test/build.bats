@@ -85,9 +85,9 @@ OUT
   stub brew false
   stub_make_install
   stub_make_install
-  stub patch ' : echo patch "$@" >> build.log'
+  stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
 
-  install_fixture --patch definitions/needs-yaml
+  echo | TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml
   assert_success
 
   unstub make
@@ -97,7 +97,33 @@ OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
 make install
-patch -p0 --force -i -
+patch -p0 --force -i $TMP/ruby-patch.XXX
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+make install
+OUT
+}
+
+@test "apply ruby patch from git diff before building" {
+  cached_tarball "yaml-0.1.6"
+  cached_tarball "ruby-2.0.0"
+
+  stub brew false
+  stub_make_install
+  stub_make_install
+  stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
+
+  echo 'diff --git a/script.rb' | TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml
+  assert_success
+
+  unstub make
+  unstub patch
+
+  assert_build_log <<OUT
+yaml-0.1.6: --prefix=$INSTALL_ROOT
+make -j 2
+make install
+patch -p1 --force -i $TMP/ruby-patch.XXX
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
 make install

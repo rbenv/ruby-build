@@ -846,9 +846,15 @@ isolated_gem_install() {
 }
 
 apply_ruby_patch() {
+  local patchfile
   case "$1" in
   ruby-* | jruby-* | rubinius-* )
-    patch -p0 --force -i "${2:--}"
+    patchfile="$(mktemp -t ruby-patch)"
+    cat "${2:--}" >"$patchfile"
+
+    local striplevel=0
+    grep -q '^diff --git a/' "$patchfile" && striplevel=1
+    patch -p$striplevel --force -i "$patchfile"
     ;;
   esac
 }
