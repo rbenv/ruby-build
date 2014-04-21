@@ -97,7 +97,7 @@ OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
 make install
-patch -p0 -i -
+patch -p0 --force -i -
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
 make install

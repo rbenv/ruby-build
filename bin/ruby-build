@@ -848,7 +848,7 @@ isolated_gem_install() {
 apply_ruby_patch() {
   case "$1" in
   ruby-* | jruby-* | rubinius-* )
-    patch -p0 -i "${2:--}"
+    patch -p0 --force -i "${2:--}"
     ;;
   esac
 }
