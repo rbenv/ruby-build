@@ -849,7 +849,7 @@ apply_ruby_patch() {
   local patchfile
   case "$1" in
   ruby-* | jruby-* | rubinius-* )
-    patchfile="$(mktemp -t ruby-patch)"
+    patchfile="$(mktemp "${TMP}/ruby-patch.XXXXXX")"
     cat "${2:--}" >"$patchfile"
 
     local striplevel=0
