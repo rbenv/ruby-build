@@ -87,7 +87,7 @@ OUT
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
 
-  echo | TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml
+  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<<""
   assert_success
 
   unstub make
@@ -113,7 +113,7 @@ OUT
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
 
-  echo 'diff --git a/script.rb' | TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml
+  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<<"diff --git a/script.rb"
   assert_success
 
   unstub make
