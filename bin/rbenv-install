@@ -127,6 +127,11 @@ for script in "${scripts[@]}"; do source "$script"; done
 # Set VERSION_NAME from $DEFINITION, if it is not already set. Then
 # compute the installation prefix.
 [ -n "$VERSION_NAME" ] || VERSION_NAME="${DEFINITION##*/}"
+
+# If VERSION_NAME does not contain the patch, assume the latest stable
+PATCHED_VERSION_NAME=`definitions | egrep "${VERSION_NAME}-p[0-9]+" | sort | tail -n 1`
+[ -z "$PATCHED_VERSION_NAME" ] || VERSION_NAME="$PATCHED_VERSION_NAME"
+
 PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 
 [ -d "${PREFIX}" ] && PREFIX_EXISTS=1
