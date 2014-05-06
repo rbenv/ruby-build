@@ -1016,6 +1016,8 @@ unset RUBYLIB
 
 trap build_failed ERR
 mkdir -p "$BUILD_PATH"
+ln -nsf "$BUILD_PATH" "${TMP}/ruby-build.latest"
+ln -nsf "$LOG_PATH" "${TMP}/ruby-build.latest.log"
 source "$DEFINITION_PATH"
 [ -z "${KEEP_BUILD_PATH}" ] && rm -fr "$BUILD_PATH"
 trap - ERR
