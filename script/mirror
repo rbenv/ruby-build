@@ -43,7 +43,7 @@ potentially_new_packages() {
 }
 
 extract_urls() {
-  grep -hoe 'http[^"]\+#[^"]\+' "$@" | sort | uniq
+  $(type -p ggrep grep | head -1) -hoe 'http[^"]\+#[^"]\+' "$@" | sort | uniq
 }
 
 update() {
