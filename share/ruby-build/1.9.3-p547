@@ -1,0 +1,2 @@
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#5fe00cda18ca5daeb43762b80c38e06e" --if needs_yaml
+install_package "ruby-1.9.3-p547" "http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p547.tar.gz#7531f9b1b35b16f3eb3d7bea786babfd"
