@@ -1,2 +1,2 @@
 require_gcc
-install_package "ruby-enterprise-1.8.7-2012.02" "http://rubyenterpriseedition.googlecode.com/files/ruby-enterprise-1.8.7-2012.02.tar.gz#8d086d2fe68a4c57ba76228e97fb3116" ree_installer
+install_package "ruby-enterprise-1.8.7-2012.02" "http://rubyenterpriseedition.googlecode.com/files/ruby-enterprise-1.8.7-2012.02.tar.gz#ecf4a6d4c96b547b3bf4b6be14e082ddaa781e83ad7f69437cd3169fb7576e42" ree_installer
