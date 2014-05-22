@@ -1,3 +1,13 @@
+before_install_package() {
+  local PACKAGE_DIR=$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+  case "$1" in
+  ruby-* )
+    # patch is from here https://bugs.ruby-lang.org/projects/ruby-trunk/repository/revisions/41808/diff
+    patch -p0 -i "$PACKAGE_DIR/patches/changeset_r41808.diff"
+    ;;
+  esac
+}
+
 install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#5fe00cda18ca5daeb43762b80c38e06e" --if needs_yaml
 install_package "openssl-1.0.1g" "https://www.openssl.org/source/openssl-1.0.1g.tar.gz#de62b43dfcd858e66a74bee1c834e959" mac_openssl --if has_broken_mac_openssl
 install_package "ruby-2.0.0-p247" "http://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.gz#c351450a0bed670e0f5ca07da3458a5b" standard verify_openssl

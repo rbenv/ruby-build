@@ -1,3 +1,14 @@
 require_gcc
+
+before_install_package() {
+  local PACKAGE_DIR=$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+  case "$1" in
+  ruby-* )
+    # patch is from here https://bugs.ruby-lang.org/projects/ruby-trunk/repository/revisions/41808/diff
+    patch -p0 -i "$PACKAGE_DIR/patches/changeset_r41808-187.diff"
+    ;;
+  esac
+}
+
 install_package "ruby-1.8.7-p374" "http://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.gz#b72a0bc5b824398537762e5272bbb8dc" auto_tcltk standard
 install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz#0c95a9869914ba1a45bf71d3b8048420" ruby
