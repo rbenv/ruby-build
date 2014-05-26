@@ -1,0 +1,51 @@
+#!/bin/bash
+# Usage: script/brew-publish <name> <version> [<gh-project>]
+#
+# Updates the `<name>.rb` Homebrew formula to `<version>` and sends a pull
+# request with the change.
+set -e
+
+brew_name="${1?}"
+version="${2?}"
+
+if ! type -p hub >/dev/null; then
+  "ERROR: You have to install hub to proceed." >&2
+  exit 1
+fi
+
+if [ -n "$3" ]; then
+  gh_project="github.com/${3}"
+else
+  gh_project="$(git remote -v | grep '^origin' | grep -oE 'github.com[:/][^/]+/[^/ ]+')"
+  gh_project="${gh_project%.git}"
+fi
+
+url="https://${gh_project/:/\/}/archive/${version}.tar.gz"
+
+checksum="$(curl -fsSL "$url" | shasum | awk '{print $1}')"
+
+if [ -z "$checksum" ]; then
+  echo "ERROR: calculating the checksum failed for $url" >&2
+  exit 1
+fi
+
+pushd "$(brew --prefix)"
+
+git fetch -q origin master
+
+formula="Library/Formula/${brew_name}.rb"
+sed -i.bak -E "
+  s!^(  url ).+!\\1\"${url}\"!
+  s!^(  sha1 ).+!\\1\"${checksum}\"!
+" "$formula"
+rm -f "${formula}.bak"
+
+branch="${brew_name}-${version}"
+git checkout -q -B "$branch" origin/master
+git commit -m "${brew_name} ${version#v}" -- "$formula"
+# hackish way of getting the git remote name for user's fork
+fork_remote="$(hub fork 2>&1 | grep -oE 'remote:? \S+' | tail -1 | awk '{print $2}')"
+git push -u "$fork_remote" "$branch"
+hub pull-request -m "${brew_name} ${version#v}"
+
+git checkout -q -

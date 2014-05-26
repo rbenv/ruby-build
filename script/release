@@ -1,0 +1,46 @@
+#!/bin/bash
+# Usage: script/release
+#
+# - checks out the master branch
+# - changes version in `bin/ruby-build` to current date
+# - commits and tags the change
+# - pushes master + tag to GitHub
+# - opens pull request to update the Homebrew formula
+#
+# TODO: handle making multiple releases on the same date
+# TODO: publish release notes to GitHub
+
+set -e
+
+git fetch -q --tags origin master
+
+existing="$(git tag --points-at HEAD)"
+if [ -n "$existing" ]; then
+  echo "Aborting: HEAD is already tagged as '${existing}'" >&2
+  exit 1
+fi
+
+git checkout -q master
+
+binfile="bin/ruby-build"
+new_version="$(date '+%Y%m%d')"
+version_tag="v${new_version}"
+previous_tag="$(git tag | grep '^v' | sort | tail -1)"
+
+if git diff --quiet "${previous_tag}..HEAD" -- bin share; then
+  echo "Aborting: No features to release since '${previous_tag}'" >&2
+  exit 1
+fi
+
+# current="$($binfile --version | awk '{print $2}')"
+
+sed -i.bak -E "s!^(RUBY_BUILD_VERSION=).+!\\1\"${new_version}\"!" "$binfile"
+rm -f "${binfile}.bak"
+
+git commit -m "ruby-build ${new_version}" "$binfile"
+git tag "$version_tag"
+git push origin master "${version_tag}"
+
+# git log --no-merges --format='%w(0,0,2)* %B' --reverse "${previous_tag}..HEAD^" -- bin share
+
+script/brew-publish ruby-build "$version_tag"
