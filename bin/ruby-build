@@ -247,19 +247,31 @@ http() {
 }
 
 http_head_curl() {
-  curl -qsILf "$1" >&4 2>&1
+  options=""
+  [ -n "${IPV4}" ] && options="--ipv4"
+  [ -n "${IPV6}" ] && options="--ipv6"
+  curl -qsILf "${options}" "$1" >&4 2>&1
 }
 
 http_get_curl() {
-  curl -q -o "${2:--}" -sSLf "$1"
+  options=""
+  [ -n "${IPV4}" ] && options="--ipv4"
+  [ -n "${IPV6}" ] && options="--ipv6"
+  curl -q -o "${2:--}" -sSLf "${options}" "$1"
 }
 
 http_head_wget() {
-  wget -q --spider "$1" >&4 2>&1
+  options=""
+  [ -n "${IPV4}" ] && options="--inet4-only"
+  [ -n "${IPV6}" ] && options="--inet6-only"
+  wget -q --spider "${options}" "$1" >&4 2>&1
 }
 
 http_get_wget() {
-  wget -nv -O "${2:--}" "$1"
+  options=""
+  [ -n "${IPV4}" ] && options="--inet4-only"
+  [ -n "${IPV6}" ] && options="--inet6-only"
+  wget -nv "${options}" -O "${2:--}" "$1"
 }
 
 fetch_tarball() {
@@ -897,7 +909,7 @@ version() {
 
 usage() {
   { version
-    echo "usage: ruby-build [-k|--keep] [-v|--verbose] [-p|--patch] definition prefix"
+    echo "usage: ruby-build [-k|--keep] [-v|--verbose] [-p|--patch] [-4|--ipv4|-6|--ipv6] definition prefix"
     echo "       ruby-build --definitions"
   } >&2
 
@@ -918,6 +930,8 @@ list_definitions() {
 unset VERBOSE
 unset KEEP_BUILD_PATH
 unset HAS_PATCH
+unset IPV4
+unset IPV6
 RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
 
 parse_options "$@"
@@ -930,6 +944,8 @@ for option in "${OPTIONS[@]}"; do
       echo "  -k/--keep        Do not remove source tree after installation"
       echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
       echo "  -p/--patch       Apply a patch from stdin before building"
+      echo "  -4/--ipv4        Resolve names to IPv4 addresses only"
+      echo "  -6/--ipv6        Resolve names to IPv6 addresses only"
       echo "  --definitions    List all built-in definitions"
       echo
     } >&2
@@ -947,6 +963,12 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "p" | "patch" )
     HAS_PATCH=true
+    ;;
+  "4" | "ipv4")
+    IPV4=true
+    ;;
+  "6" | "ipv6")
+    IPV6=true
     ;;
   "version" )
     version
