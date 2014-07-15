@@ -247,11 +247,11 @@ http() {
 }
 
 http_head_curl() {
-  curl -qsILf "$1" >&4 2>&1
+  curl -sILf "$1" >&4 2>&1
 }
 
 http_get_curl() {
-  curl -q -o "${2:--}" -sSLf "$1"
+  curl -o "${2:--}" -sSLf "$1"
 }
 
 http_head_wget() {
