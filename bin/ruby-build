@@ -250,28 +250,28 @@ http_head_curl() {
   options=""
   [ -n "${IPV4}" ] && options="--ipv4"
   [ -n "${IPV6}" ] && options="--ipv6"
-  curl -qsILf "${options}" "$1" >&4 2>&1
+  curl -qsILf ${options} "$1" >&4 2>&1
 }
 
 http_get_curl() {
   options=""
   [ -n "${IPV4}" ] && options="--ipv4"
   [ -n "${IPV6}" ] && options="--ipv6"
-  curl -q -o "${2:--}" -sSLf "${options}" "$1"
+  curl -q -o "${2:--}" -sSLf ${options} "$1"
 }
 
 http_head_wget() {
   options=""
   [ -n "${IPV4}" ] && options="--inet4-only"
   [ -n "${IPV6}" ] && options="--inet6-only"
-  wget -q --spider "${options}" "$1" >&4 2>&1
+  wget -q --spider ${options} "$1" >&4 2>&1
 }
 
 http_get_wget() {
   options=""
   [ -n "${IPV4}" ] && options="--inet4-only"
   [ -n "${IPV6}" ] && options="--inet6-only"
-  wget -nv "${options}" -O "${2:--}" "$1"
+  wget -nv ${options} -O "${2:--}" "$1"
 }
 
 fetch_tarball() {
