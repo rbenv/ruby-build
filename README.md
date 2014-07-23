@@ -61,6 +61,9 @@ Or, if you would like to install the latest development release:
 
 ## Usage
 
+Before you begin, you should ensure that your build environment has the proper
+system dependencies for compiling the wanted Ruby version (see our [recommendations](https://github.com/sstephenson/ruby-build/wiki#suggested-build-environment)).
+
 ### Using `rbenv install` with rbenv
 
 To install a Ruby version for use with rbenv, run `rbenv install` with the
