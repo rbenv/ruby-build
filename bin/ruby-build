@@ -962,6 +962,16 @@ elif [ ! -f "$DEFINITION_PATH" ]; then
   BUILTIN_DEFINITION_PATH="${RUBY_BUILD_ROOT}/share/ruby-build/${DEFINITION_PATH}"
   if [ -e "$BUILTIN_DEFINITION_PATH" ]; then
     DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"
+  elif [ ! -z "$RUBY_BUILD_DEFINITIONS" ]; then
+    OLDIFS="$IFS"
+    IFS=$':' RUBY_BUILD_DEFINITIONS=($RUBY_BUILD_DEFINITIONS)
+    IFS="$OLDIFS"
+    for DEFINITION_PATH in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      if [ -e "${DEFINITION_DIRECTORY}/${DEFINITION_PATH}" ]; then
+        DEFINITION_PATH="${DEFINITION_DIRECTORY}/${DEFINITION_PATH}"
+        break
+      fi
+    done
   else
     echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
     exit 2
