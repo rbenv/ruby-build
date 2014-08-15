@@ -892,7 +892,13 @@ apply_ruby_patch() {
 }
 
 version() {
-  echo "ruby-build ${RUBY_BUILD_VERSION}"
+  local git_revision
+  # Read the revision from git if the remote points to "ruby-build" repository
+  if GIT_DIR="$RUBY_BUILD_INSTALL_PREFIX/.git" git remote -v 2>/dev/null | grep -q /ruby-build; then
+    git_revision="$(GIT_DIR="$RUBY_BUILD_INSTALL_PREFIX/.git" git describe --tags HEAD 2>/dev/null || true)"
+    git_revision="${git_revision#v}"
+  fi
+  echo "ruby-build ${git_revision:-$RUBY_BUILD_VERSION}"
 }
 
 usage() {
@@ -919,12 +925,10 @@ unset VERBOSE
 unset KEEP_BUILD_PATH
 unset HAS_PATCH
 
-if [ -z "$RUBY_BUILD_ROOT" ]; then
-  RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
-fi
+RUBY_BUILD_INSTALL_PREFIX="$(abs_dirname "$0")/.."
 
 OLDIFS="$IFS"
-IFS=: RUBY_BUILD_DEFINITIONS=($RUBY_BUILD_DEFINITIONS ${RUBY_BUILD_ROOT}/share/ruby-build)
+IFS=: RUBY_BUILD_DEFINITIONS=($RUBY_BUILD_DEFINITIONS ${RUBY_BUILD_ROOT:-$RUBY_BUILD_INSTALL_PREFIX}/share/ruby-build)
 IFS="$OLDIFS"
 
 parse_options "$@"
