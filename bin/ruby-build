@@ -907,10 +907,12 @@ usage() {
 }
 
 list_definitions() {
+  shopt -s nullglob
   { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
       echo "${definition##*/}"
     done
   } | sort
+  shopt -u nullglob
 }
 
 
@@ -918,7 +920,10 @@ list_definitions() {
 unset VERBOSE
 unset KEEP_BUILD_PATH
 unset HAS_PATCH
-RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
+
+if [ -z "$RUBY_BUILD_ROOT" ]; then
+  RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
+fi
 
 parse_options "$@"
 
