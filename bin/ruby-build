@@ -907,8 +907,8 @@ usage() {
 }
 
 list_definitions() {
-  { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
-      echo "${definition##*/}"
+  { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      [ -d "$DEFINITION_DIR" ] && ls "$DEFINITION_DIR"
     done
   } | sort
 }
@@ -918,7 +918,14 @@ list_definitions() {
 unset VERBOSE
 unset KEEP_BUILD_PATH
 unset HAS_PATCH
-RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
+
+if [ -z "$RUBY_BUILD_ROOT" ]; then
+  RUBY_BUILD_ROOT="$(abs_dirname "$0")/.."
+fi
+
+OLDIFS="$IFS"
+IFS=: RUBY_BUILD_DEFINITIONS=($RUBY_BUILD_DEFINITIONS ${RUBY_BUILD_ROOT}/share/ruby-build)
+IFS="$OLDIFS"
 
 parse_options "$@"
 
@@ -959,10 +966,14 @@ DEFINITION_PATH="${ARGUMENTS[0]}"
 if [ -z "$DEFINITION_PATH" ]; then
   usage
 elif [ ! -f "$DEFINITION_PATH" ]; then
-  BUILTIN_DEFINITION_PATH="${RUBY_BUILD_ROOT}/share/ruby-build/${DEFINITION_PATH}"
-  if [ -e "$BUILTIN_DEFINITION_PATH" ]; then
-    DEFINITION_PATH="$BUILTIN_DEFINITION_PATH"
-  else
+  for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+    if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
+      DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
+      break
+    fi
+  done
+
+  if [ ! -f "$DEFINITION_PATH" ]; then
     echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
     exit 2
   fi
