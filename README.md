@@ -120,6 +120,8 @@ You can set certain environment variables to control the build process.
   their original source URLs instead of using a mirror.
 * `RUBY_BUILD_ROOT` overrides the default location from where build definitions
   in `share/ruby-build/` are looked up.
+* `RUBY_BUILD_DEFINITIONS` can be a list of colon-separated paths that get
+  additionally searched when looking up build definitions.
 * `CC` sets the path to the C compiler.
 * `RUBY_CFLAGS` lets you pass additional options to the default `CFLAGS`. Use
   this to override, for instance, the `-O3` option.
