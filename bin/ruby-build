@@ -821,7 +821,11 @@ build_package_verify_openssl() {
   "$RUBY_BIN" -e 'begin
     require "openssl"
   rescue LoadError
-    abort "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
+    $stderr.puts "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
+    $stderr.puts "Configure options used:"
+    require "rbconfig"; require "shellwords"
+    RbConfig::CONFIG.fetch("configure_args").shellsplit.each { |arg| $stderr.puts "  #{arg}" }
+    exit 1
   end' >&4 2>&1
 }
 
