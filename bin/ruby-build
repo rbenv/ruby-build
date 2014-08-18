@@ -277,7 +277,7 @@ fetch_tarball() {
     fi
   fi
 
-  local tar_args="xzvf"
+  local tar_args="xzf"
   local package_filename="${package_name}.tar.gz"
 
   if [ "$package_url" != "${package_url%bz2}" ]; then
