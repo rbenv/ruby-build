@@ -162,6 +162,15 @@ if [ -z "${RUBY_BUILD_CACHE_PATH}" ] && [ -d "${RBENV_ROOT}/cache" ]; then
   export RUBY_BUILD_CACHE_PATH="${RBENV_ROOT}/cache"
 fi
 
+# Add `share/ruby-build/` directory from each rbenv plugin to the list of
+# paths where build definitions are looked up.
+shopt -s nullglob
+for plugin_path in "$RBENV_ROOT"/plugins/*/share/ruby-build; do
+  RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_DEFINITIONS}:${plugin_path}"
+done
+export RUBY_BUILD_DEFINITIONS
+shopt -u nullglob
+
 # Default RBENV_VERSION to the globally-specified Ruby version. (The
 # REE installer requires an existing Ruby installation to run. An
 # unsatisfied local .ruby-version file can cause the installer to

@@ -73,3 +73,23 @@ OUT
 
   unstub ruby-build
 }
+
+@test "no build definitions from plugins" {
+  assert [ ! -e "${RBENV_ROOT}/plugins" ]
+  stub_ruby_build 'echo $RUBY_BUILD_DEFINITIONS'
+
+  run rbenv-install 2.1.2
+  assert_success ""
+}
+
+@test "some build definitions from plugins" {
+  mkdir -p "${RBENV_ROOT}/plugins/foo/share/ruby-build"
+  mkdir -p "${RBENV_ROOT}/plugins/bar/share/ruby-build"
+  stub_ruby_build "echo \$RUBY_BUILD_DEFINITIONS | tr ':' $'\\n'"
+
+  run rbenv-install 2.1.2
+  assert_success <<OUT
+${RBENV_ROOT}/plugins/bar/share/ruby-build
+${RBENV_ROOT}/plugins/foo/share/ruby-build
+OUT
+}
