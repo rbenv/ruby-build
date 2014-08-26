@@ -1,4 +1,4 @@
-install: git clone https://github.com/sstephenson/bats.git
+install: git clone --depth 1 https://github.com/sstephenson/bats.git
 script: script/test
 language: c
 notifications:
