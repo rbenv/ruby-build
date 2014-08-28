@@ -445,11 +445,29 @@ build_package_standard() {
   local PACKAGE_MAKE_INSTALL_OPTS="${package_var_name}_MAKE_INSTALL_OPTS"
   local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
   local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
+  local PACKAGE_CXXFLAGS="${package_var_name}_CXXFLAGS"
 
-  [ "$package_var_name" = "RUBY" ] && use_homebrew_readline || true
+  [ "$package_var_name" = "RUBY" ] && {
+    use_homebrew_readline || true
+
+    case "$package_name" in
+      ruby-1.9.3*|ruby-2.*)
+        # Work around warnings building Ruby 1.9.3 and 2.x on Clang 2.x:
+        # pass -Wno-error=shorten-64-to-32 if the compiler accepts it.
+        if "${CC:-cc}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
+          warnflags="$(echo $warnflags | sed -e 's/-Werror=shorten-64-to-32/ /g' -e 's/-Wshorten-64-to-32/ /g')"
+          warnflags="$warnflags -Wno-error=shorten-64-to-32"
+          export warnflags
+        fi
+        ;;
+    esac
+  }
 
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
       export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
+    fi
+    if [ "${CXXFLAGS+defined}" ] || [ "${!PACKAGE_CXXFLAGS+defined}" ]; then
+      export CXXFLAGS="$CXXFLAGS ${!PACKAGE_CXXFLAGS}"
     fi
     ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
   ) >&4 2>&1
@@ -999,16 +1017,6 @@ fi
 if [ ! -w "$TMP" ] || [ ! -x "$TMP" ]; then
   echo "ruby-build: TMPDIR=$TMP is set to a non-accessible location" >&2
   exit 1
-fi
-
-# Work around warnings building Ruby 2.0 on Clang 2.x:
-# pass -Wno-error=shorten-64-to-32 if the compiler accepts it.
-#
-# When we set CFLAGS, Ruby won't apply its default flags, though. Since clang
-# builds 1.9.x and 2.x only, where -O3 is default, we can safely set that flag.
-# Ensure it's the first flag since later flags take precedence.
-if "${CC:-cc}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
-  RUBY_CFLAGS="-O3 -Wno-error=shorten-64-to-32 $RUBY_CFLAGS"
 fi
 
 if [ -z "$MAKE" ]; then
