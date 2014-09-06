@@ -81,8 +81,8 @@ build_failed() {
       echo "Inspect or clean up the working tree at ${BUILD_PATH}"
 
       if file_is_not_empty "$LOG_PATH"; then
-        echo "Results logged to ${LOG_PATH}"
-        echo
+        colorize 33 "Results logged to ${LOG_PATH}"
+        printf "\n\n"
         echo "Last 10 log lines:"
         tail -n 10 "$LOG_PATH"
       fi
