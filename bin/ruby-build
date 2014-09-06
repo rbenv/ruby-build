@@ -870,7 +870,9 @@ list_definitions() {
   { for definition in "${RUBY_BUILD_ROOT}/share/ruby-build/"*; do
       echo "${definition##*/}"
     done
-  } | sort
+  } | sed -e "h" -e 's/[+-]/./g' -e "G" -e 's/\n/	/' |
+      sort -t "." -k "1,1" -k "2,2n" -k "3,3n" -k "4,4n" -k "5,5n" |
+      cut -f 2
 }
 
 
