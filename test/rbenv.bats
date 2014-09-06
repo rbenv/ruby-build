@@ -88,7 +88,9 @@ OUT
   stub_ruby_build "echo \$RUBY_BUILD_DEFINITIONS | tr ':' $'\\n'"
 
   run rbenv-install 2.1.2
-  assert_success <<OUT
+  assert_success
+  assert_output <<OUT
+
 ${RBENV_ROOT}/plugins/bar/share/ruby-build
 ${RBENV_ROOT}/plugins/foo/share/ruby-build
 OUT
