@@ -73,7 +73,8 @@ colorize() {
 
 build_failed() {
   { echo
-    echo "BUILD FAILED"
+    colorize 1 "BUILD FAILED"
+    echo " ($(version))"
     echo
 
     if ! rmdir "${BUILD_PATH}" 2>/dev/null; then
