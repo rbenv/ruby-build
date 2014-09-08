@@ -116,7 +116,7 @@ file_is_not_empty() {
 
 num_cpu_cores() {
   local num=""
-  if [ "Darwin" = "$(uname -s)" ]; then
+  if [ "Darwin" = "$(uname -s)" -o "FreeBSD" = "$(uname -s)" ]; then
     num="$(sysctl -n hw.ncpu 2>/dev/null || true)"
   elif [ -r /proc/cpuinfo ]; then
     num="$(grep ^processor /proc/cpuinfo | wc -l)"
