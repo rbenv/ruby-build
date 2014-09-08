@@ -71,17 +71,29 @@ colorize() {
   fi
 }
 
+os_information() {
+  if type -p lsb_release >/dev/null; then
+    lsb_release -sir | xargs echo
+  elif type -p sw_vers >/dev/null; then
+    echo "OS X $(sw_vers -productVersion)"
+  else
+    local os="$(cat /etc/{centos,redhat,fedora,system}-release /etc/debian_version 2>/dev/null | head -1)"
+    echo "${os:-$(uname -sr)}"
+  fi
+}
+
 build_failed() {
   { echo
-    echo "BUILD FAILED"
+    colorize 1 "BUILD FAILED"
+    echo " ($(os_information) using $(version))"
     echo
 
     if ! rmdir "${BUILD_PATH}" 2>/dev/null; then
       echo "Inspect or clean up the working tree at ${BUILD_PATH}"
 
       if file_is_not_empty "$LOG_PATH"; then
-        echo "Results logged to ${LOG_PATH}"
-        echo
+        colorize 33 "Results logged to ${LOG_PATH}"
+        printf "\n\n"
         echo "Last 10 log lines:"
         tail -n 10 "$LOG_PATH"
       fi
@@ -277,7 +289,7 @@ fetch_tarball() {
     fi
   fi
 
-  local tar_args="xzvf"
+  local tar_args="xzf"
   local package_filename="${package_name}.tar.gz"
 
   if [ "$package_url" != "${package_url%bz2}" ]; then
@@ -451,7 +463,8 @@ build_package_standard() {
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
       export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
     fi
-    ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}"
+    ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
+      $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" || return 1
   ) >&4 2>&1
 
   { "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
@@ -821,7 +834,11 @@ build_package_verify_openssl() {
   "$RUBY_BIN" -e 'begin
     require "openssl"
   rescue LoadError
-    abort "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
+    $stderr.puts "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
+    $stderr.puts "Configure options used:"
+    require "rbconfig"; require "shellwords"
+    RbConfig::CONFIG.fetch("configure_args").shellsplit.each { |arg| $stderr.puts "  #{arg}" }
+    exit 1
   end' >&4 2>&1
 }
 
