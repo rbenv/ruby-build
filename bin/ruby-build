@@ -936,7 +936,7 @@ list_definitions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && ls "$DEFINITION_DIR"
     done
-  } | sort
+  } | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n
 }
 
 
