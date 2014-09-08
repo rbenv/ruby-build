@@ -1048,7 +1048,7 @@ if "${CC:-cc}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
 fi
 
 if [ -z "$MAKE" ]; then
-  if [[ "FreeBSD" = "$(uname -s)" ]]; then
+  if [ "FreeBSD" = "$(uname -s)" ] && [ "$(uname -r | sed 's/[^[:digit:]].*//')" -lt 10 ]; then
     export MAKE="gmake"
   else
     export MAKE="make"
