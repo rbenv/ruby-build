@@ -64,6 +64,19 @@ update() {
   done
 }
 
+verify() {
+  local url
+  local checksum
+  local file
+  for url in $(potentially_new_packages "$1"); do
+    checksum="${url#*#}"
+    url="${url%#*}"
+    echo "Verifying checksum for $url"
+    file="${TMPDIR:-/tmp}/$checksum"
+    download_and_verify "$url" "$file" "$checksum"
+  done
+}
+
 stats() {
   local packages=( $(extract_urls ./share/ruby-build/*) )
   local total="${#packages[@]}"
