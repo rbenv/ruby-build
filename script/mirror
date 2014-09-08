@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Usage: script/mirror update <COMMIT-RANGE>
+#        script/mirror verify <COMMIT-RANGE>
 #        script/mirror stats
 set -e
 
-commit_range="${1?}"
-
 eval "$(grep RUBY_BUILD_MIRROR_URL= ./bin/ruby-build | head -1)"
+
+help_text() {
+  sed -ne '/^#/!q;s/.\{1,2\}//;1d;p' < "$0"
+}
 
 test_mirrored() {
   curl -qsSfIL "$RUBY_BUILD_MIRROR_URL/$1" >/dev/null 2>&1
@@ -64,6 +67,19 @@ update() {
   done
 }
 
+verify() {
+  local url
+  local checksum
+  local file
+  for url in $(potentially_new_packages "$1"); do
+    checksum="${url#*#}"
+    url="${url%#*}"
+    echo "Verifying checksum for $url"
+    file="${TMPDIR:-/tmp}/$checksum"
+    download_and_verify "$url" "$file" "$checksum"
+  done
+}
+
 stats() {
   local packages=( $(extract_urls ./share/ruby-build/*) )
   local total="${#packages[@]}"
@@ -82,6 +98,19 @@ stats() {
   echo "$confirmed/$total mirrored"
 }
 
-cmd="${1?}"
-shift 1
-"$cmd" "$@"
+cmd="$1"
+
+case "$cmd" in
+update | verify | stats )
+  shift 1
+  "$cmd" "$@"
+  ;;
+-h | --help )
+  help_text
+  exit 0
+  ;;
+* )
+  help_text >&2
+  exit 1
+  ;;
+esac
