@@ -115,13 +115,16 @@ file_is_not_empty() {
 }
 
 num_cpu_cores() {
-  local num=""
-  if [ "Darwin" = "$(uname -s)" ]; then
+  local num
+  case "$(uname -s)" in
+  Darwin | *BSD )
     num="$(sysctl -n hw.ncpu 2>/dev/null || true)"
-  elif [ -r /proc/cpuinfo ]; then
-    num="$(grep ^processor /proc/cpuinfo | wc -l)"
-    [ "$num" -gt 0 ] || num=""
-  fi
+    ;;
+  * )
+    num="$(grep ^processor /proc/cpuinfo 2>/dev/null | wc -l | xargs)"
+    num="${num#0}"
+    ;;
+  esac
   echo "${num:-2}"
 }
 
