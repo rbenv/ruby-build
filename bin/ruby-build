@@ -936,7 +936,9 @@ list_definitions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && ls "$DEFINITION_DIR"
     done
-  } | sort
+  } | sed -e "h" -e 's/[+-]/./g' -e "G" -e 's/\n/	/' |
+      LC_ALL=C sort -t "." -k "1,1" -k "2,2n" -k "3,3n" -k "4,4n"  |
+      cut -f 2
 }
 
 
