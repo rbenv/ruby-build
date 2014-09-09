@@ -195,17 +195,25 @@ ruby-build $KEEP $VERBOSE $HAS_PATCH "$DEFINITION" "$PREFIX" || STATUS="$?"
 # Display a more helpful message if the definition wasn't found.
 if [ "$STATUS" == "2" ]; then
   { candidates="$(definitions "$DEFINITION")"
+    here="$(dirname "${0%/*}")"
     if [ -n "$candidates" ]; then
       echo
       echo "The following versions contain \`$DEFINITION' in the name:"
       echo "$candidates" | indent
     fi
     echo
-    echo "You can list all available versions with \`rbenv install --list'."
+    echo "See all available versions with \`rbenv install --list'."
     echo
-    echo "If the version you're looking for is not present, first try upgrading"
-    echo "ruby-build. If it's still missing, open a request on the ruby-build"
-    echo "issue tracker: https://github.com/sstephenson/ruby-build/issues"
+    echo -n "If the version you need is missing, try upgrading ruby-build"
+    if [ "$here" != "${here#$(brew --prefix 2>/dev/null)}" ]; then
+      printf ":\n\n"
+      echo "  brew update && brew upgrade ruby-build"
+    elif [ -d "${here}/.git" ]; then
+      printf ":\n\n"
+      echo "  cd ${here} && git pull"
+    else
+      printf ".\n"
+    fi
   } >&2
 fi
 
