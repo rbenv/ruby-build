@@ -76,6 +76,9 @@ os_information() {
     lsb_release -sir | xargs echo
   elif type -p sw_vers >/dev/null; then
     echo "OS X $(sw_vers -productVersion)"
+  elif [ -r /etc/os-release ]; then
+    source /etc/os-release
+    echo "$NAME" $VERSION_ID
   else
     local os="$(cat /etc/{centos,redhat,fedora,system}-release /etc/debian_version 2>/dev/null | head -1)"
     echo "${os:-$(uname -sr)}"
