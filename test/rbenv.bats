@@ -110,3 +110,17 @@ Available versions:
   ${RBENV_ROOT}/plugins/foo/share/ruby-build
 OUT
 }
+
+@test "completion results include build definitions from plugins" {
+  mkdir -p "${RBENV_ROOT}/plugins/foo/share/ruby-build"
+  mkdir -p "${RBENV_ROOT}/plugins/bar/share/ruby-build"
+  stub ruby-build "--definitions : echo \$RUBY_BUILD_DEFINITIONS | tr ':' $'\\n'"
+
+  run rbenv-install --complete
+  assert_success
+  assert_output <<OUT
+
+${RBENV_ROOT}/plugins/bar/share/ruby-build
+${RBENV_ROOT}/plugins/foo/share/ruby-build
+OUT
+}
