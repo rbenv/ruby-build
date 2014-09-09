@@ -24,13 +24,22 @@
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
+if [ -z "$RBENV_ROOT" ]; then
+  RBENV_ROOT="${HOME}/.rbenv"
+fi
+
+# Add `share/ruby-build/` directory from each rbenv plugin to the list of
+# paths where build definitions are looked up.
+shopt -s nullglob
+for plugin_path in "$RBENV_ROOT"/plugins/*/share/ruby-build; do
+  RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_DEFINITIONS}:${plugin_path}"
+done
+export RUBY_BUILD_DEFINITIONS
+shopt -u nullglob
+
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
   exec ruby-build --definitions
-fi
-
-if [ -z "$RBENV_ROOT" ]; then
-  RBENV_ROOT="${HOME}/.rbenv"
 fi
 
 # Load shared library functions
@@ -50,15 +59,6 @@ definitions() {
 indent() {
   sed 's/^/  /'
 }
-
-# Add `share/ruby-build/` directory from each rbenv plugin to the list of
-# paths where build definitions are looked up.
-shopt -s nullglob
-for plugin_path in "$RBENV_ROOT"/plugins/*/share/ruby-build; do
-  RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_DEFINITIONS}:${plugin_path}"
-done
-export RUBY_BUILD_DEFINITIONS
-shopt -u nullglob
 
 unset FORCE
 unset SKIP_EXISTING
