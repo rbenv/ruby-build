@@ -52,6 +52,7 @@ OUT
 }
 
 @test "nonexistent version" {
+  stub brew false
   stub_ruby_build 'echo ERROR >&2 && exit 2' \
     "--definitions : echo 1.8.7 1.9.3-p0 1.9.3-p194 2.1.2 | tr ' ' $'\\n'"
 
@@ -64,13 +65,34 @@ The following versions contain \`1.9.3' in the name:
   1.9.3-p0
   1.9.3-p194
 
-You can list all available versions with \`rbenv install --list'.
+See all available versions with \`rbenv install --list'.
 
-If the version you're looking for is not present, first try upgrading
-ruby-build. If it's still missing, open a request on the ruby-build
-issue tracker: https://github.com/sstephenson/ruby-build/issues
+If the version you need is missing, try upgrading ruby-build:
+
+  cd ${BATS_TEST_DIRNAME}/.. && git pull
 OUT
 
+  unstub ruby-build
+}
+
+@test "Homebrew upgrade instructions" {
+  stub brew "--prefix : echo '${BATS_TEST_DIRNAME%/*}'"
+  stub_ruby_build 'echo ERROR >&2 && exit 2' \
+    "--definitions : true"
+
+  run rbenv-install 1.9.3
+  assert_failure
+  assert_output <<OUT
+ERROR
+
+See all available versions with \`rbenv install --list'.
+
+If the version you need is missing, try upgrading ruby-build:
+
+  brew update && brew upgrade ruby-build
+OUT
+
+  unstub brew
   unstub ruby-build
 }
 
