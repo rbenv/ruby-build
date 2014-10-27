@@ -85,6 +85,16 @@ os_information() {
   fi
 }
 
+#  9.1  -> 901
+# 10.9  -> 1009
+# 10.10 -> 1010
+osx_version() {
+  local ver="$(sw_vers -productVersion)"
+  local major="${ver%.*}"
+  local minor="${ver#*.}"
+  echo $(( major*100 + minor ))
+}
+
 build_failed() {
   { echo
     colorize 1 "BUILD FAILED"
@@ -715,6 +725,9 @@ require_gcc() {
   fi
 
   export CC="$gcc"
+  if [ "$(uname -s)" = "Darwin" ] && [ "$(osx_version)" -ge 1010 ]; then
+    export MACOSX_DEPLOYMENT_TARGET=10.9
+  fi
 }
 
 locate_gcc() {
