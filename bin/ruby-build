@@ -766,7 +766,7 @@ verify_gcc() {
     return 1
   fi
 
-  local version="$("$gcc" --version || true)"
+  local version="$("$gcc" --version 2>/dev/null || true)"
   if [ -z "$version" ]; then
     return 1
   fi

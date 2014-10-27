@@ -36,3 +36,13 @@ CC=${TMP}/bin/gcc
 MACOSX_DEPLOYMENT_TARGET=10.9
 OUT
 }
+
+@test "require_gcc silences warnings" {
+  stub gcc '--version : echo warning >&2; echo 4.2.1'
+
+  run_inline_definition <<DEF
+require_gcc
+echo \$CC
+DEF
+  assert_success "${TMP}/bin/gcc"
+}
