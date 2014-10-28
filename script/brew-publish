@@ -33,6 +33,9 @@ pushd "$(brew --prefix)"
 
 git fetch -q origin master
 
+branch="${brew_name}-${version}"
+git checkout -q -B "$branch" origin/master
+
 formula="Library/Formula/${brew_name}.rb"
 sed -i.bak -E "
   s!^(  url ).+!\\1\"${url}\"!
@@ -40,8 +43,6 @@ sed -i.bak -E "
 " "$formula"
 rm -f "${formula}.bak"
 
-branch="${brew_name}-${version}"
-git checkout -q -B "$branch" origin/master
 git commit -m "${brew_name} ${version#v}" -- "$formula"
 # hackish way of getting the git remote name for user's fork
 fork_remote="$(hub fork 2>&1 | grep -oE 'remote:? \S+' | tail -1 | awk '{print $2}')"
