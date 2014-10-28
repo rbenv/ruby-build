@@ -969,7 +969,7 @@ list_definitions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && ls "$DEFINITION_DIR"
     done
-  } | sort_versions
+  } | sort_versions | uniq
 }
 
 sort_versions() {
