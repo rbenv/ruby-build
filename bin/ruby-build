@@ -515,6 +515,10 @@ build_package_rbx() {
   local package_name="$1"
 
   { [ ! -e "Gemfile" ] || bundle --path=vendor/bundle
+    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+      mkdir -p vendor
+      ln -s "$RUBY_BUILD_CACHE_PATH" vendor/prebuilt
+    fi
     RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
