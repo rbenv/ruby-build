@@ -1,2 +1,3 @@
-install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
+require_llvm 3.2
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749"
 install_package "rubinius-2.1.0" "http://releases.rubini.us/rubinius-2.1.0.tar.bz2#78d7c2af7ebdf9b477a682cf4793e56e4139abed3cd752282e422d56e63b65b6" rbx

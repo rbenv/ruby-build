@@ -514,8 +514,12 @@ build_package_ree_installer() {
 build_package_rbx() {
   local package_name="$1"
 
-  { bundle --path=vendor/bundle
-    RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS
+  { [ ! -e "Gemfile" ] || bundle --path=vendor/bundle
+    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+      mkdir -p vendor
+      ln -s "$RUBY_BUILD_CACHE_PATH" vendor/prebuilt
+    fi
+    RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
     fix_rbx_irb "$PREFIX_PATH"
@@ -640,7 +644,7 @@ fix_rbx_gem_binstubs() {
   local bindir="${prefix}/bin"
   local file binstub
   # Symlink Rubinius' `gems/bin/` into `bin/`
-  if [ -d "$gemdir" ]; then
+  if [ -d "$gemdir" ] && [ ! -L "$gemdir" ]; then
     for file in "$gemdir"/*; do
       binstub="${bindir}/${file##*/}"
       rm -f "$binstub"
@@ -764,6 +768,15 @@ verify_gcc() {
   fi
 
   echo "$gcc"
+}
+
+require_llvm() {
+  local llvm_version="$1"
+  if [ "$(uname -s)" = "Darwin" ] && [ "$(osx_version)" -ge 1010 ]; then
+    if [[ "$RUBY_CONFIGURE_OPTS" != *--llvm-* ]]; then
+      package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
+    fi
+  fi
 }
 
 needs_yaml() {
