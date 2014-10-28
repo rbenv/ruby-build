@@ -644,7 +644,7 @@ fix_rbx_gem_binstubs() {
   local bindir="${prefix}/bin"
   local file binstub
   # Symlink Rubinius' `gems/bin/` into `bin/`
-  if [ -d "$gemdir" ]; then
+  if [ -d "$gemdir" ] && [ ! -L "$gemdir" ]; then
     for file in "$gemdir"/*; do
       binstub="${bindir}/${file##*/}"
       rm -f "$binstub"
