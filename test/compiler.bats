@@ -4,6 +4,7 @@ load test_helper
 export MAKE=make
 export MAKE_OPTS='-j 2'
 export -n CFLAGS
+export -n CC
 
 @test "require_gcc on OS X 10.9" {
   stub uname '-s : echo Darwin'
