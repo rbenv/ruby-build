@@ -94,3 +94,18 @@ jruby-9000"
   run ruby-build --definitions
   assert_success "$expected"
 }
+
+@test "removing duplicate Ruby versions" {
+  export RUBY_BUILD_ROOT="$TMP"
+  export RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_ROOT}/share/ruby-build"
+  mkdir -p "$RUBY_BUILD_DEFINITIONS"
+  touch "${RUBY_BUILD_DEFINITIONS}/1.9.3"
+  touch "${RUBY_BUILD_DEFINITIONS}/2.2.0"
+
+  run ruby-build --definitions
+  assert_success
+  assert_output <<OUT
+1.9.3
+2.2.0
+OUT
+}
