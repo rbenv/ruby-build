@@ -514,7 +514,7 @@ build_package_ree_installer() {
 build_package_rbx() {
   local package_name="$1"
 
-  { bundle --path=vendor/bundle
+  { [ ! -e "Gemfile" ] || bundle --path=vendor/bundle
     RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
