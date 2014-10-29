@@ -74,6 +74,10 @@ exact name of the version you want to install. For example,
 Ruby versions will be installed into a directory of the same name under
 `~/.rbenv/versions`.
 
+To make this version available you then need to run `rbenv global` or `rbenv local`, eg;
+    
+    rbenv global 2.1.0
+
 To see a list of all available Ruby versions, run `rbenv install --list`. You
 may also tab-complete available Ruby versions if your rbenv installation is
 properly configured.
