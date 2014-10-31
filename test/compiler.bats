@@ -8,7 +8,7 @@ export -n CC
 
 @test "require_gcc on OS X 10.9" {
   stub uname '-s : echo Darwin'
-  stub sw_vers '-productVersion : echo 10.9'
+  stub sw_vers '-productVersion : echo 10.9.5'
   stub gcc '--version : echo 4.2.1'
 
   run_inline_definition <<DEF

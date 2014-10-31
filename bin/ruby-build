@@ -89,10 +89,9 @@ os_information() {
 # 10.9  -> 1009
 # 10.10 -> 1010
 osx_version() {
-  local ver="$(sw_vers -productVersion)"
-  local major="${ver%.*}"
-  local minor="${ver#*.}"
-  echo $(( major*100 + minor ))
+  local -a ver
+  IFS=. ver=( `sw_vers -productVersion` )
+  echo $(( ${ver[0]}*100 + ${ver[1]} ))
 }
 
 build_failed() {
