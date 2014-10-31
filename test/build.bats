@@ -4,6 +4,7 @@ load test_helper
 export RUBY_BUILD_CACHE_PATH="$TMP/cache"
 export MAKE=make
 export MAKE_OPTS="-j 2"
+export CC=cc
 
 setup() {
   mkdir -p "$INSTALL_ROOT"
