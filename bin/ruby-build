@@ -1097,7 +1097,7 @@ else
 fi
 
 if [ -z "$RUBY_BUILD_MIRROR_URL" ]; then
-  RUBY_BUILD_MIRROR_URL="http://dqw8nmjcqpjn7.cloudfront.net"
+  RUBY_BUILD_MIRROR_URL="https://dqw8nmjcqpjn7.cloudfront.net"
 else
   RUBY_BUILD_MIRROR_URL="${RUBY_BUILD_MIRROR_URL%/}"
 fi
