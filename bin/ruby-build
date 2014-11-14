@@ -1046,6 +1046,9 @@ elif [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
   PREFIX_PATH="${PWD}/${PREFIX_PATH}"
 fi
 
+# Fail if number of arguments is not equal to 2
+[ "${#ARGUMENTS[@]}" -eq 2 ] || usage
+
 if [ -z "$TMPDIR" ]; then
   TMP="/tmp"
 else

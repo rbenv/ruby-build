@@ -44,6 +44,9 @@ case "$DEFINITION" in
   ;;
 esac
 
+# Fail if number of arguments is not equal 1
+[ "$#" -eq 1 ] || usage 1
+
 declare -a before_hooks after_hooks
 
 before_uninstall() {
