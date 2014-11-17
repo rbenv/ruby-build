@@ -560,9 +560,8 @@ DEF
 require_java7
 install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
-  assert_failure <<OUT
-ERROR: Java 7 required. Please install a 1.7-compatible JRE.
-OUT
+  assert_failure
+  assert_output_contains "ERROR: Java 7 required. Please install a 1.7-compatible JRE."
 }
 
 @test "JRuby Java is outdated" {
@@ -574,9 +573,8 @@ OUT
 require_java7
 install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
-  assert_failure <<OUT
-ERROR: Java 7 required. Please install a 1.7-compatible JRE.
-OUT
+  assert_failure
+  assert_output_contains "ERROR: Java 7 required. Please install a 1.7-compatible JRE."
 }
 
 @test "JRuby Java 7 up-to-date" {
