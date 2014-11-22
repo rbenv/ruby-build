@@ -111,6 +111,8 @@ DEFINITION="${ARGUMENTS[0]}"
 [ -n "$DEFINITION" ] || DEFINITION="$(rbenv-local 2>/dev/null || true)"
 [ -n "$DEFINITION" ] || usage 1
 
+# Fail if number of arguments is greater than 1
+[ "${#ARGUMENTS[@]}" -le 1 ] || usage 1
 
 # Define `before_install` and `after_install` functions that allow
 # plugin hooks to register a string of code for execution before or

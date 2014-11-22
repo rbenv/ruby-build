@@ -17,6 +17,12 @@ if [ "$1" = "--complete" ]; then
   exec rbenv versions --bare
 fi
 
+usage() {
+  # We can remove the sed fallback once rbenv 0.4.0 is widely available.
+  rbenv-help uninstall 2>/dev/null || sed -ne '/^#/!q;s/.//;s/.//;1,4d;p' < "$0"
+  [ -z "$1" ] || exit "$1"
+}
+
 if [ -z "$RBENV_ROOT" ]; then
   RBENV_ROOT="${HOME}/.rbenv"
 fi
@@ -37,6 +43,9 @@ case "$DEFINITION" in
   exit 1
   ;;
 esac
+
+# Fail if number of arguments is not equal 1
+[ "$#" -eq 1 ] || usage 1
 
 declare -a before_hooks after_hooks
 
