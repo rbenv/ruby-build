@@ -957,11 +957,9 @@ usage() {
   { version
     echo "usage: ruby-build [-k|--keep] [-v|--verbose] [-p|--patch] definition prefix"
     echo "       ruby-build --definitions"
-  } >&2
+  } >&1
 
-  if [ -z "$1" ]; then
-    exit 1
-  fi
+  [ -z "$1" ] || exit "$1"
 }
 
 list_definitions() {
@@ -992,14 +990,14 @@ parse_options "$@"
 for option in "${OPTIONS[@]}"; do
   case "$option" in
   "h" | "help" )
-    usage without_exiting
+    usage
     { echo
       echo "  -k/--keep        Do not remove source tree after installation"
       echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
       echo "  -p/--patch       Apply a patch from stdin before building"
       echo "  --definitions    List all built-in definitions"
       echo
-    } >&2
+    } >&1
     exit 0
     ;;
   "definitions" )
@@ -1022,11 +1020,11 @@ for option in "${OPTIONS[@]}"; do
   esac
 done
 
-[ "${#ARGUMENTS[@]}" -eq 2 ] || usage 1
+[ "${#ARGUMENTS[@]}" -eq 2 ] || usage 1 >&2
 
 DEFINITION_PATH="${ARGUMENTS[0]}"
 if [ -z "$DEFINITION_PATH" ]; then
-  usage
+  usage 1 >&2
 elif [ ! -f "$DEFINITION_PATH" ]; then
   for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
     if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
@@ -1043,7 +1041,7 @@ fi
 
 PREFIX_PATH="${ARGUMENTS[1]}"
 if [ -z "$PREFIX_PATH" ]; then
-  usage
+  usage 1 >&2
 elif [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
   PREFIX_PATH="${PWD}/${PREFIX_PATH}"
 fi
