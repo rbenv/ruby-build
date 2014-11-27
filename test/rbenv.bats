@@ -146,3 +146,29 @@ ${RBENV_ROOT}/plugins/bar/share/ruby-build
 ${RBENV_ROOT}/plugins/foo/share/ruby-build
 OUT
 }
+
+@test "not enough arguments for rbenv-install" {
+  stub_ruby_build
+  run rbenv-install
+  assert_failure
+  assert_output_contains 'Usage: rbenv install'
+}
+
+@test "too many arguments for rbenv-install" {
+  stub_ruby_build
+  run rbenv-install 2.1.1 2.1.2
+  assert_failure
+  assert_output_contains 'Usage: rbenv install'
+}
+
+@test "not enough arguments rbenv-uninstall" {
+  run rbenv-uninstall
+  assert_failure
+  assert_output_contains 'Usage: rbenv uninstall'
+}
+
+@test "too many arguments for rbenv-uninstall" {
+  run rbenv-uninstall 2.1.1 2.1.2
+  assert_failure
+  assert_output_contains 'Usage: rbenv uninstall'
+}
