@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# usage: ruby-build [-kvp] <definition> <prefix>
+# Usage: ruby-build [-kvp] <definition> <prefix>
 #        ruby-build --definitions
 #
 #   -k/--keep        Do not remove source tree after installation

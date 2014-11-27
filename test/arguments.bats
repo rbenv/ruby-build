@@ -9,7 +9,7 @@ load test_helper
 
   run ruby-build "$definition"
   assert_failure
-  assert_output_contains 'usage: ruby-build'
+  assert_output_contains 'Usage: ruby-build'
 }
 
 @test "extra arguments for ruby-build" {
@@ -19,7 +19,7 @@ load test_helper
 
   run ruby-build "$definition" "${TMP}/install" ""
   assert_failure
-  assert_output_contains 'usage: ruby-build'
+  assert_output_contains 'Usage: ruby-build'
 }
 
 @test "extra arguments for rbenv-install" {
