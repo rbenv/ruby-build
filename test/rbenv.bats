@@ -161,6 +161,13 @@ OUT
   assert_output_contains 'Usage: rbenv install'
 }
 
+@test "show help for rbenv-install" {
+  stub_ruby_build
+  run rbenv-install -h
+  assert_success
+  assert_output_contains 'Usage: rbenv install'
+}
+
 @test "not enough arguments rbenv-uninstall" {
   run rbenv-uninstall
   assert_failure
@@ -170,5 +177,11 @@ OUT
 @test "too many arguments for rbenv-uninstall" {
   run rbenv-uninstall 2.1.1 2.1.2
   assert_failure
+  assert_output_contains 'Usage: rbenv uninstall'
+}
+
+@test "show help for rbenv-uninstall" {
+  run rbenv-uninstall -h
+  assert_success
   assert_output_contains 'Usage: rbenv uninstall'
 }
