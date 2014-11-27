@@ -17,7 +17,7 @@ load test_helper
   local definition="${TMP}/build-definition"
   echo '' > "$definition"
 
-  run ruby-build "$definition" 2.1.2 "${TMP}/install"
+  run ruby-build "$definition" "${TMP}/install" ""
   assert_failure
   assert_output_contains 'usage: ruby-build'
 }
