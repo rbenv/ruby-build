@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+#
+# usage: ruby-build [-kvp] <definition> <prefix>
+#        ruby-build --definitions
+#
+#   -k/--keep        Do not remove source tree after installation
+#   -v/--verbose     Verbose mode: print compilation status to stdout
+#   -p/--patch       Apply a patch from stdin before building
+#   --definitions    List all built-in definitions
+#
 
 RUBY_BUILD_VERSION="20141113"
 
@@ -954,11 +963,7 @@ version() {
 }
 
 usage() {
-  { version
-    echo "usage: ruby-build [-k|--keep] [-v|--verbose] [-p|--patch] definition prefix"
-    echo "       ruby-build --definitions"
-  } >&1
-
+  sed -ne '/^#/!q;s/.\{1,2\}//;1,2d;p' < "$0"
   [ -z "$1" ] || exit "$1"
 }
 
@@ -990,15 +995,9 @@ parse_options "$@"
 for option in "${OPTIONS[@]}"; do
   case "$option" in
   "h" | "help" )
-    usage
-    { echo
-      echo "  -k/--keep        Do not remove source tree after installation"
-      echo "  -v/--verbose     Verbose mode: print compilation status to stdout"
-      echo "  -p/--patch       Apply a patch from stdin before building"
-      echo "  --definitions    List all built-in definitions"
-      echo
-    } >&1
-    exit 0
+    version
+    echo
+    usage 0
     ;;
   "definitions" )
     list_definitions
