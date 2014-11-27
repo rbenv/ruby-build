@@ -33,6 +33,8 @@ if [ "$1" = "-f" ] || [ "$1" = "--force" ]; then
   shift
 fi
 
+[ "$#" -eq 1 ] || usage 1
+
 DEFINITION="$1"
 case "$DEFINITION" in
 "" | -* )
@@ -43,9 +45,6 @@ case "$DEFINITION" in
   exit 1
   ;;
 esac
-
-# Fail if number of arguments is not equal 1
-[ "$#" -eq 1 ] || usage 1
 
 declare -a before_hooks after_hooks
 

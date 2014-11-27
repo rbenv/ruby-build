@@ -1022,6 +1022,8 @@ for option in "${OPTIONS[@]}"; do
   esac
 done
 
+[ "${#ARGUMENTS[@]}" -eq 2 ] || usage 1
+
 DEFINITION_PATH="${ARGUMENTS[0]}"
 if [ -z "$DEFINITION_PATH" ]; then
   usage
@@ -1045,9 +1047,6 @@ if [ -z "$PREFIX_PATH" ]; then
 elif [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
   PREFIX_PATH="${PWD}/${PREFIX_PATH}"
 fi
-
-# Fail if number of arguments is not equal to 2
-[ "${#ARGUMENTS[@]}" -eq 2 ] || usage
 
 if [ -z "$TMPDIR" ]; then
   TMP="/tmp"
