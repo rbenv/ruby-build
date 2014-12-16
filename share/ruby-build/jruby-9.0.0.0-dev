@@ -1,2 +1,2 @@
 require_java7
-install_package "jruby-9.0.0.0.dev-SNAPSHOT" "http://ci.jruby.org/snapshots/master/jruby-dist-9.0.0.0.dev-bin.tar.gz" jruby
+install_package "jruby-9.0.0.0-SNAPSHOT" "http://ci.jruby.org/snapshots/master/jruby-dist-9.0.0.0-SNAPSHOT-bin.tar.gz" jruby

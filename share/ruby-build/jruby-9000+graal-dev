@@ -1,1 +1,1 @@
-install_package "jruby-9.0.0.0.dev" "http://lafo.ssw.uni-linz.ac.at/graalvm/jruby-dist-9.0.0.0+graal-$(graal_architecture).dev-bin.tar.gz" jruby
+install_package "jruby-9.0.0.0-SNAPSHOT" "http://lafo.ssw.uni-linz.ac.at/graalvm/jruby-dist-9.0.0.0-SNAPSHOT+graal-$(graal_architecture)-bin.tar.gz" jruby
