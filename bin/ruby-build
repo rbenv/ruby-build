@@ -9,7 +9,7 @@
 #   --definitions    List all built-in definitions
 #
 
-RUBY_BUILD_VERSION="20141222"
+RUBY_BUILD_VERSION="20141225"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
