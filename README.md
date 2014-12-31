@@ -69,7 +69,7 @@ system dependencies for compiling the wanted Ruby version (see our [recommendati
 To install a Ruby version for use with rbenv, run `rbenv install` with the
 exact name of the version you want to install. For example,
 
-    rbenv install 2.1.0
+    rbenv install 2.2.0
 
 Ruby versions will be installed into a directory of the same name under
 `~/.rbenv/versions`.
@@ -87,7 +87,7 @@ locations.
 Run the `ruby-build` command with the exact name of the version you want to
 install and the full path where you want to install it. For example,
 
-    ruby-build 2.1.0 ~/local/ruby-2.1.0
+    ruby-build 2.2.0 ~/local/ruby-2.2.0
 
 To see a list of all available Ruby versions, run `ruby-build --definitions`.
 
