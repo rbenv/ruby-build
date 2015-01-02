@@ -798,7 +798,28 @@ require_llvm() {
   local llvm_version="$1"
   if [ "$(uname -s)" = "Darwin" ] && [ "$(osx_version)" -ge 1010 ]; then
     if [[ "$RUBY_CONFIGURE_OPTS" != *--llvm-* ]]; then
-      package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
+      if [ "$llvm_version" = "3.2" ]; then
+        package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
+      else
+        local llvm_prefix="$(brew --prefix llvm 2>/dev/null || true)"
+        local llvm_config="${llvm_prefix}/bin/llvm-config"
+        if [ -x "$llvm_config" ]; then
+          package_option ruby configure --llvm-config="$llvm_config"
+        else
+          { echo
+            colorize 1 "ERROR"
+            echo ": Rubinius will not be able to compile using Apple's LLVM-based "
+            echo "build tools on OS X. You will need to install LLVM 3.5 first."
+            echo
+            colorize 1 "TO FIX THE PROBLEM"
+            echo ": Install Homebrew's llvm package with this"
+            echo -n "command: "
+            colorize 4 "brew install llvm"
+            echo
+          } >&3
+          return 1
+        fi
+      fi
     fi
   fi
 }
