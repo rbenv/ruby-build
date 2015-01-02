@@ -1,0 +1,2 @@
+require_llvm 3.5
+install_package "rubinius-2.4.0" "http://releases.rubini.us/rubinius-2.4.0.tar.bz2#89390e8dd890ac4b8ad931e6277714e3d55560ee2f236b756bb4f83ee26eb9b0" rbx
