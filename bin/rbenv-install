@@ -26,6 +26,11 @@ set -e
 
 if [ -z "$RBENV_ROOT" ]; then
   RBENV_ROOT="${HOME}/.rbenv"
+  if [ ! -d $RBENV_ROOT ]; then
+    echo "$RBENV_ROOT is not a directory!"
+    echo "'rm $RBENV_ROOT' to fix this issue."
+    exit 1
+  fi
 fi
 
 # Add `share/ruby-build/` directory from each rbenv plugin to the list of
