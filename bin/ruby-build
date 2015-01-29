@@ -670,7 +670,7 @@ fix_rbx_gem_binstubs() {
       binstub="${bindir}/${file##*/}"
       rm -f "$binstub"
       { echo "#!${bindir}/ruby"
-        cat "$file"
+        grep -v '^#!' "$file"
       } > "$binstub"
       chmod +x "$binstub"
     done
