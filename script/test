@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-[ -d ./bats/bin ] && export PATH=./bats/bin:"$PATH"
-
 STATUS=0
-bats -t test || STATUS="$?"
+bats ${CI:+--tap} test || STATUS="$?"
 
 if [ "${TRAVIS_PULL_REQUEST:-false}" != "false" ] &&  [ -z "$TRAVIS_COMMIT_RANGE" ]; then
   first_sha="$(curl -fsSL https://github.com/${TRAVIS_REPO_SLUG}/pull/${TRAVIS_PULL_REQUEST}.patch | head -1 | awk '{print $2}')"
