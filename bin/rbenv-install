@@ -16,6 +16,7 @@
 #                      (defaults to $RBENV_ROOT/sources)
 #   -v/--verbose       Verbose mode: print compilation status to stdout
 #   -p/--patch         Apply a patch from stdin before building
+#   --launcher-gem     Install java-launcher gem for jruby
 #
 # For detailed information on installing Ruby versions with
 # ruby-build, including a list of environment variables for adjusting
@@ -65,6 +66,7 @@ unset SKIP_EXISTING
 unset KEEP
 unset VERBOSE
 unset HAS_PATCH
+unset LAUNCHER_GEM
 
 parse_options "$@"
 for option in "${OPTIONS[@]}"; do
@@ -91,6 +93,9 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "p" | "patch" )
     HAS_PATCH="-p"
+    ;;
+  "launcher-gem" )
+    LAUNCHER_GEM="--launcher-gem"
     ;;
   "version" )
     exec ruby-build --version
@@ -191,7 +196,8 @@ trap cleanup SIGINT
 
 # Invoke `ruby-build` and record the exit status in $STATUS.
 STATUS=0
-ruby-build $KEEP $VERBOSE $HAS_PATCH "$DEFINITION" "$PREFIX" || STATUS="$?"
+ruby-build $KEEP $VERBOSE $HAS_PATCH $LAUNCHER_GEM "$DEFINITION" "$PREFIX" \
+    || STATUS="$?"
 
 # Display a more helpful message if the definition wasn't found.
 if [ "$STATUS" == "2" ]; then
