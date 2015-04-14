@@ -211,7 +211,7 @@ if [ "$STATUS" == "2" ]; then
       echo "  brew update && brew upgrade ruby-build"
     elif [ -d "${here}/.git" ]; then
       printf ":\n\n"
-      echo "  cd ${here} && git pull"
+      echo "  cd ${here} && git pull && cd -"
     else
       printf ".\n"
     fi
