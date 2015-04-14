@@ -3,10 +3,11 @@
 # Usage: ruby-build [-kvp] <definition> <prefix>
 #        ruby-build --definitions
 #
-#   -k/--keep        Do not remove source tree after installation
-#   -v/--verbose     Verbose mode: print compilation status to stdout
-#   -p/--patch       Apply a patch from stdin before building
-#   --definitions    List all built-in definitions
+#   -s/--skip-existing   Skip already existing installations
+#   -k/--keep            Do not remove source tree after installation
+#   -v/--verbose         Verbose mode: print compilation status to stdout
+#   -p/--patch           Apply a patch from stdin before building
+#   --definitions        List all built-in definitions
 #
 
 RUBY_BUILD_VERSION="20150413"
