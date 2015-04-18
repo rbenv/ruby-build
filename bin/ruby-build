@@ -7,6 +7,7 @@
 #   -v/--verbose     Verbose mode: print compilation status to stdout
 #   -p/--patch       Apply a patch from stdin before building
 #   --definitions    List all built-in definitions
+#   --launcher-gem   Install java-launcher gem for jruby
 #
 
 RUBY_BUILD_VERSION="20150413"
@@ -597,7 +598,7 @@ build_package_jruby() {
   cd "${PREFIX_PATH}/bin"
   ln -fs jruby ruby
   chmod +x ruby
-  install_jruby_launcher
+  [ -z "$LAUNCHER_GEM" ] || install_jruby_launcher
   remove_windows_files
   fix_jruby_shebangs
 }
@@ -1004,6 +1005,7 @@ sort_versions() {
 unset VERBOSE
 unset KEEP_BUILD_PATH
 unset HAS_PATCH
+unset LAUNCHER_GEM
 
 RUBY_BUILD_INSTALL_PREFIX="$(abs_dirname "$0")/.."
 
@@ -1023,6 +1025,9 @@ for option in "${OPTIONS[@]}"; do
   "definitions" )
     list_definitions
     exit 0
+    ;;
+  "launcher-gem" )
+    LAUNCHER_GEM=true
     ;;
   "k" | "keep" )
     KEEP_BUILD_PATH=true
