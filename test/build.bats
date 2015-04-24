@@ -164,7 +164,7 @@ OUT
   stub_make_install
 
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -186,7 +186,7 @@ OUT
 
   export RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom'
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -209,7 +209,7 @@ OUT
 
   export -n MAKE_OPTS
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -232,7 +232,7 @@ OUT
 
   export -n MAKE_OPTS
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -256,7 +256,7 @@ OUT
 
   export -n MAKE_OPTS
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -278,7 +278,7 @@ OUT
 
   export RUBY_MAKE_INSTALL_OPTS="DOGE=\"such wow\""
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -298,7 +298,7 @@ OUT
 
   export MAKE_INSTALL_OPTS="DOGE=\"such wow\""
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -359,7 +359,7 @@ CONF
 
   export RUBY_CONFIGURE="${TMP}/custom-configure"
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/pub/ruby-2.0.0.tar.gz"
+install_package "ruby-2.0.0" "https://www.ruby-lang.org/pub/ruby-2.0.0.tar.gz"
 DEF
   assert_success
 
@@ -399,7 +399,7 @@ OUT
   stub rake '--version : echo 1' true
 
   run_inline_definition <<DEF
-install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
+install_package "mruby-1.0" "https://www.ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
 DEF
   assert_success
 
@@ -417,7 +417,7 @@ DEF
   stub gem 'install rake -v *10.1.0 : true'
 
   run_inline_definition <<DEF
-install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
+install_package "mruby-1.0" "https://www.ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
 DEF
   assert_success
 
@@ -437,7 +437,7 @@ DEF
     " exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
 
   run_inline_definition <<DEF
-install_package "rubinius-2.0.0" "http://releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
+install_package "rubinius-2.0.0" "https://s3.amazonaws.com/releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
 DEF
   assert_success
 
@@ -467,7 +467,7 @@ OUT
     "install : mkdir -p '$INSTALL_ROOT'; cp -fR . '$INSTALL_ROOT'"
 
   run_inline_definition <<DEF
-install_package "rubinius-2.0.0" "http://releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
+install_package "rubinius-2.0.0" "https://s3.amazonaws.com/releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
 DEF
   assert_success
 
@@ -510,7 +510,7 @@ OUT
   cached_tarball "jruby-1.7.9" bin/foo.exe bin/bar.dll bin/baz.bat
 
   run_inline_definition <<DEF
-install_package "jruby-1.7.9" "http://jruby.org/downloads/jruby-bin-1.7.9.tar.gz" jruby
+install_package "jruby-1.7.9" "https://s3.amazonaws.com/jruby.org/downloads/1.7.9/jruby-bin-1.7.9.tar.gz" jruby
 DEF
   assert_success
 
@@ -556,7 +556,7 @@ DEF
 
   run_inline_definition <<DEF
 require_java7
-install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+install_package "jruby-9000.dev" "https://s3.amazonaws.com/ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
   assert_failure
   assert_output_contains "ERROR: Java 7 required. Please install a 1.7-compatible JRE."
@@ -569,7 +569,7 @@ DEF
 
   run_inline_definition <<DEF
 require_java7
-install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+install_package "jruby-9000.dev" "https://s3.amazonaws.com/ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
   assert_failure
   assert_output_contains "ERROR: Java 7 required. Please install a 1.7-compatible JRE."
@@ -582,7 +582,7 @@ DEF
 
   run_inline_definition <<DEF
 require_java7
-install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+install_package "jruby-9000.dev" "https://s3.amazonaws.com/ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
   assert_success
 }
@@ -594,7 +594,7 @@ DEF
 
   run_inline_definition <<DEF
 require_java7
-install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+install_package "jruby-9000.dev" "https://s3.amazonaws.com/ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
   assert_success
 }
