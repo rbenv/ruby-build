@@ -147,7 +147,7 @@ Example usage:
 $ rbenv install --patch 1.9.3-p429 < /path/to/ruby.patch
 
 # applying a patch from HTTP
-$ rbenv install --patch 1.9.3-p429 < <(curl -sSL http://git.io/ruby.patch)
+$ rbenv install --patch 1.9.3-p429 < <(curl -sSL https://git.io/ruby.patch)
 
 # applying multiple patches
 $ cat fix1.patch fix2.patch | rbenv install --patch 1.9.3-p429
@@ -179,7 +179,7 @@ mirror and use official URLs instead. You can force ruby-build to bypass the
 mirror by setting the `RUBY_BUILD_SKIP_MIRROR` environment variable.
 
 The official ruby-build download mirror is sponsored by
-[37signals](http://37signals.com/).
+[Basecamp](https://basecamp.com/).
 
 ### Package download caching
 
