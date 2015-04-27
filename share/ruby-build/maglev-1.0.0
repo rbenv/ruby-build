@@ -1,1 +1,1 @@
-install_package "MagLev-1.0.0" "http://glass-downloads.gemstone.com/maglev/MagLev-1.0.0.tar.gz#73401e9e69a336c2ca8369cc72e0d7f3ed867283252c385aea12ef44648c39be" maglev
+install_package "MagLev-1.0.0" "http://seaside.gemtalksystems.com/maglev/MagLev-1.0.0.tar.gz#73401e9e69a336c2ca8369cc72e0d7f3ed867283252c385aea12ef44648c39be" maglev
