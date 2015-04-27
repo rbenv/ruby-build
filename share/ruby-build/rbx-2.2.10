@@ -1,2 +1,2 @@
 require_llvm 3.2
-install_package "rubinius-2.2.10" "http://releases.rubini.us/rubinius-2.2.10.tar.bz2#2a3e6b71f27073b8d83b9592b05523af70bc147ddcd0673bffae55b4167c9d81" rbx
+install_package "rubinius-2.2.10" "http://releases.rubini.us/rubinius-2.2.10.tar.bz2#3cb1a6ab2eba19b6dc84734666bb17a34332d247641b1a88b4c9324c69347780" rbx
