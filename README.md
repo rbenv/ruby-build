@@ -45,12 +45,12 @@ variable.
 To update ruby-build after it has been installed, run `git pull` in your cloned
 copy of the repository, then re-run the install script.
 
-### For plug-in
+### For rbenv plugin
     cd /path/to/.rbenv/plugins/ruby-build
     git pull
     ./install.sh
 
-### For standalone
+### For standalone program
     cd /path/to/ruby-build  (usually /usr/local/ruby-build)
     git pull
     ./install.sh
