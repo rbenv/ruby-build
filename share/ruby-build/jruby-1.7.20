@@ -1,0 +1,1 @@
+install_package "jruby-1.7.20" "https://s3.amazonaws.com/jruby.org/downloads/1.7.20/jruby-bin-1.7.20.tar.gz#4a99e7c11948ad345cbc957e9fd8c4ef9e76b219c70bab365dc19fc8e4e1ea59" jruby
