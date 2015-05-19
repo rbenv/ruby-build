@@ -22,7 +22,7 @@ fi
 
 url="https://${gh_project/:/\/}/archive/${version}.tar.gz"
 
-checksum="$(curl -fsSL "$url" | shasum | awk '{print $1}')"
+checksum="$(curl -fsSL "$url" | shasum -a 256 -b | awk '{print $1}')"
 
 if [ -z "$checksum" ]; then
   echo "ERROR: calculating the checksum failed for $url" >&2
@@ -39,7 +39,7 @@ git checkout -q -B "$branch" origin/master
 formula="Library/Formula/${brew_name}.rb"
 sed -i.bak -E "
   s!^(  url ).+!\\1\"${url}\"!
-  s!^(  sha1 ).+!\\1\"${checksum}\"!
+  s!^(  sha256 ).+!\\1\"${checksum}\"!
 " "$formula"
 rm -f "${formula}.bak"
 
