@@ -25,6 +25,11 @@ usage() {
 
 if [ -z "$RBENV_ROOT" ]; then
   RBENV_ROOT="${HOME}/.rbenv"
+  if [ ! -d $RBENV_ROOT ]; then
+    echo "$RBENV_ROOT is not a directory!"
+    echo "'rm $RBENV_ROOT' to fix this issue."
+    exit 1
+  fi
 fi
 
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
