@@ -815,8 +815,15 @@ require_llvm() {
       if [ "$llvm_version" = "3.2" ]; then
         package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
       else
-        local llvm_prefix="$(brew --prefix llvm35 2>/dev/null || true)"
-        local llvm_config="${llvm_prefix}/bin/llvm-config-3.5"
+        local llvm_short_vers="$(echo $llvm_version | cut -d. -f1-2)"
+        local llvm_prefix="$(brew --prefix llvm${llvm_short_vers/./} 2>/dev/null || true)"
+
+        if [ -d "$llvm_prefix" ]; then
+          local llvm_config="${llvm_prefix}/bin/llvm-config-${llvm_short_vers}"
+        else
+          local llvm_config="$(brew --prefix llvm 2>/dev/null || true)/bin/llvm-config"
+        fi
+
         if [ -x "$llvm_config" ]; then
           package_option ruby configure --llvm-config="$llvm_config"
         else
