@@ -815,8 +815,8 @@ require_llvm() {
       if [ "$llvm_version" = "3.2" ]; then
         package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
       else
-        local llvm_prefix="$(brew --prefix llvm 2>/dev/null || true)"
-        local llvm_config="${llvm_prefix}/bin/llvm-config"
+        local llvm_prefix="$(brew --prefix llvm35 2>/dev/null || true)"
+        local llvm_config="${llvm_prefix}/bin/llvm-config-3.5"
         if [ -x "$llvm_config" ]; then
           package_option ruby configure --llvm-config="$llvm_config"
         else
@@ -828,7 +828,7 @@ require_llvm() {
             colorize 1 "TO FIX THE PROBLEM"
             echo ": Install Homebrew's llvm package with this"
             echo -n "command: "
-            colorize 4 "brew install llvm"
+            colorize 4 "brew tap homebrew/versions ; brew install llvm35"
             echo
           } >&3
           return 1
