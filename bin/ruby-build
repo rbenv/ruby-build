@@ -829,7 +829,7 @@ require_llvm() {
             colorize 1 "TO FIX THE PROBLEM"
             echo ": Install Homebrew's llvm package with this"
             echo -n "command: "
-            colorize 4 "brew install llvm"
+            colorize 4 "brew tap homebrew/versions ; brew install llvm35"
             echo
           } >&3
           return 1
