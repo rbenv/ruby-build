@@ -158,8 +158,6 @@ OUT
 
   run rbenv-install
   assert_failure
-  assert_output_contains 'Usage: rbenv install'
-
   unstub rbenv-help
 }
 
@@ -169,8 +167,6 @@ OUT
 
   run rbenv-install 2.1.1 2.1.2
   assert_failure
-  assert_output_contains 'Usage: rbenv install'
-
   unstub rbenv-help
 }
 
@@ -180,8 +176,6 @@ OUT
 
   run rbenv-install -h
   assert_success
-  assert_output_contains 'Usage: rbenv install'
-
   unstub rbenv-help
 }
 
@@ -195,8 +189,6 @@ OUT
 
   run rbenv-uninstall
   assert_failure
-  assert_output_contains 'Usage: rbenv uninstall'
-
   unstub rbenv-help
 }
 
@@ -205,8 +197,6 @@ OUT
 
   run rbenv-uninstall 2.1.1 2.1.2
   assert_failure
-  assert_output_contains 'Usage: rbenv uninstall'
-
   unstub rbenv-help
 }
 
@@ -215,8 +205,6 @@ OUT
 
   run rbenv-uninstall -h
   assert_success
-  assert_output_contains 'Usage: rbenv uninstall'
-
   unstub rbenv-help
 }
 
