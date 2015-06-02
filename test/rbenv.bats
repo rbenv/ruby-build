@@ -13,7 +13,7 @@ stub_ruby_build() {
 }
 
 extract_usage_from() {
-  local program="../bin/$1"
+  local program="$BATS_TEST_DIRNAME/../bin/$1"
   sed -ne '/^#/!q;s/.//;s/.//;1,4d;p' < "$program"
 }
 
