@@ -154,7 +154,7 @@ OUT
 
 @test "not enough arguments for rbenv-install" {
   stub_ruby_build
-  stub rbenv-help 'install : echo "Usage: rbenv install"'
+  stub rbenv-help 'install : true'
 
   run rbenv-install
   assert_failure
@@ -163,7 +163,7 @@ OUT
 
 @test "too many arguments for rbenv-install" {
   stub_ruby_build
-  stub rbenv-help 'install : echo "Usage: rbenv install"'
+  stub rbenv-help 'install : true'
 
   run rbenv-install 2.1.1 2.1.2
   assert_failure
@@ -172,7 +172,7 @@ OUT
 
 @test "show help for rbenv-install" {
   stub_ruby_build
-  stub rbenv-help 'install : echo "Usage: rbenv install"'
+  stub rbenv-help 'install : true'
 
   run rbenv-install -h
   assert_success
@@ -185,7 +185,7 @@ OUT
 }
 
 @test "not enough arguments rbenv-uninstall" {
-  stub rbenv-help 'uninstall : echo "Usage: rbenv uninstall"'
+  stub rbenv-help 'uninstall : true'
 
   run rbenv-uninstall
   assert_failure
@@ -193,7 +193,7 @@ OUT
 }
 
 @test "too many arguments for rbenv-uninstall" {
-  stub rbenv-help 'uninstall : echo "Usage: rbenv uninstall"'
+  stub rbenv-help 'uninstall : true'
 
   run rbenv-uninstall 2.1.1 2.1.2
   assert_failure
@@ -201,7 +201,7 @@ OUT
 }
 
 @test "show help for rbenv-uninstall" {
-  stub rbenv-help 'uninstall : echo "Usage: rbenv uninstall"'
+  stub rbenv-help 'uninstall : true'
 
   run rbenv-uninstall -h
   assert_success
