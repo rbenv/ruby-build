@@ -12,11 +12,6 @@ stub_ruby_build() {
   stub ruby-build "--lib : $BATS_TEST_DIRNAME/../bin/ruby-build --lib" "$@"
 }
 
-extract_usage_from() {
-  local program="$BATS_TEST_DIRNAME/../bin/$1"
-  sed -ne '/^#/!q;s/.//;s/.//;1,4d;p' < "$program"
-}
-
 @test "install proper" {
   stub_ruby_build 'echo ruby-build "$@"'
 
@@ -180,7 +175,7 @@ OUT
 }
 
 @test "rbenv-install has usage help preface" {
-  run extract_usage_from rbenv-install
+  run head "$(which rbenv-install)"
   assert_output_contains 'Usage: rbenv install'
 }
 
@@ -209,6 +204,6 @@ OUT
 }
 
 @test "rbenv-uninstall has usage help preface" {
-  run extract_usage_from rbenv-uninstall
+  run head "$(which rbenv-uninstall)"
   assert_output_contains 'Usage: rbenv uninstall'
 }
