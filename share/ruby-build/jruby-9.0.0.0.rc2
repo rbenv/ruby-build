@@ -1,0 +1,2 @@
+require_java7
+install_package "jruby-9.0.0.0.rc2" "https://s3.amazonaws.com/jruby.org/downloads/9.0.0.0.rc2/jruby-bin-9.0.0.0.rc2.tar.gz#f337adb43f4972ace8a04f77d889b35bc4fa4efec99e98cc7ca2aac50f393329" jruby
