@@ -1,3 +1,0 @@
-require_gcc
-install_package "ruby-enterprise-1.8.7-20090928" "http://files.rubyforge.vm.bytemark.co.uk/emm-ruby/ruby-enterprise-1.8.7-20090928.tar.gz#57299d73a65b527b6a849f89bdb92e3608f8cb3af77801ae6716a661857d7605" ree_installer
-install_package "rubygems-1.6.2" "http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz#cb5261818b931b5ea2cb54bc1d583c47823543fcf9682f0d6298849091c1cea7" ruby
