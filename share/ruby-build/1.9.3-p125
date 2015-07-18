@@ -1,4 +1,4 @@
 [ -n "$CC" ] || export CC=cc
 install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
-install_package "ruby-1.9.3-p125" "http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p125.tar.gz#8b3c035cf4f0ad6420f447d6a48e8817e5384d0504514939aeb156e251d44cce"
+install_package "ruby-1.9.3-p125" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p125.tar.gz#8b3c035cf4f0ad6420f447d6a48e8817e5384d0504514939aeb156e251d44cce"
 install_package "rubygems-1.8.23" "http://production.cf.rubygems.org/rubygems/rubygems-1.8.23.tgz#e4a1c6bbaac411eaab94deae78228b7584033a1f10a022f52bffa9613aa29061" ruby
