@@ -179,7 +179,7 @@ mirror and use official URLs instead. You can force ruby-build to bypass the
 mirror by setting the `RUBY_BUILD_SKIP_MIRROR` environment variable.
 
 The official ruby-build download mirror is sponsored by
-[37signals](http://37signals.com/).
+[Basecamp](https://basecamp.com/).
 
 ### Package download caching
 
