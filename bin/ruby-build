@@ -926,15 +926,38 @@ build_package_mac_openssl() {
 
 # Post-install check that the openssl extension was built.
 build_package_verify_openssl() {
-  "$RUBY_BIN" -e 'begin
-    require "openssl"
-  rescue LoadError
-    $stderr.puts "The Ruby openssl extension was not compiled. Missing the OpenSSL lib?"
-    $stderr.puts "Configure options used:"
-    require "rbconfig"; require "shellwords"
-    RbConfig::CONFIG.fetch("configure_args").shellsplit.each { |arg| $stderr.puts "  #{arg}" }
-    exit 1
-  end' >&4 2>&1
+  "$RUBY_BIN" -e '
+    manager = ARGV[0]
+    packages = {
+      "apt-get" => Hash.new {|h,k| "lib#{k}-dev" }.update(
+        "openssl" => "libssl-dev",
+        "zlib" => "zlib1g-dev"
+      ),
+      "yum" => Hash.new {|h,k| "#{k}-devel" }.update(
+        "yaml" => "libyaml-devel"
+      )
+    }
+
+    failed = %w[openssl readline zlib yaml].reject do |lib|
+      begin
+        require lib
+      rescue LoadError
+        $stderr.puts "The Ruby #{lib} extension was not compiled."
+      end
+    end
+
+    if failed.size > 0
+      $stderr.puts "ERROR: Ruby install aborted due to missing extensions"
+      $stderr.print "Try running `%s install -y %s` to fetch missing dependencies.\n\n" % [
+        manager,
+        failed.map { |lib| packages.fetch(manager)[lib] }.join(" ")
+      ] unless manager.empty?
+      $stderr.puts "Configure options used:"
+      require "rbconfig"; require "shellwords"
+      RbConfig::CONFIG.fetch("configure_args").shellsplit.each { |arg| $stderr.puts "  #{arg}" }
+      exit 1
+    end
+  ' "$(basename "$(type -p yum apt-get | head -1)")" >&4 2>&1
 }
 
 # Ensure that directories listed in LDFLAGS exist
