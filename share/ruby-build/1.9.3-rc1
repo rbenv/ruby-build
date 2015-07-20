@@ -1,3 +1,3 @@
 require_gcc
 install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
-install_package "ruby-1.9.3-rc1" "http://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-rc1.tar.gz#bb1ae474d30e8681df89599520e766270c8e16450efdc01e099810f5e401eb94"
+install_package "ruby-1.9.3-rc1" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-rc1.tar.gz#bb1ae474d30e8681df89599520e766270c8e16450efdc01e099810f5e401eb94"
