@@ -1,0 +1,1 @@
+install_package "jruby-master" "http://lafo.ssw.uni-linz.ac.at/graalvm/jruby-dist-master+graal-$(graal_architecture)-bin.tar.gz" jruby
