@@ -11,7 +11,7 @@
 #   --definitions    List all built-in definitions
 #
 
-RUBY_BUILD_VERSION="20151024"
+RUBY_BUILD_VERSION="20151028"
 
 OLDIFS="$IFS"
 
