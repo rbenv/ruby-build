@@ -52,5 +52,5 @@ rehashed
 after.
 OUT
 
-  assert [ ! -d "${RBENV_ROOT}/versions/2.0.0" ]
+  refute [ -d "${RBENV_ROOT}/versions/2.0.0" ]
 }

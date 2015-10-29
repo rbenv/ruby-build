@@ -38,7 +38,7 @@ export RUBY_BUILD_CACHE_PATH=
   install_fixture definitions/with-invalid-checksum
 
   assert_failure
-  assert [ ! -f "${INSTALL_ROOT}/bin/package" ]
+  refute [ -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum
@@ -94,7 +94,7 @@ export RUBY_BUILD_CACHE_PATH=
   install_fixture definitions/with-checksum
 
   assert_failure
-  assert [ ! -f "${INSTALL_ROOT}/bin/package" ]
+  refute [ -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum
@@ -151,7 +151,7 @@ install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.g
 DEF
 
   assert_failure
-  assert [ ! -f "${INSTALL_ROOT}/bin/package" ]
+  refute [ -f "${INSTALL_ROOT}/bin/package" ]
   assert_output_contains "unexpected checksum length: 29 (checksum_of_unexpected_length)"
   assert_output_contains "expected 0 (no checksum), 32 (MD5), or 64 (SHA2-256)"
 }

@@ -83,7 +83,7 @@ setup() {
 
   assert_success
   assert [ -x "${INSTALL_ROOT}/bin/package" ]
-  assert [ ! -d "$RUBY_BUILD_CACHE_PATH" ]
+  refute [ -d "$RUBY_BUILD_CACHE_PATH" ]
 
   unstub curl
 }
