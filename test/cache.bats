@@ -15,7 +15,7 @@ setup() {
   install_fixture definitions/without-checksum
 
   assert_success
-  [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
+  assert [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
   unstub curl
 }
@@ -29,7 +29,7 @@ setup() {
   install_fixture definitions/without-checksum
 
   assert_success
-  [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
+  assert [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
   unstub curl
 }
@@ -44,8 +44,8 @@ setup() {
   install_fixture definitions/with-checksum
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
-  [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
   unstub curl
   unstub shasum
@@ -65,9 +65,9 @@ setup() {
   install_fixture definitions/with-checksum
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
-  [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
-  diff -q "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" "${FIXTURE_ROOT}/package-1.0.0.tar.gz"
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
+  assert diff -q "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" "${FIXTURE_ROOT}/package-1.0.0.tar.gz"
 
   unstub curl
   unstub shasum
@@ -82,8 +82,8 @@ setup() {
   install_fixture definitions/without-checksum
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
-  [ ! -d "$RUBY_BUILD_CACHE_PATH" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ ! -d "$RUBY_BUILD_CACHE_PATH" ]
 
   unstub curl
 }
