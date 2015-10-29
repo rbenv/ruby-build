@@ -12,14 +12,14 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 }
 
 @test "custom RUBY_BUILD_ROOT: nonexistent" {
-  export RUBY_BUILD_ROOT="$TMP"
+  export RUBY_BUILD_ROOT="$BATS_TMPDIR"
   assert [ ! -e "${RUBY_BUILD_ROOT}/share/ruby-build" ]
   run ruby-build --definitions
   assert_success ""
 }
 
 @test "custom RUBY_BUILD_ROOT: single definition" {
-  export RUBY_BUILD_ROOT="$TMP"
+  export RUBY_BUILD_ROOT="$BATS_TMPDIR"
   mkdir -p "${RUBY_BUILD_ROOT}/share/ruby-build"
   touch "${RUBY_BUILD_ROOT}/share/ruby-build/1.9.3-test"
   run ruby-build --definitions
@@ -27,7 +27,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 }
 
 @test "one path via RUBY_BUILD_DEFINITIONS" {
-  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
+  export RUBY_BUILD_DEFINITIONS="${BATS_TMPDIR}/definitions"
   mkdir -p "$RUBY_BUILD_DEFINITIONS"
   touch "${RUBY_BUILD_DEFINITIONS}/1.9.3-test"
   run ruby-build --definitions
@@ -37,11 +37,11 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 }
 
 @test "multiple paths via RUBY_BUILD_DEFINITIONS" {
-  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions:${TMP}/other"
-  mkdir -p "${TMP}/definitions"
-  touch "${TMP}/definitions/1.9.3-test"
-  mkdir -p "${TMP}/other"
-  touch "${TMP}/other/2.1.2-test"
+  export RUBY_BUILD_DEFINITIONS="${BATS_TMPDIR}/definitions:${BATS_TMPDIR}/other"
+  mkdir -p "${BATS_TMPDIR}/definitions"
+  touch "${BATS_TMPDIR}/definitions/1.9.3-test"
+  mkdir -p "${BATS_TMPDIR}/other"
+  touch "${BATS_TMPDIR}/other/2.1.2-test"
   run ruby-build --definitions
   assert_success
   assert_output_contains "1.9.3-test"
@@ -50,23 +50,23 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 }
 
 @test "installing definition from RUBY_BUILD_DEFINITIONS by priority" {
-  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions:${TMP}/other"
-  mkdir -p "${TMP}/definitions"
-  echo true > "${TMP}/definitions/1.9.3-test"
-  mkdir -p "${TMP}/other"
-  echo false > "${TMP}/other/1.9.3-test"
-  run bin/ruby-build "1.9.3-test" "${TMP}/install"
+  export RUBY_BUILD_DEFINITIONS="${BATS_TMPDIR}/definitions:${BATS_TMPDIR}/other"
+  mkdir -p "${BATS_TMPDIR}/definitions"
+  echo true > "${BATS_TMPDIR}/definitions/1.9.3-test"
+  mkdir -p "${BATS_TMPDIR}/other"
+  echo false > "${BATS_TMPDIR}/other/1.9.3-test"
+  run bin/ruby-build "1.9.3-test" "${BATS_TMPDIR}/install"
   assert_success ""
 }
 
 @test "installing nonexistent definition" {
-  run ruby-build "nonexistent" "${TMP}/install"
+  run ruby-build "nonexistent" "${BATS_TMPDIR}/install"
   assert [ "$status" -eq 2 ]
   assert_output "ruby-build: definition not found: nonexistent"
 }
 
 @test "sorting Ruby versions" {
-  export RUBY_BUILD_ROOT="$TMP"
+  export RUBY_BUILD_ROOT="$BATS_TMPDIR"
   mkdir -p "${RUBY_BUILD_ROOT}/share/ruby-build"
   expected="1.9.3-dev
 1.9.3-preview1
@@ -96,7 +96,7 @@ jruby-9000"
 }
 
 @test "removing duplicate Ruby versions" {
-  export RUBY_BUILD_ROOT="$TMP"
+  export RUBY_BUILD_ROOT="$BATS_TMPDIR"
   export RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_ROOT}/share/ruby-build"
   mkdir -p "$RUBY_BUILD_DEFINITIONS"
   touch "${RUBY_BUILD_DEFINITIONS}/1.9.3"

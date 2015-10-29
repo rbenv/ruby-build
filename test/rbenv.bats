@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 load test_helper
-export RBENV_ROOT="${TMP}/rbenv"
+export RBENV_ROOT="${BATS_TMPDIR}/rbenv"
 
 setup() {
   stub rbenv-hooks 'install : true'

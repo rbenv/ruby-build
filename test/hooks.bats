@@ -3,8 +3,8 @@
 load test_helper
 
 setup() {
-  export RBENV_ROOT="${TMP}/rbenv"
-  export HOOK_PATH="${TMP}/i has hooks"
+  export RBENV_ROOT="${BATS_TMPDIR}/rbenv"
+  export HOOK_PATH="${BATS_TMPDIR}/i has hooks"
   mkdir -p "$HOOK_PATH"
 }
 
@@ -16,7 +16,7 @@ OUT
   stub rbenv-hooks "install : echo '$HOOK_PATH'/install.bash"
   stub rbenv-rehash "echo rehashed"
 
-  definition="${TMP}/2.0.0"
+  definition="${BATS_TMPDIR}/2.0.0"
   cat > "$definition" <<<"echo ruby-build"
   run rbenv-install "$definition"
 
