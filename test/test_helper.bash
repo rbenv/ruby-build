@@ -1,3 +1,5 @@
+load helpers/assertions/all
+
 export TMP="$BATS_TEST_DIRNAME/tmp"
 
 if [ "$FIXTURE_ROOT" != "$BATS_TEST_DIRNAME/fixtures" ]; then
