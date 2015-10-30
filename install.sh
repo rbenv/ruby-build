@@ -13,8 +13,10 @@ fi
 
 BIN_PATH="${PREFIX}/bin"
 SHARE_PATH="${PREFIX}/share/ruby-build"
+PATCH_PATH="${PREFIX}/share/ruby-build/patches"
 
-mkdir -p "$BIN_PATH" "$SHARE_PATH"
+mkdir -p "$BIN_PATH" "$SHARE_PATH" "$PATCH_PATH"
 
 install -p bin/* "$BIN_PATH"
 install -p -m 0644 share/ruby-build/* "$SHARE_PATH"
+install -p -m 0644 share/patches/* "$PATCH_PATH"
