@@ -444,6 +444,8 @@ fetch_svn() {
 
   if type svn &>/dev/null; then
     svn co -r "$svn_rev" "$svn_url" "${package_name}" >&4 2>&1
+  elif type svnlite &>/dev/null; then
+    svnlite co -r "$svn_rev" "$svn_url" "${package_name}" >&4 2>&1
   else
     echo "error: please install Subversion and try again" >&2
     exit 1
