@@ -4,11 +4,6 @@ set -e
 STATUS=0
 bats ${CI:+--tap} test || STATUS="$?"
 
-if [ "${TRAVIS_PULL_REQUEST:-false}" != "false" ] &&  [ -z "$TRAVIS_COMMIT_RANGE" ]; then
-  first_sha="$(curl -fsSL https://github.com/${TRAVIS_REPO_SLUG}/pull/${TRAVIS_PULL_REQUEST}.patch | head -1 | awk '{print $2}')"
-  export TRAVIS_COMMIT_RANGE="${first_sha}^..${TRAVIS_COMMIT}"
-fi
-
 if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then
   ./script/mirror update "$TRAVIS_COMMIT_RANGE"
 elif [ "${TRAVIS_PULL_REQUEST:-false}" != "false" ]; then
