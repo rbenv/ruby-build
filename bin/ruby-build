@@ -968,11 +968,13 @@ build_package_verify_openssl() {
 }
 
 # Ensure that directories listed in LDFLAGS exist
+# $LDFLAGS must be in format '-L /path/' or '-L/path/'
 build_package_ldflags_dirs() {
   local arg
   for arg in $LDFLAGS; do
     case "$arg" in
-    -L* ) mkdir -p "${arg#-L}" ;;
+    -L ) ;;
+    * ) mkdir -p "${arg#-L}" ;;
     esac
   done
 }
