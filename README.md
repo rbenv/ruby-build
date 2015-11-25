@@ -1,13 +1,13 @@
 # ruby-build
 
-ruby-build is an [rbenv](https://github.com/sstephenson/rbenv) plugin that
+ruby-build is an [rbenv](https://github.com/rbenv/rbenv) plugin that
 provides an `rbenv install` command to compile and install different versions
 of Ruby on UNIX-like systems.
 
 You can also use ruby-build without rbenv in environments where you need
 precise control over Ruby version installation.
 
-See the [list of releases](https://github.com/sstephenson/ruby-build/releases)
+See the [list of releases](https://github.com/rbenv/ruby-build/releases)
 for changes in each version.
 
 
@@ -62,7 +62,7 @@ Or, if you would like to install the latest development release:
 ## Usage
 
 Before you begin, you should ensure that your build environment has the proper
-system dependencies for compiling the wanted Ruby version (see our [recommendations](https://github.com/sstephenson/ruby-build/wiki#suggested-build-environment)).
+system dependencies for compiling the wanted Ruby version (see our [recommendations](https://github.com/rbenv/ruby-build/wiki#suggested-build-environment)).
 
 ### Using `rbenv install` with rbenv
 
@@ -210,5 +210,5 @@ Please see the [ruby-build wiki][wiki] for solutions to common problems.
 [wiki]: https://github.com/sstephenson/ruby-build/wiki
 
 If you can't find an answer on the wiki, open an issue on the [issue
-tracker](https://github.com/sstephenson/ruby-build/issues). Be sure to include
+tracker](https://github.com/rbenv/ruby-build/issues). Be sure to include
 the full build log for build failures.
