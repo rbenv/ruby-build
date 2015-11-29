@@ -18,7 +18,7 @@ for changes in each version.
 Installing ruby-build as an rbenv plugin will give you access to the `rbenv
 install` command.
 
-    git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+    git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
 This will install the latest development version of ruby-build into the
 `~/.rbenv/plugins/ruby-build` directory. From that directory, you can check out
@@ -31,7 +31,7 @@ Installing ruby-build as a standalone program will give you access to the
 `ruby-build` command for precise control over Ruby version installation. If you
 have rbenv installed, you will also be able to use the `rbenv install` command.
 
-    git clone https://github.com/sstephenson/ruby-build.git
+    git clone https://github.com/rbenv/ruby-build.git
     cd ruby-build
     ./install.sh
 
@@ -103,7 +103,7 @@ versions of Ruby that are not yet supported by ruby-build.
 See the [ruby-build built-in definitions][definitions] as a starting point for
 custom definition files.
 
-[definitions]: https://github.com/sstephenson/ruby-build/tree/master/share/ruby-build
+[definitions]: https://github.com/rbenv/ruby-build/tree/master/share/ruby-build
 
 ### Special environment variables
 
@@ -207,7 +207,7 @@ variable when using `--keep` with `ruby-build`.
 
 Please see the [ruby-build wiki][wiki] for solutions to common problems.
 
-[wiki]: https://github.com/sstephenson/ruby-build/wiki
+[wiki]: https://github.com/rbenv/ruby-build/wiki
 
 If you can't find an answer on the wiki, open an issue on the [issue
 tracker](https://github.com/rbenv/ruby-build/issues). Be sure to include
