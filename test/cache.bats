@@ -2,7 +2,7 @@
 
 load test_helper
 export RUBY_BUILD_SKIP_MIRROR=1
-export RUBY_BUILD_CACHE_PATH="$TMP/cache"
+export RUBY_BUILD_CACHE_PATH="$BATS_TMPDIR/cache"
 
 setup() {
   mkdir "$RUBY_BUILD_CACHE_PATH"
@@ -78,7 +78,7 @@ setup() {
   stub shasum true
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
-  export RUBY_BUILD_CACHE_PATH="${TMP}/nonexistent"
+  export RUBY_BUILD_CACHE_PATH="${BATS_TMPDIR}/nonexistent"
 
   install_fixture definitions/without-checksum
   [ "$status" -eq 0 ]

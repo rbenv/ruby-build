@@ -4,7 +4,7 @@ load test_helper
 
 @test "not enough arguments for ruby-build" {
   # use empty inline definition so nothing gets built anyway
-  local definition="${TMP}/build-definition"
+  local definition="${BATS_TMPDIR}/build-definition"
   echo '' > "$definition"
 
   run ruby-build "$definition"
@@ -14,10 +14,10 @@ load test_helper
 
 @test "extra arguments for ruby-build" {
   # use empty inline definition so nothing gets built anyway
-  local definition="${TMP}/build-definition"
+  local definition="${BATS_TMPDIR}/build-definition"
   echo '' > "$definition"
 
-  run ruby-build "$definition" "${TMP}/install" ""
+  run ruby-build "$definition" "${BATS_TMPDIR}/install" ""
   assert_failure
   assert_output_contains 'Usage: ruby-build'
 }

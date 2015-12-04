@@ -19,7 +19,7 @@ echo MACOSX_DEPLOYMENT_TARGET=\${MACOSX_DEPLOYMENT_TARGET-no}
 DEF
   assert_success
   assert_output <<OUT
-CC=${TMP}/bin/gcc
+CC=${BATS_TMPDIR}/bin/gcc
 MACOSX_DEPLOYMENT_TARGET=no
 OUT
 }
@@ -36,7 +36,7 @@ echo MACOSX_DEPLOYMENT_TARGET=\${MACOSX_DEPLOYMENT_TARGET-no}
 DEF
   assert_success
   assert_output <<OUT
-CC=${TMP}/bin/gcc
+CC=${BATS_TMPDIR}/bin/gcc
 MACOSX_DEPLOYMENT_TARGET=10.9
 OUT
 }
@@ -48,7 +48,7 @@ OUT
 require_gcc
 echo \$CC
 DEF
-  assert_success "${TMP}/bin/gcc"
+  assert_success "${BATS_TMPDIR}/bin/gcc"
 }
 
 @test "CC=clang by default on OS X 10.10" {

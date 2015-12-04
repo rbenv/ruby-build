@@ -101,7 +101,7 @@ export RUBY_BUILD_CACHE_PATH=
   stub wget false
 
   export -n RUBY_BUILD_CACHE_PATH
-  export RUBY_BUILD_BUILD_PATH="${TMP}/build"
+  export RUBY_BUILD_BUILD_PATH="${BATS_TMPDIR}/build"
 
   mkdir -p "$RUBY_BUILD_BUILD_PATH"
   ln -s "${FIXTURE_ROOT}/package-1.0.0.tar.gz" "$RUBY_BUILD_BUILD_PATH"
@@ -123,7 +123,7 @@ DEF
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   export -n RUBY_BUILD_CACHE_PATH
-  export RUBY_BUILD_BUILD_PATH="${TMP}/build"
+  export RUBY_BUILD_BUILD_PATH="${BATS_TMPDIR}/build"
 
   mkdir -p "$RUBY_BUILD_BUILD_PATH"
   touch "${RUBY_BUILD_BUILD_PATH}/package-1.0.0.tar.gz"

@@ -1,0 +1,3 @@
+[submodule "test/helpers/assertions"]
+	path = test/helpers/assertions
+	url = https://github.com/jasonkarns/bats-assert

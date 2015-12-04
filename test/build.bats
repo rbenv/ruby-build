@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 load test_helper
-export RUBY_BUILD_CACHE_PATH="$TMP/cache"
+export RUBY_BUILD_CACHE_PATH="$BATS_TMPDIR/cache"
 export MAKE=make
 export MAKE_OPTS="-j 2"
 export CC=cc
@@ -89,7 +89,7 @@ OUT
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
 
-  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<<""
+  TMPDIR="$BATS_TMPDIR" install_fixture --patch definitions/needs-yaml <<<""
   assert_success
 
   unstub make
@@ -99,7 +99,7 @@ OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
 make install
-patch -p0 --force -i $TMP/ruby-patch.XXX
+patch -p0 --force -i $BATS_TMPDIR/ruby-patch.XXX
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
 make install
@@ -115,7 +115,7 @@ OUT
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
 
-  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<<"diff --git a/script.rb"
+  TMPDIR="$BATS_TMPDIR" install_fixture --patch definitions/needs-yaml <<<"diff --git a/script.rb"
   assert_success
 
   unstub make
@@ -125,7 +125,7 @@ OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
 make install
-patch -p1 --force -i $TMP/ruby-patch.XXX
+patch -p1 --force -i $BATS_TMPDIR/ruby-patch.XXX
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
 make install
@@ -135,7 +135,7 @@ OUT
 @test "yaml is linked from Homebrew" {
   cached_tarball "ruby-2.0.0"
 
-  brew_libdir="$TMP/homebrew-yaml"
+  brew_libdir="$BATS_TMPDIR/homebrew-yaml"
   mkdir -p "$brew_libdir"
 
   stub brew "--prefix libyaml : echo '$brew_libdir'" false
@@ -157,7 +157,7 @@ OUT
 @test "readline is linked from Homebrew" {
   cached_tarball "ruby-2.0.0"
 
-  readline_libdir="$TMP/homebrew-readline"
+  readline_libdir="$BATS_TMPDIR/homebrew-readline"
   mkdir -p "$readline_libdir"
 
   stub brew "--prefix readline : echo '$readline_libdir'"
@@ -314,7 +314,7 @@ OUT
 @test "custom relative install destination" {
   export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
 
-  cd "$TMP"
+  cd "$BATS_TMPDIR"
   install_fixture definitions/without-checksum ./here
   assert_success
   assert [ -x ./here/bin/package ]
@@ -348,7 +348,7 @@ OUT
 @test "can use RUBY_CONFIGURE to apply a patch" {
   cached_tarball "ruby-2.0.0"
 
-  executable "${TMP}/custom-configure" <<CONF
+  executable "${BATS_TMPDIR}/custom-configure" <<CONF
 #!$BASH
 apply -p1 -i /my/patch.diff
 exec ./configure "\$@"
@@ -357,7 +357,7 @@ CONF
   stub apply 'echo apply "$@" >> build.log'
   stub_make_install
 
-  export RUBY_CONFIGURE="${TMP}/custom-configure"
+  export RUBY_CONFIGURE="${BATS_TMPDIR}/custom-configure"
   run_inline_definition <<DEF
 install_package "ruby-2.0.0" "http://ruby-lang.org/pub/ruby-2.0.0.tar.gz"
 DEF
@@ -612,22 +612,22 @@ DEF
 }
 
 @test "non-writable TMPDIR aborts build" {
-  export TMPDIR="${TMP}/build"
+  export TMPDIR="${BATS_TMPDIR}/build"
   mkdir -p "$TMPDIR"
   chmod -w "$TMPDIR"
 
-  touch "${TMP}/build-definition"
-  run ruby-build "${TMP}/build-definition" "$INSTALL_ROOT"
+  touch "${BATS_TMPDIR}/build-definition"
+  run ruby-build "${BATS_TMPDIR}/build-definition" "$INSTALL_ROOT"
   assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
 }
 
 @test "non-executable TMPDIR aborts build" {
-  export TMPDIR="${TMP}/build"
+  export TMPDIR="${BATS_TMPDIR}/build"
   mkdir -p "$TMPDIR"
   chmod -x "$TMPDIR"
 
-  touch "${TMP}/build-definition"
-  run ruby-build "${TMP}/build-definition" "$INSTALL_ROOT"
+  touch "${BATS_TMPDIR}/build-definition"
+  run ruby-build "${BATS_TMPDIR}/build-definition" "$INSTALL_ROOT"
   assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
 }
 
