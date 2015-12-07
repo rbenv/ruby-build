@@ -19,7 +19,7 @@
 #
 # For detailed information on installing Ruby versions with
 # ruby-build, including a list of environment variables for adjusting
-# compilation, see: https://github.com/sstephenson/ruby-build#usage
+# compilation, see: https://github.com/rbenv/ruby-build#usage
 #
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x

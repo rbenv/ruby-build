@@ -14,7 +14,7 @@ static_version="$(grep VERSION "$bats_bin" | head -1 | cut -d'"' -f 2)"
 
 @test "ruby-build git version" {
   stub git \
-    'remote -v : echo origin https://github.com/sstephenson/ruby-build.git' \
+    'remote -v : echo origin https://github.com/rbenv/ruby-build.git' \
     "describe --tags HEAD : echo v1984-12-gSHA"
   run ruby-build --version
   assert_success "ruby-build 1984-12-gSHA"
@@ -23,7 +23,7 @@ static_version="$(grep VERSION "$bats_bin" | head -1 | cut -d'"' -f 2)"
 
 @test "git describe fails" {
   stub git \
-    'remote -v : echo origin https://github.com/sstephenson/ruby-build.git' \
+    'remote -v : echo origin https://github.com/rbenv/ruby-build.git' \
     "describe --tags HEAD : echo ASPLODE >&2; exit 1"
   run ruby-build --version
   assert_success "ruby-build ${static_version}"
