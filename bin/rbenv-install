@@ -39,6 +39,12 @@ shopt -u nullglob
 
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
+  echo --list
+  echo --force
+  echo --skip-existing
+  echo --keep
+  echo --verbose
+  echo --patch
   exec ruby-build --definitions
 fi
 

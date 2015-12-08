@@ -141,6 +141,12 @@ OUT
   run rbenv-install --complete
   assert_success
   assert_output <<OUT
+--list
+--force
+--skip-existing
+--keep
+--verbose
+--patch
 
 ${RBENV_ROOT}/plugins/bar/share/ruby-build
 ${RBENV_ROOT}/plugins/foo/share/ruby-build
