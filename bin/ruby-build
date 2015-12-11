@@ -327,7 +327,14 @@ fetch_tarball() {
     package_url="${package_url%%#*}"
 
     if [ -n "$RUBY_BUILD_MIRROR_URL" ]; then
-      mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
+      case "$package_url" in
+      https://cache.ruby-lang.org/*)
+        # This is Fastly.
+        ;;
+      *)
+        mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
+        ;;
+    esac
     fi
   fi
 
