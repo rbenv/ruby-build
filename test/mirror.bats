@@ -101,3 +101,20 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   unstub curl
   unstub shasum
 }
+
+
+@test "package URL with ruby-lang CDN with default mirror URL will bypasses mirror" {
+  export RUBY_BUILD_MIRROR_URL=
+  local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
+
+  stub shasum true "echo $checksum"
+  stub curl "-q -o * -*S* https://cache.ruby-lang.org/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+
+  install_fixture definitions/skip-mirror
+  echo "$output" >&2
+  [ "$status" -eq 0 ]
+  [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub curl
+  unstub shasum
+}
