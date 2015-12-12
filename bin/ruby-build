@@ -327,7 +327,9 @@ fetch_tarball() {
     package_url="${package_url%%#*}"
 
     if [ -n "$RUBY_BUILD_MIRROR_URL" ]; then
-      mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
+      if [[ -z "$RUBY_BUILD_DEFAULT_MIRROR" || $package_url != */cache.ruby-lang.org/* ]]; then
+        mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
+      fi
     fi
   fi
 
@@ -1190,8 +1192,10 @@ fi
 
 if [ -z "$RUBY_BUILD_MIRROR_URL" ]; then
   RUBY_BUILD_MIRROR_URL="https://dqw8nmjcqpjn7.cloudfront.net"
+  RUBY_BUILD_DEFAULT_MIRROR=1
 else
   RUBY_BUILD_MIRROR_URL="${RUBY_BUILD_MIRROR_URL%/}"
+  RUBY_BUILD_DEFAULT_MIRROR=
 fi
 
 if [ -n "$RUBY_BUILD_SKIP_MIRROR" ]; then
