@@ -327,8 +327,7 @@ fetch_tarball() {
     package_url="${package_url%%#*}"
 
     if [ -n "$RUBY_BUILD_MIRROR_URL" ]; then
-      if ! [[ $package_url == */cache.ruby-lang.org/* ]] ||
-         [ -z "$RUBY_BUILD_DEFAULT_MIRROR" ]; then
+      if [[ -z "$RUBY_BUILD_DEFAULT_MIRROR" || $package_url != */cache.ruby-lang.org/* ]]; then
         mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
       fi
     fi
