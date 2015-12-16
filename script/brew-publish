@@ -31,7 +31,7 @@ fi
 
 pushd "$(brew --prefix)"
 
-git fetch -q origin master
+git fetch -q --unshallow origin master
 
 branch="${brew_name}-${version}"
 git checkout -q -B "$branch" origin/master
