@@ -564,7 +564,20 @@ build_package_rbx() {
       mkdir -p vendor
       ln -s "$RUBY_BUILD_CACHE_PATH" vendor/prebuilt
     fi
-    RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"
+
+    local opt
+    local -a configure_opts
+    for opt in "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"; do
+      if [[ $opt == --with-openssl-dir=* ]]; then
+        local openssl_dir="${opt#*=}"
+        configure_opts[${#configure_opts[@]}]="--with-lib-dir=${openssl_dir}/lib"
+        configure_opts[${#configure_opts[@]}]="--with-include-dir=${openssl_dir}/include"
+      else
+        configure_opts[${#configure_opts[@]}]="$opt"
+      fi
+    done
+
+    RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${configure_opts[@]}"
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
     fix_rbx_irb "$PREFIX_PATH"
