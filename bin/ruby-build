@@ -98,6 +98,11 @@ os_information() {
   fi
 }
 
+is_mac() {
+  [ "$(uname -s)" = "Darwin" ] || return 1
+  [ $# -eq 0 ] || [ "$(osx_version)" "$@" ]
+}
+
 #  9.1  -> 901
 # 10.9  -> 1009
 # 10.10 -> 1010
@@ -509,7 +514,7 @@ build_package_standard() {
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
       export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
     fi
-    if [ -z "$CC" ] && [ "$(uname -s)" = "Darwin" ] && [ "$(osx_version)" -ge 1010 ]; then
+    if [ -z "$CC" ] && is_mac -ge 1010; then
       export CC=clang
     fi
     ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
@@ -537,9 +542,7 @@ build_package_ree_installer() {
   build_package_auto_tcltk
 
   local options=""
-  if [[ "Darwin" = "$(uname)" ]]; then
-    options="--no-tcmalloc"
-  fi
+  is_mac && options="--no-tcmalloc"
 
   local option
   for option in $RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[@]}; do
@@ -727,7 +730,7 @@ require_gcc() {
       echo "and try again."
       echo
 
-      if [ "$(uname -s)" = "Darwin" ]; then
+      if is_mac; then
         colorize 1 "DETAILS"
         echo ": Apple no longer includes the official GCC compiler with Xcode"
         echo "as of version 4.2. Instead, the \`gcc\` executable is a symlink to"
@@ -762,7 +765,7 @@ require_gcc() {
   fi
 
   export CC="$gcc"
-  if [ "$(uname -s)" = "Darwin" ] && [ "$(osx_version)" -ge 1010 ]; then
+  if is_mac -ge 1010; then
     export MACOSX_DEPLOYMENT_TARGET=10.9
   fi
 }
@@ -819,7 +822,7 @@ verify_gcc() {
 
 require_llvm() {
   local llvm_version="$1"
-  if [ "$(uname -s)" = "Darwin" ] && [ "$(osx_version)" -ge 1010 ]; then
+  if is_mac -ge 1010; then
     if [[ "$RUBY_CONFIGURE_OPTS" != *--llvm-* ]]; then
       case "$llvm_version" in
       3.2 )
@@ -889,7 +892,7 @@ use_homebrew_readline() {
 }
 
 has_broken_mac_openssl() {
-  [ "$(uname -s)" = "Darwin" ] &&
+  is_mac &&
   [[ "$(/usr/bin/openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8"?* ]] &&
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]] &&
   ! use_homebrew_openssl
@@ -985,7 +988,7 @@ build_package_ldflags_dirs() {
 }
 
 build_package_auto_tcltk() {
-  if [ "Darwin" = "$(uname -s)" ] && [ ! -d /usr/include/X11 ]; then
+  if is_mac && [ ! -d /usr/include/X11 ]; then
     if [ -d /opt/X11/include ]; then
       if [[ "$CPPFLAGS" != *-I/opt/X11/include* ]]; then
         export CPPFLAGS="-I/opt/X11/include $CPPFLAGS"
