@@ -778,37 +778,6 @@ verify_gcc() {
   echo "$gcc"
 }
 
-require_llvm() {
-  local llvm_version="$1"
-  if is_mac -ge 1010; then
-    if [[ "$RUBY_CONFIGURE_OPTS" != *--llvm-* ]]; then
-      case "$llvm_version" in
-      3.2 )
-        package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
-        ;;
-      3.5 )
-        local llvm_config="$(locate_llvm "$llvm_version")"
-        package_option ruby configure --llvm-config="$llvm_config"
-        ;;
-      esac
-    fi
-  fi
-}
-
-locate_llvm() {
-  local llvm_version="$1"
-  local package llvm_config
-  shopt -s nullglob
-  for package in `brew list 2>/dev/null | grep "^llvm"`; do
-    llvm_config="$(echo "$(brew --prefix "$package")/bin/llvm-config"*)"
-    if [ -n "$llvm_config" ] && [[ "$("$llvm_config" --version)" = "$llvm_version"* ]]; then
-      echo "$llvm_config"
-      break
-    fi
-  done
-  shopt -u nullglob
-}
-
 needs_yaml() {
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-libyaml-dir=* ]] &&
   ! use_homebrew_yaml
