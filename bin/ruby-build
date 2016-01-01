@@ -639,29 +639,10 @@ build_package_jruby() {
   fix_jruby_shebangs
 }
 
-graal_architecture() {
-  if [ "$(uname -m)" != "x86_64" ]; then
-    echo "no nightly builds available" >&2
-    exit 1
-  fi
-
-  case "$(uname -s)" in
-  "Darwin") echo "macosx-x86_64";;
-  "Linux") echo "linux-x86_64";;
-  *)
-    echo "no nightly builds available" >&2
-    exit 1;;
-  esac
-}
-
 install_jruby_launcher() {
-  # If this version of JRuby has been modified for Graal, don't overwrite the
-  # launcher scripts
-  if ! grep -q graalvm "${PREFIX_PATH}/bin/jruby"; then
-    cd "${PREFIX_PATH}/bin"
-    { ./ruby gem install jruby-launcher
-    } >&4 2>&1
-  fi
+  cd "${PREFIX_PATH}/bin"
+  { ./ruby gem install jruby-launcher
+  } >&4 2>&1
 }
 
 fix_jruby_shebangs() {
