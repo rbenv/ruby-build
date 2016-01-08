@@ -342,6 +342,9 @@ fetch_tarball() {
   local package_filename="${package_name}.tar.gz"
 
   if [ "$package_url" != "${package_url%bz2}" ]; then
+    if ! type -p bzip2 >/dev/null; then
+      echo "warning: bzip2 not found; consider installing \`bzip2\` package" >&4
+    fi
     package_filename="${package_filename%.gz}.bz2"
     tar_args="${tar_args/z/j}"
   fi
