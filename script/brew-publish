@@ -46,7 +46,7 @@ rm -f "${formula}.bak"
 git commit -m "${brew_name} ${version#v}" -- "$formula"
 # hackish way of getting the git remote name for user's fork
 fork_remote="$(hub fork 2>&1 | grep -oE 'remote:? \S+' | tail -1 | awk '{print $2}')"
-git push -u "$fork_remote" "$branch"
+git push -u "$fork_remote" HEAD
 hub pull-request -m "${brew_name} ${version#v}"
 
 git checkout -q -
