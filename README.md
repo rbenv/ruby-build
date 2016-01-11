@@ -137,8 +137,8 @@ You can set certain environment variables to control the build process.
 ### Applying patches to Ruby before compiling
 
 Both `rbenv install` and `ruby-build` support the `--patch` (`-p`) flag that
-signals that a patch from stdin should be applied to Ruby, JRuby, or Rubinius
-source code before the `./configure` and compilation steps.
+signals that a patch from stdin should be applied to Ruby or JRuby source code
+before the `./configure` and compilation steps.
 
 Example usage:
 

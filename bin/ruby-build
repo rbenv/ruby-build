@@ -559,34 +559,6 @@ build_package_ree_installer() {
   } >&4 2>&1
 }
 
-build_package_rbx() {
-  local package_name="$1"
-
-  { [ ! -e "Gemfile" ] || bundle --path=vendor/bundle
-    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
-      mkdir -p vendor
-      ln -s "$RUBY_BUILD_CACHE_PATH" vendor/prebuilt
-    fi
-
-    local opt
-    local -a configure_opts
-    for opt in "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"; do
-      if [[ $opt == --with-openssl-dir=* ]]; then
-        local openssl_dir="${opt#*=}"
-        configure_opts[${#configure_opts[@]}]="--with-lib-dir=${openssl_dir}/lib"
-        configure_opts[${#configure_opts[@]}]="--with-include-dir=${openssl_dir}/include"
-      else
-        configure_opts[${#configure_opts[@]}]="$opt"
-      fi
-    done
-
-    RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${configure_opts[@]}"
-    rake install
-    fix_rbx_gem_binstubs "$PREFIX_PATH"
-    fix_rbx_irb "$PREFIX_PATH"
-  } >&4 2>&1
-}
-
 build_package_mruby() {
   local package_name="$1"
 
@@ -699,33 +671,6 @@ fix_directory_permissions() {
   find "$PREFIX_PATH" -type d \( -perm -020 -o -perm -002 \) -exec chmod go-w {} \;
 }
 
-fix_rbx_gem_binstubs() {
-  local prefix="$1"
-  local gemdir="${prefix}/gems/bin"
-  local bindir="${prefix}/bin"
-  local file binstub
-  # Symlink Rubinius' `gems/bin/` into `bin/`
-  if [ -d "$gemdir" ] && [ ! -L "$gemdir" ]; then
-    for file in "$gemdir"/*; do
-      binstub="${bindir}/${file##*/}"
-      rm -f "$binstub"
-      { echo "#!${bindir}/ruby"
-        grep -v '^#!' "$file"
-      } > "$binstub"
-      chmod +x "$binstub"
-    done
-    rm -rf "$gemdir"
-    ln -s ../bin "$gemdir"
-  fi
-}
-
-fix_rbx_irb() {
-  local prefix="$1"
-  "${prefix}/bin/irb" --version &>/dev/null ||
-    "${prefix}/bin/gem" install rubysl-tracer -v '~> 2.0' --no-rdoc --no-ri &>/dev/null ||
-    true
-}
-
 require_java7() {
   local version="$(java -version 2>&1 | grep '\(java\|openjdk\) version' | head -1)"
   if [[ $version != *1.[789]* ]]; then
@@ -834,52 +779,6 @@ verify_gcc() {
   fi
 
   echo "$gcc"
-}
-
-require_llvm() {
-  local llvm_version="$1"
-  if is_mac -ge 1010; then
-    if [[ "$RUBY_CONFIGURE_OPTS" != *--llvm-* ]]; then
-      case "$llvm_version" in
-      3.2 )
-        package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
-        ;;
-      3.5 )
-        local llvm_config="$(locate_llvm "$llvm_version")"
-        if [ -n "$llvm_config" ]; then
-          package_option ruby configure --llvm-config="$llvm_config"
-        else
-          { echo
-            colorize 1 "ERROR"
-            echo ": Rubinius will not be able to compile using Apple's LLVM-based "
-            echo "build tools on OS X. You will need to install LLVM 3.5 first."
-            echo
-            colorize 1 "TO FIX THE PROBLEM"
-            echo ": Install Homebrew's llvm package with this"
-            echo -n "command: "
-            colorize 4 "brew tap homebrew/versions ; brew install llvm35"
-            echo
-          } >&3
-          return 1
-        fi
-        ;;
-      esac
-    fi
-  fi
-}
-
-locate_llvm() {
-  local llvm_version="$1"
-  local package llvm_config
-  shopt -s nullglob
-  for package in `brew list 2>/dev/null | grep "^llvm"`; do
-    llvm_config="$(echo "$(brew --prefix "$package")/bin/llvm-config"*)"
-    if [ -n "$llvm_config" ] && [[ "$("$llvm_config" --version)" = "$llvm_version"* ]]; then
-      echo "$llvm_config"
-      break
-    fi
-  done
-  shopt -u nullglob
 }
 
 needs_yaml() {
@@ -1048,7 +947,7 @@ isolated_gem_install() {
 apply_ruby_patch() {
   local patchfile
   case "$1" in
-  ruby-* | jruby-* | rubinius-* )
+  ruby-* | jruby-* )
     patchfile="$(mktemp "${TMP}/ruby-patch.XXXXXX")"
     cat "${2:--}" >"$patchfile"
 
