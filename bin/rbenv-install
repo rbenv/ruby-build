@@ -24,10 +24,6 @@
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
-if [ -z "$RBENV_ROOT" ]; then
-  RBENV_ROOT="${HOME}/.rbenv"
-fi
-
 # Add `share/ruby-build/` directory from each rbenv plugin to the list of
 # paths where build definitions are looked up.
 shopt -s nullglob
