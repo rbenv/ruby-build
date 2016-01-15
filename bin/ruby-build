@@ -245,8 +245,6 @@ compute_md5() {
 }
 
 verify_checksum() {
-  # If there's no SHA2 support, return success
-  [ -n "$HAS_SHA2_SUPPORT" ] || return 0
   local checksum_command="compute_sha2"
 
   # If the specified filename doesn't exist, return success
@@ -254,13 +252,17 @@ verify_checksum() {
   [ -e "$filename" ] || return 0
 
   # If there's no expected checksum, return success
-  local expected_checksum=`echo "$2" | tr [A-Z] [a-z]`
+  local expected_checksum="$(echo "$2" | tr [A-Z] [a-z])"
   [ -n "$expected_checksum" ] || return 0
 
   case "${#expected_checksum}" in
   32) # MD5
     [ -n "$HAS_MD5_SUPPORT" ] || return 0
     checksum_command="compute_md5"
+    ;;
+  64) # SHA2 256
+    [ -n "$HAS_SHA2_SUPPORT" ] || return 0
+    checksum_command="compute_sha2"
     ;;
   esac
 
