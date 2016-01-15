@@ -171,15 +171,6 @@ OUT
   unstub rbenv-help
 }
 
-@test "show help for rbenv-install" {
-  stub_ruby_build
-  stub rbenv-help 'install : true'
-
-  run rbenv-install -h
-  assert_success
-  unstub rbenv-help
-}
-
 @test "rbenv-install has usage help preface" {
   run head "$(which rbenv-install)"
   assert_output_contains 'Usage: rbenv install'
@@ -198,14 +189,6 @@ OUT
 
   run rbenv-uninstall 2.1.1 2.1.2
   assert_failure
-  unstub rbenv-help
-}
-
-@test "show help for rbenv-uninstall" {
-  stub rbenv-help 'uninstall : true'
-
-  run rbenv-uninstall -h
-  assert_success
   unstub rbenv-help
 }
 
