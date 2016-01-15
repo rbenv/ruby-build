@@ -45,8 +45,9 @@ if [ "$1" = "--complete" ]; then
   echo --force
   echo --skip-existing
   echo --keep
-  echo --verbose
   echo --patch
+  echo --verbose
+  echo --version
   exec ruby-build --definitions
 fi
 
