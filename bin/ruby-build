@@ -246,16 +246,16 @@ compute_md5() {
 
 verify_checksum() {
   local checksum_command
+  local filename="$1"
+  local expected_checksum="$(echo "$2" | tr [A-Z] [a-z])"
 
   # If the specified filename doesn't exist, return success
-  local filename="$1"
   [ -e "$filename" ] || return 0
 
-  # If there's no expected checksum, return success
-  local expected_checksum="$(echo "$2" | tr [A-Z] [a-z])"
-  [ -n "$expected_checksum" ] || return 0
-
   case "${#expected_checksum}" in
+  0) # If there's no expected checksum, return success
+    return 0
+    ;;
   32) # MD5
     [ -n "$HAS_MD5_SUPPORT" ] || return 0
     checksum_command="compute_md5"
