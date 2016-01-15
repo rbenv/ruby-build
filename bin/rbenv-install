@@ -5,6 +5,7 @@
 # Usage: rbenv install [-f|-s] [-kpv] <version>
 #        rbenv install [-f|-s] [-kpv] <definition-file>
 #        rbenv install -l|--list
+#        rbenv install --version
 #
 #   -l/--list          List all available versions
 #   -f/--force         Install even if the version appears to be installed already
@@ -16,6 +17,7 @@
 #                      (defaults to $RBENV_ROOT/sources)
 #   -p/--patch         Apply a patch from stdin before building
 #   -v/--verbose       Verbose mode: print compilation status to stdout
+#   --version          Show version of ruby-build
 #
 # For detailed information on installing Ruby versions with
 # ruby-build, including a list of environment variables for adjusting
