@@ -74,9 +74,6 @@ unset HAS_PATCH
 parse_options "$@"
 for option in "${OPTIONS[@]}"; do
   case "$option" in
-  "h" | "help" )
-    usage 0
-    ;;
   "l" | "list" )
     echo "Available versions:"
     definitions | indent

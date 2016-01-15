@@ -27,10 +27,6 @@ if [ -z "$RBENV_ROOT" ]; then
   RBENV_ROOT="${HOME}/.rbenv"
 fi
 
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-  usage 0
-fi
-
 unset FORCE
 if [ "$1" = "-f" ] || [ "$1" = "--force" ]; then
   FORCE=true
