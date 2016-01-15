@@ -257,11 +257,12 @@ verify_checksum() {
   local expected_checksum=`echo "$2" | tr [A-Z] [a-z]`
   [ -n "$expected_checksum" ] || return 0
 
-  # If the checksum length is 32 chars, assume MD5, otherwise SHA2
-  if [ "${#expected_checksum}" -eq 32 ]; then
+  case "${#expected_checksum}" in
+  32) # MD5
     [ -n "$HAS_MD5_SUPPORT" ] || return 0
     checksum_command="compute_md5"
-  fi
+    ;;
+  esac
 
   # If the computed checksum is empty, return failure
   local computed_checksum=`echo "$($checksum_command < "$filename")" | tr [A-Z] [a-z]`
