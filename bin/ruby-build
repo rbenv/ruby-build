@@ -1225,11 +1225,7 @@ else
   RUBY_BUILD_DEFAULT_MIRROR=
 fi
 
-if [ -n "$RUBY_BUILD_SKIP_MIRROR" ]; then
-  unset RUBY_BUILD_MIRROR_URL
-fi
-
-if ! has_checksum_support compute_sha2; then
+if [ -n "$RUBY_BUILD_SKIP_MIRROR" ] || ! has_checksum_support compute_sha2; then
   unset RUBY_BUILD_MIRROR_URL
 fi
 
