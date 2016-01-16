@@ -1229,17 +1229,8 @@ if [ -n "$RUBY_BUILD_SKIP_MIRROR" ]; then
   unset RUBY_BUILD_MIRROR_URL
 fi
 
-if echo test | compute_sha2 >/dev/null; then
-  HAS_SHA2_SUPPORT=1
-else
-  unset HAS_SHA2_SUPPORT
+if ! has_checksum_support compute_sha2; then
   unset RUBY_BUILD_MIRROR_URL
-fi
-
-if echo test | compute_md5 >/dev/null; then
-  HAS_MD5_SUPPORT=1
-else
-  unset HAS_MD5_SUPPORT
 fi
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
