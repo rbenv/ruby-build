@@ -12,7 +12,8 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
 
   install_fixture definitions/without-checksum
   echo "$output" >&2
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -21,11 +22,12 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
 
 
 @test "package URL with checksum but no shasum support bypasses mirror" {
-  stub shasum false
+  stub shasum false false
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -37,12 +39,13 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   local mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
 
-  stub shasum true "echo $checksum"
+  stub shasum true true "echo $checksum"
   stub curl "-*I* $mirror_url : true" \
     "-q -o * -*S* $mirror_url : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -54,12 +57,13 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   local mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
 
-  stub shasum true "echo $checksum"
+  stub shasum true true "echo $checksum"
   stub curl "-*I* $mirror_url : false" \
     "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -71,14 +75,15 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   local mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
 
-  stub shasum true "echo invalid" "echo $checksum"
+  stub shasum true true "echo invalid" true "echo $checksum"
   stub curl "-*I* $mirror_url : true" \
     "-q -o * -*S* $mirror_url : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$3" \
     "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
   echo "$output" >&2
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -90,12 +95,13 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   export RUBY_BUILD_MIRROR_URL=
   local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
 
-  stub shasum true "echo $checksum"
+  stub shasum true true "echo $checksum"
   stub curl "-*I* : true" \
     "-q -o * -*S* https://?*/$checksum : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$3" \
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -107,12 +113,13 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   export RUBY_BUILD_MIRROR_URL=
   local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
 
-  stub shasum true "echo $checksum"
+  stub shasum true true "echo $checksum"
   stub curl "-q -o * -*S* https://cache.ruby-lang.org/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   run_inline_definition <<DEF
 install_package "package-1.0.0" "https://cache.ruby-lang.org/packages/package-1.0.0.tar.gz#ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5" copy
 DEF
+
   assert_success
   assert [ -x "${INSTALL_ROOT}/bin/package" ]
 
