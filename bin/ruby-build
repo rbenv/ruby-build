@@ -212,7 +212,7 @@ make_package() {
   popd >&4
 }
 
-compute_sha2() {
+compute_sha2_256() {
   local output
   if type shasum &>/dev/null; then
     output="$(shasum -a 256 -b)" || return 1
@@ -223,6 +223,23 @@ compute_sha2() {
     echo "${output##* }"
   elif type sha256sum &>/dev/null; then
     output="$(sha256sum --quiet)" || return 1
+    echo "${output% *}"
+  else
+    return 1
+  fi
+}
+
+compute_sha2_512() {
+  local output
+  if type shasum &>/dev/null; then
+    output="$(shasum -a 512 -b)" || return 1
+    echo "${output% *}"
+  elif type openssl &>/dev/null; then
+    local openssl="$(command -v "$(brew --prefix openssl 2>/dev/null || true)"/bin/openssl openssl | head -1)"
+    output="$("$openssl" dgst -sha512 2>/dev/null)" || return 1
+    echo "${output##* }"
+  elif type sha512sum &>/dev/null; then
+    output="$(sha512sum --quiet)" || return 1
     echo "${output% *}"
   else
     return 1
@@ -263,7 +280,9 @@ verify_checksum() {
   # MD5
   32) checksum_command="compute_md5" ;;
   # SHA2 256
-  64) checksum_command="compute_sha2" ;;
+  64) checksum_command="compute_sha2_256" ;;
+  # SHA2 512
+  128) checksum_command="compute_sha2_512" ;;
   # unknown checksum algorithm, return failure
   *) return 1 ;;
   esac
@@ -1225,7 +1244,7 @@ else
   RUBY_BUILD_DEFAULT_MIRROR=
 fi
 
-if [ -n "$RUBY_BUILD_SKIP_MIRROR" ] || ! has_checksum_support compute_sha2; then
+if [ -n "$RUBY_BUILD_SKIP_MIRROR" ] || ! has_checksum_support compute_sha2_256; then
   unset RUBY_BUILD_MIRROR_URL
 fi
 
