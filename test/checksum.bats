@@ -6,7 +6,6 @@ export RUBY_BUILD_CACHE_PATH=
 
 
 @test "package URL without checksum" {
-  stub shasum true
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/without-checksum
@@ -14,7 +13,6 @@ export RUBY_BUILD_CACHE_PATH=
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
-  unstub shasum
 }
 
 
@@ -23,7 +21,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -36,7 +35,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-invalid-checksum
-  [ "$status" -eq 1 ]
+
+  assert_failure
   [ ! -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -49,7 +49,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -62,7 +63,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-md5-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -75,7 +77,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-md5-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -88,7 +91,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 1 ]
+
+  assert_failure
   [ ! -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -117,8 +121,7 @@ DEF
 }
 
 @test "existing tarball in build location is discarded if not matching checksum" {
-  stub shasum true \
-    "echo invalid" \
+  stub shasum true "echo invalid" true \
     "echo ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
