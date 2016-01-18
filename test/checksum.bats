@@ -23,7 +23,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -36,7 +37,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-invalid-checksum
-  [ "$status" -eq 1 ]
+
+  assert_failure
   [ ! -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -49,7 +51,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -62,7 +65,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-md5-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -75,7 +79,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-md5-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
@@ -88,7 +93,8 @@ export RUBY_BUILD_CACHE_PATH=
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 1 ]
+
+  assert_failure
   [ ! -f "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
