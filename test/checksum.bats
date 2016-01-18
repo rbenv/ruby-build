@@ -6,7 +6,6 @@ export RUBY_BUILD_CACHE_PATH=
 
 
 @test "package URL without checksum" {
-  stub shasum true
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/without-checksum
@@ -14,7 +13,6 @@ export RUBY_BUILD_CACHE_PATH=
   [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
-  unstub shasum
 }
 
 

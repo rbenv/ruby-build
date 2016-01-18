@@ -10,7 +10,6 @@ setup() {
 
 
 @test "packages are saved to download cache" {
-  stub shasum true
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/without-checksum
@@ -19,12 +18,10 @@ setup() {
   [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
   unstub curl
-  unstub shasum
 }
 
 
 @test "cached package without checksum" {
-  stub shasum true
   stub curl
 
   cp "${FIXTURE_ROOT}/package-1.0.0.tar.gz" "$RUBY_BUILD_CACHE_PATH"
@@ -35,7 +32,6 @@ setup() {
   [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
   unstub curl
-  unstub shasum
 }
 
 
@@ -79,7 +75,6 @@ setup() {
 
 
 @test "nonexistent cache directory is ignored" {
-  stub shasum true
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   export RUBY_BUILD_CACHE_PATH="${TMP}/nonexistent"
@@ -91,5 +86,4 @@ setup() {
   [ ! -d "$RUBY_BUILD_CACHE_PATH" ]
 
   unstub curl
-  unstub shasum
 }
