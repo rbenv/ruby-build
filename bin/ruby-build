@@ -246,10 +246,14 @@ compute_md5() {
   fi
 }
 
-declare -a HAS_CHECKSUM_SUPPORT
 has_checksum_support() {
   local checksum_command="$1"
-  return ${HAS_CHECKSUM_SUPPORT[$checksum_command]:=$(echo test | "$checksum_command" >/dev/null; echo $?)}
+  local has_checksum_var="HAS_CHECKSUM_SUPPORT_${checksum_command}"
+
+  if [ -z "${!has_checksum_var+defined}" ]; then
+    printf -v "$has_checksum_var" "$(echo test | "$checksum_command" >/dev/null; echo $?)"
+  fi
+  return "${!has_checksum_var}"
 }
 
 verify_checksum() {
