@@ -14,7 +14,8 @@ setup() {
   stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
 
   install_fixture definitions/without-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
   unstub curl
@@ -29,7 +30,8 @@ setup() {
   cp "${FIXTURE_ROOT}/package-1.0.0.tar.gz" "$RUBY_BUILD_CACHE_PATH"
 
   install_fixture definitions/without-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
   unstub curl
@@ -44,7 +46,8 @@ setup() {
   cp "${FIXTURE_ROOT}/package-1.0.0.tar.gz" "$RUBY_BUILD_CACHE_PATH"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
   [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
 
@@ -64,7 +67,8 @@ setup() {
   touch "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz"
 
   install_fixture definitions/with-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
   [ -e "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" ]
   diff -q "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz" "${FIXTURE_ROOT}/package-1.0.0.tar.gz"
@@ -81,7 +85,8 @@ setup() {
   export RUBY_BUILD_CACHE_PATH="${TMP}/nonexistent"
 
   install_fixture definitions/without-checksum
-  [ "$status" -eq 0 ]
+
+  assert_success
   [ -x "${INSTALL_ROOT}/bin/package" ]
   [ ! -d "$RUBY_BUILD_CACHE_PATH" ]
 
