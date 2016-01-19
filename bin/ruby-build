@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 #
-# Usage: ruby-build [-kvp] <definition> <prefix>
+# Usage: ruby-build [-kpv] <definition> <prefix>
 #        ruby-build --definitions
+#        ruby-build --version
 #
 #   -k/--keep        Do not remove source tree after installation
-#   -v/--verbose     Verbose mode: print compilation status to stdout
 #   -p/--patch       Apply a patch from stdin before building
+#   -v/--verbose     Verbose mode: print compilation status to stdout
 #   -4/--ipv4        Resolve names to IPv4 addresses only
 #   -6/--ipv6        Resolve names to IPv6 addresses only
 #   --definitions    List all built-in definitions
+#   --version        Show version of ruby-build
 #
 
 RUBY_BUILD_VERSION="20160111"

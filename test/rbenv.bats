@@ -145,8 +145,9 @@ OUT
 --force
 --skip-existing
 --keep
---verbose
 --patch
+--verbose
+--version
 
 ${RBENV_ROOT}/plugins/bar/share/ruby-build
 ${RBENV_ROOT}/plugins/foo/share/ruby-build
