@@ -265,14 +265,16 @@ verify_checksum() {
   [ -e "$filename" ] || return 0
 
   case "${#expected_checksum}" in
-  # If expected checksum is empty, return success
-  0) return 0 ;;
-  # MD5
+  0) return 0 ;; # empty checksum; return success
   32) checksum_command="compute_md5" ;;
-  # SHA2 256
   64) checksum_command="compute_sha2" ;;
-  # unknown checksum algorithm, return failure
-  *) return 1 ;;
+  *)
+    { echo
+      echo "unexpected checksum length: ${#expected_checksum} (${expected_checksum})"
+      echo "expected 0 (no checksum), 32 (MD5), or 64 (SHA2-256)"
+      echo
+    } >&4
+    return 1 ;;
   esac
 
   # If chosen provided checksum algorithm isn't supported, return success

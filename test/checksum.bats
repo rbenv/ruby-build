@@ -141,3 +141,16 @@ DEF
 
   unstub shasum
 }
+
+@test "package URL with checksum of unexpected length" {
+  stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+
+  run_inline_definition <<DEF
+install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz#checksum_of_unexpected_length" copy
+DEF
+
+  assert_failure
+  [ ! -f "${INSTALL_ROOT}/bin/package" ]
+  assert_output_contains "unexpected checksum length: 29 (checksum_of_unexpected_length)"
+  assert_output_contains "expected 0 (no checksum), 32 (MD5), or 64 (SHA2-256)"
+}
