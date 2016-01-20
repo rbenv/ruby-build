@@ -1,0 +1,1 @@
+install_package "jruby-1.7.24" "https://s3.amazonaws.com/jruby.org/downloads/1.7.24/jruby-bin-1.7.24.tar.gz#b5f4d1569646fba833c7cce6627434aba40cd54966aa8595454c0e92b83123ea" jruby
