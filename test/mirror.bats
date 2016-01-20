@@ -14,7 +14,7 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   echo "$output" >&2
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum
@@ -28,7 +28,7 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   install_fixture definitions/with-checksum
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum
@@ -46,7 +46,7 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   install_fixture definitions/with-checksum
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum
@@ -64,7 +64,7 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   install_fixture definitions/with-checksum
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum
@@ -84,7 +84,7 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   echo "$output" >&2
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum
@@ -102,7 +102,7 @@ export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
   install_fixture definitions/with-checksum
 
   assert_success
-  [ -x "${INSTALL_ROOT}/bin/package" ]
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
 
   unstub curl
   unstub shasum

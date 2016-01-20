@@ -546,7 +546,7 @@ install_package "jruby-9000.dev" "http://lafo.ssw.uni-linz.ac.at/jruby-9000+graa
 DEF
   assert_success
 
-  assert [ ! -e "$INSTALL_ROOT/build.log" ]
+  refute [ -e "$INSTALL_ROOT/build.log" ]
 }
 
 @test "JRuby Java 7 missing" {

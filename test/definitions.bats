@@ -13,7 +13,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 
 @test "custom RUBY_BUILD_ROOT: nonexistent" {
   export RUBY_BUILD_ROOT="$TMP"
-  assert [ ! -e "${RUBY_BUILD_ROOT}/share/ruby-build" ]
+  refute [ -e "${RUBY_BUILD_ROOT}/share/ruby-build" ]
   run ruby-build --definitions
   assert_success ""
 }
