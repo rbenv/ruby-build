@@ -1,3 +1,0 @@
-require_llvm 3.2
-install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749"
-install_package "rubinius-release-2.0.0-rc1" "https://nodeload.github.com/rubinius/rubinius/tar.gz/release-2.0.0-rc1#ac1f5a657682904ec227fe5e2410dbdfbfa0abf86cdee722c81fa6b3609c8ab3" rbx
