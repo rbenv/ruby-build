@@ -1,5 +1,5 @@
 require_gcc
-install_package "openssl-1.0.1r" "https://www.openssl.org/source/openssl-1.0.1r.tar.gz#784bd8d355ed01ce98b812f873f8b2313da61df7c7b5677fcf2e57b0863a3346" mac_openssl --if has_broken_mac_openssl
+install_package "openssl-1.0.2f" "https://www.openssl.org/source/openssl-1.0.2f.tar.gz#932b4ee4def2b434f85435d9e3e19ca8ba99ce9a065a61524b429a9d5e9b2e9c" mac_openssl --if has_broken_mac_openssl
 install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
 install_package "ruby-1.9.3-p0" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p0.tar.bz2#ca8ba4e564fc5f98b210a5784e43dfffef9471222849e46f8e848b37e9f38acf"
 install_package "rubygems-1.8.23" "https://rubygems.org/rubygems/rubygems-1.8.23.tgz#e4a1c6bbaac411eaab94deae78228b7584033a1f10a022f52bffa9613aa29061" ruby
