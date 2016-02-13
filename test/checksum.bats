@@ -3,6 +3,7 @@
 load test_helper
 export RUBY_BUILD_SKIP_MIRROR=1
 export RUBY_BUILD_CACHE_PATH=
+export RUBY_BUILD_ARIA2_OPTS=
 
 
 @test "package URL without checksum" {

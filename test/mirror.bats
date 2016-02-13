@@ -4,6 +4,7 @@ load test_helper
 export RUBY_BUILD_SKIP_MIRROR=
 export RUBY_BUILD_CACHE_PATH=
 export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
+export RUBY_BUILD_ARIA2_OPTS=
 
 
 @test "package URL without checksum bypasses mirror" {
