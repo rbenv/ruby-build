@@ -300,14 +300,30 @@ http() {
   local file="$3"
   [ -n "$url" ] || return 1
 
-  if type curl &>/dev/null; then
+  if type aria2c &>/dev/null; then
+    "http_${method}_aria2c" "$url" "$file"
+  elif type curl &>/dev/null; then
     "http_${method}_curl" "$url" "$file"
   elif type wget &>/dev/null; then
     "http_${method}_wget" "$url" "$file"
   else
-    echo "error: please install \`curl\` or \`wget\` and try again" >&2
+    echo "error: please install \`aria2c\`, \`curl\` or \`wget\` and try again" >&2
     exit 1
   fi
+}
+
+http_head_aria2c() {
+  options=""
+  [ -n "${IPV4}" ] && options="--disable-ipv6=true"
+  [ -n "${IPV6}" ] && options="--disable-ipv6=false"
+  aria2c --dry-run ${options} "$1" >&4 2>&1
+}
+
+http_get_aria2c() {
+  options=""
+  [ -n "${IPV4}" ] && options="--disable-ipv6=true"
+  [ -n "${IPV6}" ] && options="--disable-ipv6=false"
+  aria2c -o "${2:--}" ${options} "$1"
 }
 
 http_head_curl() {
