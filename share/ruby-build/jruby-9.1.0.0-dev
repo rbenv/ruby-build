@@ -1,0 +1,2 @@
+require_java7
+install_package "jruby-9.1.0.0-SNAPSHOT" "http://ci.jruby.org/snapshots/master/jruby-bin-9.1.0.0-SNAPSHOT.tar.gz" jruby
