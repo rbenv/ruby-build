@@ -8,7 +8,6 @@
 # - opens pull request to update the Homebrew formula
 #
 # TODO: handle making multiple releases on the same date
-# TODO: publish release notes to GitHub
 
 set -e
 
@@ -32,8 +31,6 @@ if git diff --quiet "${previous_tag}..HEAD" -- bin share; then
   exit 1
 fi
 
-# current="$($binfile --version | awk '{print $2}')"
-
 sed -i.bak -E "s!^(RUBY_BUILD_VERSION=).+!\\1\"${new_version}\"!" "$binfile"
 rm -f "${binfile}.bak"
 
@@ -41,6 +38,10 @@ git commit -m "ruby-build ${new_version}" "$binfile"
 git tag "$version_tag"
 git push origin master "${version_tag}"
 
-# git log --no-merges --format='%w(0,0,2)* %B' --reverse "${previous_tag}..HEAD^" -- bin share
+{ echo "ruby-build ${new_version}"
+  echo
+  git log --no-merges --format='%w(0,0,2)* %B' --reverse "${previous_tag}..HEAD^" -- bin share
+} | hub release create -dF - -c "$(git rev-parse HEAD)" "$version_tag" || true
+hub browse -- "releases/${version_tag}"
 
 script/brew-publish ruby-build "$version_tag"
