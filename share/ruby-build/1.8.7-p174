@@ -1,0 +1,3 @@
+require_gcc
+install_package "ruby-1.8.7-p174" "https://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p174.tar.bz2#203978b6db1cc77a79ff03d141d162f6f17d86c3574f76de9eae9d0c8cb920bc" warn_eol auto_tcltk standard
+install_package "rubygems-1.6.2" "https://rubygems.org/rubygems/rubygems-1.6.2.tgz#cb5261818b931b5ea2cb54bc1d583c47823543fcf9682f0d6298849091c1cea7" ruby
