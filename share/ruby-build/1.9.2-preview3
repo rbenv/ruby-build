@@ -1,0 +1,4 @@
+require_gcc
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
+install_package "ruby-1.9.2-preview3" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-preview3.tar.bz2#94aee45432fb1a4ce6c3c9c74d17d2efc4fe4ad278997a850d55e5ca901cf256" warn_eol standard
+install_package "rubygems-1.8.23" "https://rubygems.org/rubygems/rubygems-1.8.23.tgz#e4a1c6bbaac411eaab94deae78228b7584033a1f10a022f52bffa9613aa29061" ruby
