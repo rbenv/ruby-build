@@ -1,0 +1,4 @@
+require_gcc
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
+install_package "ruby-1.9.1-p431" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.1-p431.tar.bz2#81a46c947cd0c3ab99bc727e1465dab334432df7fbbfd0acfc08cf7111eb0c6c" warn_eol standard
+install_package "rubygems-1.3.7" "https://rubygems.org/rubygems/rubygems-1.3.7.tgz#388b90ae6273f655507b10c8ba6bee9ea72e7d49c3e610025531cb8c3ba67c9d" ruby
