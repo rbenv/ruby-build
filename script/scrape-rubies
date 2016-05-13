@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Usage: script/scrape-rubies
+#
+# All parameters are passed transparently to `rbenv update-version-defs`
+# see https://github.com/jasonkarns/ruby-build-update-defs
+#
+# Depends on ruby-build-update-defs plugin
+#
+# Runs the update-version-defs rbenv plugin to scrape new
+# ruby definitions and write them to share/ruby-build/.
+
+rbenv update-version-defs --destination share/ruby-build/ "$@"
