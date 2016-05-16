@@ -1,0 +1,3 @@
+require_gcc
+install_package "ruby-1.8.6-p111" "https://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p111.tar.bz2#85c694678313818a5083bcfd66ae389fc053b506d93b5ad46f3764981c120fbb" warn_eol auto_tcltk standard
+install_package "rubygems-1.3.7" "https://rubygems.org/rubygems/rubygems-1.3.7.tgz#388b90ae6273f655507b10c8ba6bee9ea72e7d49c3e610025531cb8c3ba67c9d" ruby

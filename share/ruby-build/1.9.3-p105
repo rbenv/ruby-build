@@ -1,0 +1,5 @@
+[ -n "$CC" ] || export CC=cc
+install_package "openssl-1.0.2h" "https://www.openssl.org/source/openssl-1.0.2h.tar.gz#1d4007e53aad94a5b2002fe045ee7bb0b3d98f1a47f8b2bc851dcd1c74332919" mac_openssl --if has_broken_mac_openssl
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
+install_package "ruby-1.9.3-p105" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p105.tar.bz2#8a149dee6498553fe5d25618ccce8002ca076affca57c857503235d00a35f9d1" warn_eol standard
+install_package "rubygems-1.8.23" "https://rubygems.org/rubygems/rubygems-1.8.23.tgz#e4a1c6bbaac411eaab94deae78228b7584033a1f10a022f52bffa9613aa29061" ruby
