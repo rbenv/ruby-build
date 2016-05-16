@@ -16,7 +16,7 @@ test_mirrored() {
 
 compute_sha256() {
   local output="$(openssl dgst -sha256)"
-  echo "${output##* }" | tr '[A-Z]' '[a-z]'
+  echo "${output##* }" | tr '[:upper:]' '[:lower:]'
 }
 
 download_package() {
