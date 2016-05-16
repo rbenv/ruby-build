@@ -32,11 +32,12 @@ download_and_verify() {
   download_package "$url" "$file"
 
   case "${#expected}" in
+  32) digest="md5" ;;
   64) digest="sha256" ;;
   128) digest="sha512" ;;
   *)
     { echo "Error: unexpected checksum length: ${#expected} (${expected})"
-      echo "expected 64 (SHA-256) or 128 (SHA-512)"
+      echo "expected 32 (MD5), 64 (SHA-256), or 128 (SHA-512)"
     } >&2
     return 1 ;;
   esac
