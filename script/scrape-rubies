@@ -9,4 +9,4 @@
 # Runs the update-version-defs rbenv plugin to scrape new
 # ruby definitions and write them to share/ruby-build/.
 
-rbenv update-version-defs --destination share/ruby-build/ "$@"
+rbenv update-version-defs --cruby '>=2.3.1' --rubinius '>=3.30' --destination share/ruby-build/ "$@"
