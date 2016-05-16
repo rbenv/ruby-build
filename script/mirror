@@ -25,12 +25,23 @@ download_package() {
 }
 
 download_and_verify() {
-  local checksum
+  local checksum digest
   local url="$1"
   local file="$2"
   local expected="$3"
   download_package "$url" "$file"
-  checksum="$(compute_checksum sha256 < "$file")"
+
+  case "${#expected}" in
+  64) digest="sha256" ;;
+  128) digest="sha512" ;;
+  *)
+    { echo "Error: unexpected checksum length: ${#expected} (${expected})"
+      echo "expected 64 (SHA-256) or 128 (SHA-512)"
+    } >&2
+    return 1 ;;
+  esac
+
+  checksum="$(compute_checksum "$digest" < "$file")"
   if [ "$checksum" != "$expected" ]; then
     echo "Error: $url doesn't match its checksum $expected" >&2
     return 1
