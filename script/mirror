@@ -14,7 +14,7 @@ test_mirrored() {
   curl -qsSfIL "$RUBY_BUILD_MIRROR_URL/$1" >/dev/null 2>&1
 }
 
-compute_sha2() {
+compute_sha256() {
   local output="$(openssl dgst -sha256)"
   echo "${output##* }" | tr '[A-Z]' '[a-z]'
 }
@@ -29,7 +29,7 @@ download_and_verify() {
   local file="$2"
   local expected="$3"
   download_package "$url" "$file"
-  checksum="$(compute_sha2 < "$file")"
+  checksum="$(compute_sha256 < "$file")"
   if [ "$checksum" != "$expected" ]; then
     echo "Error: $url doesn't match its checksum $expected" >&2
     return 1
