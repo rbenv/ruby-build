@@ -15,8 +15,8 @@ test_mirrored() {
 }
 
 compute_checksum() {
-  local digest="$1"
-  local output="$(openssl dgst -"$digest")"
+  local digest_type="$1"
+  local output="$(openssl dgst -"$digest_type")"
   echo "${output##* }" | tr '[:upper:]' '[:lower:]'
 }
 
@@ -25,16 +25,16 @@ download_package() {
 }
 
 download_and_verify() {
-  local checksum digest
+  local checksum digest_type
   local url="$1"
   local file="$2"
   local expected="$3"
   download_package "$url" "$file"
 
   case "${#expected}" in
-  32) digest="md5" ;;
-  64) digest="sha256" ;;
-  128) digest="sha512" ;;
+  32) digest_type="md5" ;;
+  64) digest_type="sha256" ;;
+  128) digest_type="sha512" ;;
   *)
     { echo "Error: unexpected checksum length: ${#expected} (${expected})"
       echo "expected 32 (MD5), 64 (SHA-256), or 128 (SHA-512)"
@@ -42,7 +42,7 @@ download_and_verify() {
     return 1 ;;
   esac
 
-  checksum="$(compute_checksum "$digest" < "$file")"
+  checksum="$(compute_checksum "$digest_type" < "$file")"
   if [ "$checksum" != "$expected" ]; then
     echo "Error: $url doesn't match its checksum $expected" >&2
     return 1
