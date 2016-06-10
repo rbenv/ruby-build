@@ -4,6 +4,7 @@ load test_helper
 export RBENV_ROOT="${TMP}/rbenv"
 
 setup() {
+  ensure_not_found_in_path aria2c
   stub rbenv-hooks 'install : true'
   stub rbenv-rehash 'true'
 }

@@ -6,6 +6,7 @@ export RUBY_BUILD_CACHE_PATH="$TMP/cache"
 export RUBY_BUILD_ARIA2_OPTS=
 
 setup() {
+  ensure_not_found_in_path aria2c
   mkdir "$RUBY_BUILD_CACHE_PATH"
 }
 

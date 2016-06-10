@@ -5,6 +5,7 @@ export RUBY_BUILD_SKIP_MIRROR=1
 export RUBY_BUILD_CACHE_PATH=
 
 setup() {
+  ensure_not_found_in_path aria2c
   export RUBY_BUILD_BUILD_PATH="${TMP}/source"
   mkdir -p "${RUBY_BUILD_BUILD_PATH}"
 }
