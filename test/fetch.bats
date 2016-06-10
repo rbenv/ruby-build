@@ -11,7 +11,7 @@ setup() {
 }
 
 @test "failed download displays error message" {
-  stub aria2c false
+  stub curl false
 
   install_fixture definitions/without-checksum
   assert_failure
