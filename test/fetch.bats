@@ -21,7 +21,7 @@ setup() {
 }
 
 @test "using aria2c if available" {
-  stub aria2c "* -o * http://example.com/* : cp $FIXTURE_ROOT/\${4##*/} \$3"
+  stub aria2c "--allow-overwrite=true --no-conf=true -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
 
   install_fixture definitions/without-checksum
   assert_success
