@@ -58,6 +58,16 @@ Or, if you would like to install the latest development release:
 
     brew install --HEAD ruby-build
 
+To update your current version of ruby-build, you can use brew's `upgrade` 
+command as follows:
+
+    brew upgrade ruby-build
+    
+Note that since brew caches the refs to the latest version of each package,
+you might also need to run `brew update` before, in order to get the most 
+recent formulae of ruby-build.
+
+
 
 ## Usage
 
