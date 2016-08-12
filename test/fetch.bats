@@ -3,19 +3,35 @@
 load test_helper
 export RUBY_BUILD_SKIP_MIRROR=1
 export RUBY_BUILD_CACHE_PATH=
+export RUBY_BUILD_ARIA2_OPTS=
 
 setup() {
+  ensure_not_found_in_path aria2c
   export RUBY_BUILD_BUILD_PATH="${TMP}/source"
   mkdir -p "${RUBY_BUILD_BUILD_PATH}"
 }
 
 @test "failed download displays error message" {
-  stub aria2c false
+  stub curl false
 
   install_fixture definitions/without-checksum
   assert_failure
   assert_output_contains "> http://example.com/packages/package-1.0.0.tar.gz"
   assert_output_contains "error: failed to download package-1.0.0.tar.gz"
+}
+
+@test "using aria2c if available" {
+  stub aria2c "--allow-overwrite=true --no-conf=true -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
+
+  install_fixture definitions/without-checksum
+  assert_success
+  assert_output <<OUT
+Downloading package-1.0.0.tar.gz...
+-> http://example.com/packages/package-1.0.0.tar.gz
+Installing package-1.0.0...
+Installed package-1.0.0 to ${TMP}/install
+OUT
+  unstub aria2c
 }
 
 @test "fetching from git repository" {
