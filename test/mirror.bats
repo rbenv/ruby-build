@@ -6,6 +6,10 @@ export RUBY_BUILD_CACHE_PATH=
 export RUBY_BUILD_MIRROR_URL=http://mirror.example.com
 export RUBY_BUILD_CURL_OPTS=
 
+setup() {
+  ensure_not_found_in_path aria2c
+}
+
 
 @test "package URL without checksum bypasses mirror" {
   stub shasum true
