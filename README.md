@@ -58,6 +58,9 @@ Or, if you would like to install the latest development release:
 
     brew install --HEAD ruby-build
 
+Note, that if you chose to install the HEAD package, you need to reinstall it for every update:
+
+    brew reinstall --HEAD ruby-build
 
 ## Usage
 
