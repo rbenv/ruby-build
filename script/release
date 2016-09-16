@@ -41,7 +41,6 @@ git push origin master "${version_tag}"
 { echo "ruby-build ${new_version}"
   echo
   git log --no-merges --format='%w(0,0,2)* %B' --reverse "${previous_tag}..HEAD^" -- bin share
-} | hub release create -dF - -c "$(git rev-parse HEAD)" "$version_tag" || true
-hub browse -- "releases/${version_tag}"
+} | hub release create -dF - "$version_tag" || true
 
-script/brew-publish ruby-build "$version_tag"
+script/brew-publish ruby-build rbenv/ruby-build "$version_tag"
