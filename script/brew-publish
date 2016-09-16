@@ -8,11 +8,6 @@ set -e
 brew_name="${1?}"
 version="${2?}"
 
-if ! type -p hub >/dev/null; then
-  "ERROR: You have to install hub to proceed." >&2
-  exit 1
-fi
-
 if [ -n "$3" ]; then
   gh_project="github.com/${3}"
 else
