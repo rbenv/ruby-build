@@ -553,6 +553,7 @@ build_package_standard() {
   local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
 
   [ "$package_var_name" = "RUBY" ] && use_homebrew_readline || true
+  [ "$package_var_name" = "RUBY" ] && use_freebsd_pkg || true
 
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
       export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
@@ -915,6 +916,22 @@ use_homebrew_yaml() {
     package_option ruby configure --with-libyaml-dir="$libdir"
   else
     return 1
+  fi
+}
+
+use_freebsd_pkg() {
+  # check if FreeBSD 11-R or later
+  if [ "FreeBSD" = "$(uname -s)" ]; then
+      if [ "$(uname -r | sed 's/[^[:digit:]].*//')" -ge 11 ]; then
+	  if $(pkg info -e libedit); then
+	      # use if libedit is installed
+	      package_option ruby configure --enable-libedit
+	      package_option ruby configure --with-libedit-dir="/usr/local"
+	  elif $(pkg info -e readline); then
+	      # use if readline is installed
+	      package_option ruby configure --with-readline-dir="/usr/local"
+	  fi
+      fi
   fi
 }
 
