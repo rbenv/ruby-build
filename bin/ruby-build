@@ -936,14 +936,8 @@ use_freebsd_pkg() {
 	  elif $(pkg info -e readline); then
 	      # use readline from Ports Collection
 	      package_option ruby configure --with-readline-dir="/usr/local"
-	  else
-	      return 1
 	  fi
-      else
-	  return 1
       fi
-  else
-      return 1
   fi
 }
 
