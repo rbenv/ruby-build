@@ -251,7 +251,7 @@ OUT
 @test "number of CPU cores is detected on FreeBSD" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo FreeBSD' '-r : echo 9.1' false
+  stub uname '-s : echo FreeBSD' '-r : echo 9.1' 'echo FreeBSD'
   stub sysctl '-n hw.ncpu : echo 1'
   stub_make_install
 
