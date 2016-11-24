@@ -204,7 +204,7 @@ OUT
 @test "number of CPU cores defaults to 2" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Darwin' '-s : echo Darwin'
+  stub uname '-s : echo Darwin' '-s : echo Darwin' '-s : echo Darwin'
   stub sysctl false
   stub_make_install
 
