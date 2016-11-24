@@ -70,6 +70,7 @@ unstub() {
 
   rm -f "$path"
   rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
+  echo `cat $path`
   echo "$STATUS"
   return "$STATUS"
 }
