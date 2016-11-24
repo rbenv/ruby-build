@@ -204,7 +204,7 @@ OUT
 @test "number of CPU cores defaults to 2" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Darwin' '-s : echo Darwin' '-s : echo Darwin'
+  stub uname '-s : echo Darwin'
   stub sysctl false
   stub_make_install
 
@@ -251,7 +251,7 @@ OUT
 @test "number of CPU cores is detected on FreeBSD" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo FreeBSD' '-r : echo 9.1-RELEASE' '-s : echo FreeBSD' '-r : echo 9.1-RELEASE' '-s : echo FreeBSD' '-r : echo 9.1-RELEASE'
+  stub uname '-s : echo FreeBSD' '-r : echo 9.1-RELEASE'
   stub sysctl '-n hw.ncpu : echo 1'
   stub_make_install
 
