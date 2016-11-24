@@ -64,7 +64,9 @@ unstub() {
   local path="${TMP}/bin/${program}"
 
   echo "unstab !!!"
-  echo $program $prefix $path
+  echo "$program"
+  echo "$prefix"
+  echo "$path"
   echo "unstab !!!"
 
   export "${prefix}_STUB_END"=1
@@ -74,6 +76,7 @@ unstub() {
 
   rm -f "$path"
   rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
+  echo "$STATUS"
   return "$STATUS"
 }
 
