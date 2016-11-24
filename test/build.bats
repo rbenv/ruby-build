@@ -227,7 +227,7 @@ OUT
 @test "number of CPU cores is detected on Mac" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Darwin'
+  stub uname '-s : echo Darwin' false
   stub sysctl '-n hw.ncpu : echo 4'
   stub_make_install
 
@@ -251,7 +251,7 @@ OUT
 @test "number of CPU cores is detected on FreeBSD" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo FreeBSD' '-r : echo 9.1-RELEASE'
+  stub uname '-s : echo FreeBSD' '-r : echo 9.1-RELEASE' false
   stub sysctl '-n hw.ncpu : echo 1'
   stub_make_install
 
@@ -324,7 +324,7 @@ OUT
 @test "make on FreeBSD 9 defaults to gmake" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname "-s : echo FreeBSD" "-r : echo 9.1-RELEASE"
+  stub uname "-s : echo FreeBSD" "-r : echo 9.1-RELEASE" false
   MAKE=gmake stub_make_install
 
   MAKE= install_fixture definitions/vanilla-ruby
@@ -337,7 +337,7 @@ OUT
 @test "make on FreeBSD 10" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname "-s : echo FreeBSD" "-r : echo 10.0-RELEASE"
+  stub uname "-s : echo FreeBSD" "-r : echo 10.0-RELEASE" false
   stub_make_install
 
   MAKE= install_fixture definitions/vanilla-ruby
