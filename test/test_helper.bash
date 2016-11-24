@@ -64,10 +64,14 @@ unstub() {
   local path="${TMP}/bin/${program}"
 
   export "${prefix}_STUB_END"=1
-  echo `cat $path`
 
   local STATUS=0
   "$path" || STATUS="$?"
+
+  echo "!!! plain !!!"
+  echo `cat ${TMP}/${program}-stub-plan`
+  echo "!!! run !!!"
+  echo `cat ${TMP}/${program}-stub-run`
 
   rm -f "$path"
   rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
