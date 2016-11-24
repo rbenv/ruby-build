@@ -63,14 +63,6 @@ unstub() {
   local prefix="$(echo "$program" | tr a-z- A-Z_)"
   local path="${TMP}/bin/${program}"
 
-  echo "unstab !!!"
-  echo "$program"
-  echo "$prefix"
-  echo "$path"
-  echo `stat "$path"`
-  echo `"$path"`
-  echo "unstab !!!"
-
   export "${prefix}_STUB_END"=1
 
   local STATUS=0
