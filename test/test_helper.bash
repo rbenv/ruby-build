@@ -64,13 +64,13 @@ unstub() {
   local path="${TMP}/bin/${program}"
 
   export "${prefix}_STUB_END"=1
+  echo `cat $path`
 
   local STATUS=0
   "$path" || STATUS="$?"
 
   rm -f "$path"
   rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"
-  echo `cat $path`
   echo "$STATUS"
   return "$STATUS"
 }
