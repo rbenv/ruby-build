@@ -68,6 +68,8 @@ unstub() {
   local STATUS=0
   "$path" || STATUS="$?"
 
+  echo "!!! $path !!!"
+  echo `$path`
   echo "!!! plain !!!"
   echo `cat ${TMP}/${program}-stub-plan`
   echo "!!! run !!!"
