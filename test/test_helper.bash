@@ -68,6 +68,7 @@ unstub() {
   echo "$prefix"
   echo "$path"
   echo `stat "$path"`
+  echo `"$path"`
   echo "unstab !!!"
 
   export "${prefix}_STUB_END"=1
