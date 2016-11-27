@@ -552,8 +552,9 @@ build_package_standard() {
   local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
   local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
 
-  [ "$package_var_name" = "RUBY" ] && use_homebrew_readline || true
-  [ "$package_var_name" = "RUBY" ] && use_freebsd_pkg || true
+  if [ "$package_var_name" = "RUBY" ]; then
+      use_homebrew_readline || use_freebsd_pkg ||true
+  fi
 
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
       export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
@@ -928,12 +929,13 @@ use_freebsd_pkg() {
       fi
 
       # check if 11-R or later
-      if [ "$(uname -r | sed 's/[^[:digit:]].*//')" -ge 11 ]; then
-	  if $(pkg info -e libedit); then
+      release="$(uname -r)"
+      if [ "${release%%.*}" -ge 11 ]; then
+	  if pkg info -e libedit > /dev/null; then
 	      # use libedit from Ports Collection
 	      package_option ruby configure --enable-libedit
 	      package_option ruby configure --with-libedit-dir="/usr/local"
-	  elif $(pkg info -e readline); then
+	  elif pkg info -e readline > /dev/null; then
 	      # use readline from Ports Collection
 	      package_option ruby configure --with-readline-dir="/usr/local"
 	  fi
