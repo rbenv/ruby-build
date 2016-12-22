@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Usage: script/brew-publish <formula-name> <repo> <version>
 set -euo pipefail
 
