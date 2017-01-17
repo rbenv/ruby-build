@@ -443,6 +443,7 @@ DEF
 @test "rbx uses bundle then rake" {
   cached_tarball "rubinius-2.0.0" "Gemfile"
 
+  stub uname "-s: Linux"
   stub gem false
   stub rake false
   stub bundle \
@@ -476,6 +477,7 @@ print '>>'
 OUT
   cached_tarball "rubinius-2.0.0" bin/ruby
 
+  stub uname "-s: Linux"
   stub bundle false
   stub rake \
     '--version : echo 1' \
