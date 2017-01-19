@@ -1236,7 +1236,7 @@ if [ -n "$noexec" ]; then
   exit 1
 fi
 
-# Apply following work around, if gcc is not available.
+# Apply following work around, if gcc is not installed.
 if [ -z "$(locate_gcc)" ]; then
   # Work around warnings building Ruby 2.0 on Clang 2.x:
   # pass -Wno-error=shorten-64-to-32 if the compiler accepts it.
