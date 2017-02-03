@@ -10,7 +10,7 @@ export -n RUBY_CONFIGURE_OPTS
 @test "require_gcc on OS X 10.9" {
   stub uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.9.5'
-  stub gcc '--version : echo 4.2.1'
+  stub gcc '--version : echo 4.2.1' '--version : echo 4.2.1'
 
   run_inline_definition <<DEF
 require_gcc
@@ -27,7 +27,7 @@ OUT
 @test "require_gcc on OS X 10.10" {
   stub uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.10'
-  stub gcc '--version : echo 4.2.1'
+  stub gcc '--version : echo 4.2.1' '--version : echo 4.2.1'
 
   run_inline_definition <<DEF
 require_gcc
@@ -42,7 +42,7 @@ OUT
 }
 
 @test "require_gcc silences warnings" {
-  stub gcc '--version : echo warning >&2; echo 4.2.1'
+  stub gcc '--version : echo warning >&2; echo 4.2.1' '--version : echo warning >&2; echo 4.2.1'
 
   run_inline_definition <<DEF
 require_gcc
