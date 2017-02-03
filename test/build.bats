@@ -358,6 +358,18 @@ OUT
   unstub uname
 }
 
+@test "make on FreeBSD 11" {
+  cached_tarball "ruby-2.0.0"
+
+  stub uname "-s : echo FreeBSD" "-r : echo 11.0-RELEASE" false
+  stub_make_install
+
+  MAKE= install_fixture definitions/vanilla-ruby
+  assert_success
+
+  unstub uname
+}
+
 @test "can use RUBY_CONFIGURE to apply a patch" {
   cached_tarball "ruby-2.0.0"
 
