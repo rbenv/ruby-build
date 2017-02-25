@@ -88,7 +88,7 @@ jruby-1.7.9
 jruby-1.7.10
 jruby-9000-dev
 jruby-9000"
-  for ver in "$expected"; do
+  for ver in $expected; do
     touch "${RUBY_BUILD_ROOT}/share/ruby-build/$ver"
   done
   run ruby-build --definitions
