@@ -421,6 +421,11 @@ download_tarball() {
     return 1
   fi
 
+  if [ ! -e "${package_filename}" ]; then
+    echo "error: unable to download ${package_filename}" >&2
+    exit 1
+  fi
+
   if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
     local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
     { mv "$package_filename" "$cached_package_filename"
