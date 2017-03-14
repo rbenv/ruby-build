@@ -872,7 +872,7 @@ require_llvm() {
         if [ -n "$llvm_config" ]; then
           package_option ruby configure --llvm-config="$llvm_config"
         else
-          local homebrew_package="llvm${llvm_version//.}"
+          local homebrew_package="llvm@$llvm_version"
           { echo
             colorize 1 "ERROR"
             echo ": Rubinius will not be able to compile using Apple's LLVM-based "
@@ -881,7 +881,7 @@ require_llvm() {
             colorize 1 "TO FIX THE PROBLEM"
             echo ": Install Homebrew's llvm package with this"
             echo -n "command: "
-            colorize 4 "brew tap homebrew/versions ; brew install $homebrew_package"
+            colorize 4 "brew install $homebrew_package"
             echo
           } >&3
           return 1
