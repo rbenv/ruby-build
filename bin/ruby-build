@@ -1057,6 +1057,10 @@ build_package_ldflags_dirs() {
   done
 }
 
+build_package_enable_shared() {
+    package_option ruby configure --enable-shared
+}
+
 build_package_auto_tcltk() {
   if is_mac && [ ! -d /usr/include/X11 ]; then
     if [ -d /opt/X11/include ]; then
