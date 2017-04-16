@@ -20,6 +20,67 @@ OLDIFS="$IFS"
 set -E
 exec 3<&2 # preserve original stderr at fd 3
 
+# compiler ranks, higher is better
+# gcc 4.4	1
+# clang 3.4	2
+# gcc 4.7	3
+# gcc 4.8	4
+# clang 3.2	5
+# clang 3.3	6
+# clang 3.5	7
+# gcc 4.9	8
+function find_best_compiler {
+	if [ -f "/etc/redhat-release" ] && command -v yum 2>&1 >/dev/null; then
+		GCC_VERSION=`yum info gcc | grep -n2 "\ gcc"$ | tail -n1 | sed -e 's/^.*\ //;s/\.[0-9]$//'`
+		if [ "`rpm -qa epel-release | wc -l`" -eq "0" ]; then yum install epel-release -y -q; fi
+		CLANG_VERSION=`yum info clang --enablerepo=epel | grep -n2 "\ clang"$ | tail -n1 | sed -e 's/^.*\ //;s/\.[0-9]$//'`
+		DISTRO="RedHat"
+#	elif [ -f "/etc/debian-release" ] && command -v apt-get 2>&1 >/dev/null; then
+#		GCC_VERSION=`yum info gcc | grep -n2 "\ gcc"$ | tail -n1 | sed -e 's/^.*\ //;s/\.[0-9]$//'`
+#		CLANG_VERSION=`yum info clang | grep -n2 "\ clang"$ | tail -n1 | sed -e 's/^.*\ //;s/\.[0-9]$//'`
+#		DISTRO="Debian"
+	fi
+	if [ "$GCC_VERSION" = "4.4" ]; then
+		GCC_RANK=1
+	elif [ "$GCC_VERSION" = "4.7" ]; then
+		GCC_RANK=3
+	elif [ "$GCC_VERSION" = "4.8" ]; then
+		GCC_RANK=4
+	elif [ "$GCC_VERSION" = "4.9" ]; then
+		GCC_RANK=8
+	else
+		GCC_RANK=0
+	fi
+	if [ "$CLANG_VERSION" = "3.2" ]; then
+		CLANG_RANK=5
+	elif [ "$CLANG_VERSION" = "3.3" ]; then
+		CLANG_RANK=6
+	elif [ "$CLANG_VERSION" = "3.4" ]; then
+		CLANG_RANK=2
+	elif [ "$CLANG_VERSION" = "3.5" ]; then
+		CLANG_RANK=7
+	else
+		CLANG_RANK=0
+	fi
+	if [ "$CLANG_RANK" -eq "$GCC_RANK" ]; then
+		echo "Compiler rank stalemate! Will use system default"
+	elif [ "$CLANG_RANK" -gt "$GCC_RANK" ]; then
+		if [ "$DISTRO" = "RedHat" ]; then
+			yum install clang glibc-devel --enablerepo=epel -y -q 2>/dev/null
+#		elif [ "$DISTRO" = "Debian" ]; then
+#			apt-get install clang -y 2>&1 >/dev/null
+		fi
+		export CC=clang
+		export CXX=clang++
+	else
+		if [ "$DISTRO" = "RedHat" ]; then
+			yum install gcc -y -q 2>/dev/null
+#		elif [ "$DISTRO" = "Debian" ]; then
+#			apt-get install gcc -y 2>&1 >/dev/null
+		fi
+		export CC=gcc
+	fi
+}
 
 lib() {
   parse_options() {
@@ -561,7 +622,9 @@ build_package_standard() {
     fi
     if [ -z "$CC" ] && is_mac -ge 1010; then
       export CC=clang
-    fi
+    elif [ "`uname`" = "Linux" ]; then
+		find_best_compiler
+	fi
     ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
       $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" || return 1
   ) >&4 2>&1
