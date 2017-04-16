@@ -40,8 +40,20 @@ permission to `/usr/local`, you will need to run `sudo ./install.sh` instead.
 You can install to a different prefix by setting the `PREFIX` environment
 variable.
 
+## Updating
+
 To update ruby-build after it has been installed, run `git pull` in your cloned
 copy of the repository, then re-run the install script.
+
+### For rbenv plugin
+    cd /path/to/.rbenv/plugins/ruby-build
+    git pull
+    ./install.sh
+
+### For standalone program
+    cd /path/to/ruby-build  (usually /usr/local/ruby-build)
+    git pull
+    ./install.sh
 
 ### Installing with Homebrew (for OS X users)
 
