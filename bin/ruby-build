@@ -879,20 +879,6 @@ require_llvm() {
   fi
 }
 
-locate_llvm() {
-  local llvm_version="$1"
-  local package llvm_config
-  shopt -s nullglob
-  for package in `brew list 2>/dev/null | grep "^llvm"`; do
-    llvm_config="$(echo "$(brew --prefix "$package")/bin/llvm-config"*)"
-    if [ -n "$llvm_config" ] && [[ "$("$llvm_config" --version)" = "$llvm_version"* ]]; then
-      echo "$llvm_config"
-      break
-    fi
-  done
-  shopt -u nullglob
-}
-
 needs_yaml() {
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-libyaml-dir=* ]] &&
   ! use_homebrew_yaml
