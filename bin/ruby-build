@@ -870,7 +870,7 @@ require_llvm() {
           colorize 1 "ERROR"
           echo ": Rubinius will not be able to compile using Apple's LLVM-based "
           echo "build tools on OS X. You will need to install LLVM $llvm_version."
-          echo "Unfortunately ruby-build is not support to build under rbx-3.66."
+          echo "Unfortunately, ruby-build is not support to build under the rbx-3.66."
         } >&3
         return 1
         ;;
