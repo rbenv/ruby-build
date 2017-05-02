@@ -875,6 +875,18 @@ require_llvm() {
         return 1
         ;;
       esac
+
+      local llvm_config="$(echo "$(brew --prefix llvm)/bin/llvm-config"*)"
+      if [ ! -f "$llvm_config" ]; then
+        { echo ": Rubinius will not be able to compile using Apple's LLVM-based "
+          echo "build tools on OS X. You will need to install LLVM via Homebrew"
+          echo
+          echo -n "command: "
+          colorize 4 "brew install llvm"
+          echo
+        } >&3
+        return 1
+      fi
     fi
   fi
 }
