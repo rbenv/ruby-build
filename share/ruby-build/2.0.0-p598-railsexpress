@@ -1,0 +1,9 @@
+build_package_patch_ruby_railsexpress() {
+  fetch_git rvm-patchsets git://github.com/skaes/rvm-patchsets.git master
+  for p in rvm-patchsets/patches/ruby/2.0.0/p598/railsexpress/* ; do
+    patch -p1 < $p
+  done
+}
+
+install_package "openssl-1.0.1j" "https://www.openssl.org/source/openssl-1.0.1j.tar.gz#1b60ca8789ba6f03e8ef20da2293b8dc131c39d83814e775069f02d26354edf3" mac_openssl --if has_broken_mac_openssl
+install_package "ruby-2.0.0-p598" "http://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p598.tar.gz#4136bf7d764cbcc1c7da2824ed2826c3550f2b62af673c79ddbf9049b12095fd" patch_ruby_railsexpress standard verify_openssl
