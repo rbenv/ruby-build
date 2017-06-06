@@ -64,11 +64,24 @@ indent() {
   sed 's/^/  /'
 }
 
+populate_custom_definitions() {
+  # Add `share/ruby-build/` directory from each rbenv plugin to the list of
+  # paths where build definitions are looked up.
+  shopt -s nullglob
+  for plugin_path in "$RBENV_ROOT"/plugins/*/share/ruby-build; do
+    RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_DEFINITIONS}:${plugin_path}"
+  done
+  export RUBY_BUILD_DEFINITIONS
+  shopt -u nullglob
+}
+
 unset FORCE
 unset SKIP_EXISTING
 unset KEEP
 unset VERBOSE
 unset HAS_PATCH
+
+populate_custom_definitions
 
 parse_options "$@"
 for option in "${OPTIONS[@]}"; do
