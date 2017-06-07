@@ -942,6 +942,7 @@ use_freebsd_pkg() {
         package_option ruby configure --with-libedit-dir="/usr/local"
       fi
     fi
+    package_option ruby configure --with-opt-dir="/usr/local"
   fi
 }
 
