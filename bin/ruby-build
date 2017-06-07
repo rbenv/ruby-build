@@ -601,6 +601,45 @@ build_package_ree_installer() {
   } >&4 2>&1
 }
 
+post_configure_hook_rbx() {
+    if [ "FreeBSD" = "$(uname -s)" ]; then
+	cat > build-tool.c <<_EOS_
+/* LLVM wrapper script invokes the actual binary based on the argv[0]
+ * which rubinius messes up, by calling clang39 as cc, and thus breaking
+ * the LLVM wrapper. This hack workarounds this limitation, by invoking
+ * LLVM wrapper script with expected argv[0]
+ */
+
+#include <string.h>
+#include <unistd.h>
+
+#define PATH_CC "${CLANG_BIN}"
+#define PATH_CXX "${CLANGCPP_BIN}"
+
+int
+main(int argc, char** argv)
+{
+	char* basename = strrchr(argv[0] , '/');
+
+	if(NULL == basename)
+		basename = argv[0];
+	else
+		basename++;
+
+	if( !strcmp(basename, "cc"))
+		execv(PATH_CC, argv);
+	else if( !strcmp(basename, "c++"))
+		execv(PATH_CXX, argv);
+	else
+		return 0;
+}
+_EOS_
+	cc -O -o ./build/bin/build-tool build-tool.c
+	ln -sf ./build/bin/build-tool ./build/bin/cc
+	ln -sf ./build/bin/build-tool ./build/bin/c++
+    fi
+}
+
 build_package_rbx() {
   local package_name="$1"
 
@@ -623,6 +662,7 @@ build_package_rbx() {
     done
 
     RUBYOPT="-rubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${configure_opts[@]}"
+    post_configure_hook_rbx
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
     fix_rbx_irb "$PREFIX_PATH"
@@ -889,6 +929,26 @@ require_llvm() {
         ;;
       esac
     fi
+  elif [ "FreeBSD" = "$(uname -s)" ]; then
+      ver="$(pkg info -x llvm[0-9] | sort | tail -1 | cut -c 5-6)"
+      if [ X$ver != X ]; then
+          package_option ruby configure --cc="clang${ver}"
+          package_option ruby configure --cxx="clang++${ver}"
+          package_option ruby configure --no-bin-links
+          package_option ruby configure --llvm-config="llvm-config${ver}"
+	  CLANG_BIN="/usr/local/bin/clang${ver}"
+	  CLANGCPP_BIN="/usr/local/bin/clang++${ver}"
+      elif pkg info -e llvm-devel > /dev/null; then
+          package_option ruby configure --cc="clang-devel"
+          package_option ruby configure --cxx="clang++-devel"
+          package_option ruby configure --no-bin-links
+          package_option ruby configure --llvm-config="llvm-config-devel"
+	  CLANG_BIN="/usr/local/bin/clang-devel"
+	  CLANGCPP_BIN="/usr/local/bin/clang++-devel"
+      else
+	  echo "error: please install 'llvm' and try again" >&2
+      fi
+      package_option ruby configure --with-opt-dir=/usr/local
   fi
 }
 
