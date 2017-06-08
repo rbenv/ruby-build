@@ -302,10 +302,10 @@ http() {
 
   if type aria2c &>/dev/null; then
     "http_${method}_aria2c" "$url" "$file"
-  elif type curl &>/dev/null; then
-    "http_${method}_curl" "$url" "$file"
   elif type wget &>/dev/null; then
     "http_${method}_wget" "$url" "$file"
+  elif type curl &>/dev/null; then
+    "http_${method}_curl" "$url" "$file"
   else
     echo "error: please install \`aria2c\`, \`curl\` or \`wget\` and try again" >&2
     exit 1
