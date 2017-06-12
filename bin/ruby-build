@@ -958,11 +958,9 @@ use_homebrew_readline() {
 }
 
 has_broken_mac_openssl() {
-  is_mac &&
-  [[
-    "$(/usr/bin/openssl version 2>/dev/null || true)" = "OpenSSL 0.9.8"?* ||
-    "$(/usr/bin/openssl version 2>/dev/null || true)" = "LibreSSL 2.2.7"
-  ]] &&
+  is_mac || return 1
+  local openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
+  [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]] &&
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]] &&
   ! use_homebrew_openssl
 }
