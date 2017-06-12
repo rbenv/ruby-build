@@ -1,2 +1,2 @@
 install_package "openssl-1.0.2l" "https://www.openssl.org/source/openssl-1.0.2l.tar.gz#ce07195b659e75f4e1db43552860070061f156a98bb37b672b101ba6e3ddf30c" mac_openssl --if has_broken_mac_openssl
-install_package "ruby-2.2.0-rc1" "https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.0-rc1.tar.bz2#e6a1f8d45ea749bdc92eb1269b77ec475bc600b66039ff90d77db8f50820a896" ldflags_dirs standard verify_openssl
+install_package "ruby-2.2.0-rc1" "https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.0-rc1.tar.bz2#e6a1f8d45ea749bdc92eb1269b77ec475bc600b66039ff90d77db8f50820a896" warn_unsupported ldflags_dirs standard verify_openssl
