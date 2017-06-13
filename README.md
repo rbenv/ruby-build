@@ -13,17 +13,40 @@ for changes in each version.
 
 ## Installation
 
-### Installing as an rbenv plugin (recommended)
+### Installing with Homebrew for macOS
 
-Installing ruby-build as an rbenv plugin will give you access to the `rbenv
-install` command.
+*Recommended for macOS users who installed rbenv with Homebrew.*
+
+macOS users can install ruby-build with the [Homebrew](http://brew.sh)
+package manager. This will give you access to the `ruby-build` command. If you
+have rbenv installed, you will also be able to use the `rbenv install` command.
+
+    brew install ruby-build
+
+Or, if you would like to install the latest development release:
+
+    brew install --HEAD ruby-build
+
+To upgrade the HEAD package use `--fetch-HEAD` option:
+
+    brew upgrade --fetch-HEAD ruby-build
+
+### Installing as an rbenv plugin using Git
+
+*Recommended for all users who installed rbenv using a Git clone.*
+
+Install ruby-build as an rbenv plugin to use the `rbenv install` command.
 
     git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
-This will install the latest development version of ruby-build into the
-`~/.rbenv/plugins/ruby-build` directory. From that directory, you can check out
-a specific release tag. To update ruby-build, run `git pull` to download the
-latest changes.
+This installs the latest ruby-build into the `~/.rbenv/plugins/ruby-build`
+directory where it'll be used as an rbenv plugin.
+
+To update ruby-build and get new Ruby versions, run `git pull` to download
+the latest code and build definitions:
+
+    cd ~/.rbenv/plugins/ruby-build
+    git pull
 
 ### Installing as a standalone program (advanced)
 
@@ -42,25 +65,6 @@ variable.
 
 To update ruby-build after it has been installed, run `git pull` in your cloned
 copy of the repository, then re-run the install script.
-
-### Installing with Homebrew (for OS X users)
-
-Mac OS X users can install ruby-build with the [Homebrew](http://brew.sh)
-package manager. This will give you access to the `ruby-build` command. If you
-have rbenv installed, you will also be able to use the `rbenv install` command.
-
-*This is the recommended method of installation if you installed rbenv with
-Homebrew.*
-
-    brew install ruby-build
-
-Or, if you would like to install the latest development release:
-
-    brew install --HEAD ruby-build
-
-To upgrade the HEAD package use `--fetch-HEAD` option:
-
-    brew upgrade --fetch-HEAD ruby-build
 
 ## Usage
 
