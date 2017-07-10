@@ -69,6 +69,7 @@ definitions.
 
 The build process may be configured through the following environment variables:
 
+| Variable                 | Function                                                                                         |
 | ------------------------ | ------------------------------------------------------------------------------------------------ |
 | `TMPDIR`                 | Where temporary files are stored.                                                                |
 | `RUBY_BUILD_BUILD_PATH`  | Where sources are downloaded and built. (Default: a timestamped subdirectory of `TMPDIR`)        |
