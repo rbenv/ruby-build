@@ -8,16 +8,15 @@ a standalone program.
 
 ## Installation
 
-**If you installed rbenv via Homebrew, you already have ruby-build.**
+**Note: If you installed rbenv via Homebrew, you already have ruby-build.**
 
     # As an rbenv plugin (Recommended)
     $ git clone https://github.com/rbenv/ruby-build ~/.rbenv/plugins/ruby-build
 
     # As a standalone program (Advanced)
-    $ git clone https://github.com/rbenv/ruby-build && $ ruby-build/install.sh
+    $ git clone https://github.com/rbenv/ruby-build && ruby-build/install.sh
 
-For more details on installing as a standalone program, see the [install
-script source](https://github.com/rbenv/ruby-build/blob/master/install.sh).
+For more details on installing as a standalone program, see the [source of `install.sh`](https://github.com/rbenv/ruby-build/blob/master/install.sh).
 
 ### Upgrading
 
@@ -25,10 +24,10 @@ script source](https://github.com/rbenv/ruby-build/blob/master/install.sh).
     $ cd ~/.rbenv/plugins/ruby-build
     $ git pull
 
-    # via Homebrew
-    $ brew update && brew upgrade ruby-build # simple upgrade
-    $ brew install --HEAD ruby-build         # installs the latest development release
-    $ brew upgrade --fetch-HEAD ruby-build   # upgrades the HEAD package
+    # Via Homebrew
+    $ brew update && brew upgrade ruby-build  # simple upgrade
+    $ brew install --HEAD ruby-build          # installs the latest development release
+    $ brew upgrade --fetch-HEAD ruby-build    # upgrades the HEAD package
 
 ## Usage
 
@@ -43,29 +42,15 @@ Otherwise, you may encounter segmentation faults or other critical errors.
 
 ### Basic Usage
 
-#### With rbenv
+    # As an rbenv plugin
+    $ rbenv install --list                 # lists all available versions of Ruby
+    $ rbenv install 2.2.0                  # installs Ruby 2.2.0 to ~/.rbenv/versions
 
-ruby-build extends rbenv with the subcommand `rbenv install`. To see which versions of Ruby it knows about, run:
+    # As a standalone program
+    $ ruby-build --definitions             # lists all available versions of Ruby
+    $ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2.0
 
-    $ rbenv install --list
-    
-To install one, call it again with the exact version name:
-
-    $ rbenv install 2.2.0
-
-`rbenv install` supports tab completion (if rbenv is properly configured). Each Ruby version built in this way is installed to `~/.rbenv/versions`.
-
-See `rbenv help install` for more.
-
-#### As a standalone
-
-To see which versions of Ruby ruby-build knows about, run:
-
-    $ ruby-build --definitions
-    
-To install one, specify both the exact version name and the destination directory:
-
-    $ ruby-build 2.2.0 ~/local/ruby-2.2.0
+`rbenv install` supports tab completion (if rbenv is properly configured). See `rbenv help install` for more.
 
 ### Advanced Usage
 
@@ -84,6 +69,7 @@ definitions.
 
 The build process may be configured through the following environment variables:
 
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
 | `TMPDIR`                 | Where temporary files are stored.                                                                |
 | `RUBY_BUILD_BUILD_PATH`  | Where sources are downloaded and built. (Default: a timestamped subdirectory of `TMPDIR`)        |
 | `RUBY_BUILD_CACHE_PATH`  | Where to cache downloaded package files. (Default: unset)                                        |
