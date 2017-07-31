@@ -1281,7 +1281,7 @@ fi
 
 if [ -z "$MAKE" ]; then
   if [ "FreeBSD" = "$(uname -s)" ]; then
-    if [ $(echo $1 | sed 's/-.*$//') = "jruby" ]; then
+    if [ "$(echo $1 | sed 's/-.*$//')" = "jruby" ]; then
       export MAKE="gmake"
     else
       if [ "$(uname -r | sed 's/[^[:digit:]].*//')" -lt 10 ]; then
