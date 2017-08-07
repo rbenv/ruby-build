@@ -87,6 +87,11 @@ If you have installed ruby-build as a standalone program, you can use the
 `ruby-build` command to compile and install Ruby versions into specific
 locations.
 
+install dependencies on CentOS 
+
+```
+yum install gcc make clang openssl-devel readline-devel zlib-devel bzip2
+```
 Run the `ruby-build` command with the exact name of the version you want to
 install and the full path where you want to install it. For example,
 
