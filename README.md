@@ -1,56 +1,53 @@
 # ruby-build
 
-ruby-build (a.k.a. `rbenv install`) is a \*NIX utility that makes it easy to
-install virtually any version of Ruby, from source.
+ruby-build is a command-line utility that makes it easy to install virtually any
+version of Ruby, from source.
 
-It is available as a plugin for [rbenv](https://github.com/rbenv/rbenv), or as
-a standalone program.
+It is available as a plugin for [rbenv][] that
+provides the `rbenv install` command, or as a standalone program.
 
 ## Installation
 
-**Note: If you installed rbenv via Homebrew, you already have ruby-build.**
+```sh
+# Using Homebrew on macOS
+$ brew install ruby-build
 
-    # As an rbenv plugin (Recommended)
-    $ git clone https://github.com/rbenv/ruby-build ~/.rbenv/plugins/ruby-build
+# As an rbenv plugin
+$ mkdir -p "$(rbenv root)"/plugins
+$ git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
 
-    # As a standalone program (Advanced)
-    $ git clone https://github.com/rbenv/ruby-build && ruby-build/install.sh
-
-For more details on installing as a standalone program, see the [source of `install.sh`](https://github.com/rbenv/ruby-build/blob/master/install.sh).
+# As a standalone program
+$ git clone https://github.com/rbenv/ruby-build.git
+$ PREFIX=/usr/local ./ruby-build/install.sh
+```
 
 ### Upgrading
 
-    # From source
-    $ cd ~/.rbenv/plugins/ruby-build
-    $ git pull
+```sh
+# Via Homebrew
+$ brew update && brew upgrade ruby-build
 
-    # Via Homebrew
-    $ brew update && brew upgrade ruby-build  # simple upgrade
-    $ brew install --HEAD ruby-build          # installs the latest development release
-    $ brew upgrade --fetch-HEAD ruby-build    # upgrades the HEAD package
+# As an rbenv plugin
+$ cd "$(rbenv root)"/plugins/ruby-build && git pull
+```
 
 ## Usage
 
-#### DEPENDENCY WARNING
-
-Due to the considerable variation between different systems, ruby-build does
-not check for dependencies before downloading and attempting to compile the
-Ruby source. Before using ruby-build, please [consult the
-wiki](https://github.com/rbenv/ruby-build/wiki#suggested-build-environment) to
-ensure that all the requisite libraries are available on your system.
-Otherwise, you may encounter segmentation faults or other critical errors.
-
 ### Basic Usage
 
-    # As an rbenv plugin
-    $ rbenv install --list                 # lists all available versions of Ruby
-    $ rbenv install 2.2.0                  # installs Ruby 2.2.0 to ~/.rbenv/versions
+```sh
+# As an rbenv plugin
+$ rbenv install --list                 # lists all available versions of Ruby
+$ rbenv install 2.2.0                  # installs Ruby 2.2.0 to ~/.rbenv/versions
 
-    # As a standalone program
-    $ ruby-build --definitions             # lists all available versions of Ruby
-    $ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2.0
+# As a standalone program
+$ ruby-build --definitions             # lists all available versions of Ruby
+$ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2.0
+```
 
-`rbenv install` supports tab completion (if rbenv is properly configured). See `rbenv help install` for more.
+ruby-build does not check for system dependencies before downloading and
+attempting to compile the Ruby source. Please ensure that [all requisite
+libraries][build-env] are available on your system.
 
 ### Advanced Usage
 
@@ -63,8 +60,6 @@ place of a Ruby version number.
 Use the [default build definitions][definitions] as a template for your custom
 definitions.
 
-[definitions]: https://github.com/rbenv/ruby-build/tree/master/share/ruby-build
-
 #### Custom Build Configuration
 
 The build process may be configured through the following environment variables:
@@ -73,7 +68,7 @@ The build process may be configured through the following environment variables:
 | ------------------------ | ------------------------------------------------------------------------------------------------ |
 | `TMPDIR`                 | Where temporary files are stored.                                                                |
 | `RUBY_BUILD_BUILD_PATH`  | Where sources are downloaded and built. (Default: a timestamped subdirectory of `TMPDIR`)        |
-| `RUBY_BUILD_CACHE_PATH`  | Where to cache downloaded package files. (Default: unset)                                        |
+| `RUBY_BUILD_CACHE_PATH`  | Where to cache downloaded package files. (Default: `~/.rbenv/cache` if invoked as rbenv plugin)  |
 | `RUBY_BUILD_MIRROR_URL`  | Custom mirror URL root.                                                                          |
 | `RUBY_BUILD_SKIP_MIRROR` | Always download from official sources, not mirrors. (Default: unset)                             |
 | `RUBY_BUILD_ROOT`        | Custom build definition directory. (Default: `share/ruby-build`)                                 |
@@ -84,14 +79,15 @@ The build process may be configured through the following environment variables:
 | `MAKE`                   | Custom `make` command (_e.g.,_ `gmake`).                                                         |
 | `MAKE_OPTS` / `MAKEOPTS` | Additional `make` options.                                                                       |
 | `MAKE_INSTALL_OPTS`      | Additional `make install` options.                                                               |
-| `RUBY_CONFIGURE_OPTS`    | Additional `./configure` options (applies to MRI only, not dependent packages; _e.g.,_ libyaml). |
-| `RUBY_MAKE_OPTS`         | Additional `make` options (applies to MRI only, not dependent packages; _e.g.,_ libyaml)         |
-| `RUBY_MAKE_INSTALL_OPTS` | Additional `make install` options (applies to MRI only, not dependent packages; _e.g.,_ libyaml) |
+| `RUBY_CONFIGURE_OPTS`    | Additional `./configure` options (applies only to Ruby source).                                  |
+| `RUBY_MAKE_OPTS`         | Additional `make` options (applies only to Ruby source).                                         |
+| `RUBY_MAKE_INSTALL_OPTS` | Additional `make install` options (applies only to Ruby source).                                 |
 
 #### Applying Patches
 
-Both `rbenv install` and `ruby-build` support the `--patch` (`-p`) flag to apply a patch to the Ruby (/JRuby/Rubinius)
-source code before building. Patches are read from `STDIN`:
+Both `rbenv install` and `ruby-build` support the `--patch` (`-p`) flag to apply
+a patch to the Ruby (/JRuby/Rubinius) source code before building. Patches are
+read from `STDIN`:
 
 ```sh
 # applying a single patch
@@ -132,16 +128,6 @@ mirror by setting the `RUBY_BUILD_SKIP_MIRROR` environment variable.
 The official ruby-build download mirror is sponsored by
 [Basecamp](https://basecamp.com/).
 
-#### Package Caching
-
-You can instruct ruby-build to keep a local cache of downloaded package files
-by setting the `RUBY_BUILD_CACHE_PATH` environment variable. When set, package
-files will be kept in this directory after the first successful download and
-reused by subsequent invocations of `ruby-build` and `rbenv install`.
-
-The `rbenv install` command defaults this path to `~/.rbenv/cache`, so in most
-cases you can enable download caching simply by creating that directory.
-
 #### Keeping the build directory after installation
 
 Both `ruby-build` and `rbenv install` accept the `-k` or `--keep` flag, which
@@ -157,8 +143,12 @@ variable when using `--keep` with `ruby-build`.
 
 Please see the [ruby-build wiki][wiki] for solutions to common problems.
 
-[wiki]: https://github.com/rbenv/ruby-build/wiki
+If you can't find an answer on the wiki, open an issue on the [issue tracker][].
+Be sure to include the full build log for build failures.
 
-If you can't find an answer on the wiki, open an issue on the [issue
-tracker](https://github.com/rbenv/ruby-build/issues). Be sure to include
-the full build log for build failures.
+
+  [rbenv]: https://github.com/rbenv/rbenv
+  [definitions]: https://github.com/rbenv/ruby-build/tree/master/share/ruby-build
+  [wiki]: https://github.com/rbenv/ruby-build/wiki
+  [build-env]: https://github.com/rbenv/ruby-build/wiki#suggested-build-environment
+  [issue tracker]: https://github.com/rbenv/ruby-build/issues
