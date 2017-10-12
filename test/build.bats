@@ -472,7 +472,7 @@ DEF
 
   assert_build_log <<OUT
 bundle --path=vendor/bundle
-rubinius-2.0.0: --prefix=$INSTALL_ROOT RUBYOPT=-rubygems
+rubinius-2.0.0: --prefix=$INSTALL_ROOT RUBYOPT=-rrubygems
 bundle exec rake install
 OUT
 }
