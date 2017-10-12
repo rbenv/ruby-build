@@ -886,46 +886,31 @@ require_llvm() {
   if is_mac -ge 1010; then
     if [[ "$RUBY_CONFIGURE_OPTS" != *--llvm-* ]]; then
       case "$llvm_version" in
-      3.2 )
-        package_option ruby configure --prebuilt-name="llvm-3.2-x86_64-apple-darwin13.tar.bz2"
-        ;;
-      3.[56] )
-        local llvm_config="$(locate_llvm "$llvm_version")"
-        if [ -n "$llvm_config" ]; then
-          package_option ruby configure --llvm-config="$llvm_config"
-        else
-          local homebrew_package="llvm@$llvm_version"
-          { echo
-            colorize 1 "ERROR"
-            echo ": Rubinius will not be able to compile using Apple's LLVM-based "
-            echo "build tools on OS X. You will need to install LLVM $llvm_version first."
-            echo
-            colorize 1 "TO FIX THE PROBLEM"
-            echo ": Install Homebrew's llvm package with this"
-            echo -n "command: "
-            colorize 4 "brew install $homebrew_package"
-            echo
-          } >&3
-          return 1
-        fi
+      3.[256] )
+        local homebrew_package="llvm@$llvm_version"
+        { echo
+          colorize 1 "ERROR"
+          echo ": Rubinius will not be able to compile using Apple's LLVM-based "
+          echo "build tools on OS X. You will need to install LLVM $llvm_version."
+          echo "Unfortunately, ruby-build is not support to build under the rbx-3.66."
+        } >&3
+        return 1
         ;;
       esac
+
+      local llvm_config="$(echo "$(brew --prefix llvm)/bin/llvm-config"*)"
+      if [ ! -f "$llvm_config" ]; then
+        { echo ": Rubinius will not be able to compile using Apple's LLVM-based "
+          echo "build tools on OS X. You will need to install LLVM via Homebrew"
+          echo
+          echo -n "command: "
+          colorize 4 "brew install llvm"
+          echo
+        } >&3
+        return 1
+      fi
     fi
   fi
-}
-
-locate_llvm() {
-  local llvm_version="$1"
-  local package llvm_config
-  shopt -s nullglob
-  for package in `brew list 2>/dev/null | grep "^llvm"`; do
-    llvm_config="$(echo "$(brew --prefix "$package")/bin/llvm-config"*)"
-    if [ -n "$llvm_config" ] && [[ "$("$llvm_config" --version)" = "$llvm_version"* ]]; then
-      echo "$llvm_config"
-      break
-    fi
-  done
-  shopt -u nullglob
 }
 
 needs_yaml() {
