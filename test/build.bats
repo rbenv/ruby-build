@@ -622,6 +622,18 @@ DEF
   assert_success
 }
 
+@test "JRuby Java 9 version string" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java '-version : echo java version "9" >&2'
+
+  run_inline_definition <<DEF
+require_java7
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_success
+}
+
 @test "non-writable TMPDIR aborts build" {
   export TMPDIR="${TMP}/build"
   mkdir -p "$TMPDIR"
