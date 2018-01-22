@@ -1,0 +1,2 @@
+install_package "openssl-1.1.0g" "https://www.openssl.org/source/openssl-1.1.0g.tar.gz#de4d501267da39310905cb6dc8c6121f7a2cad45a7707f76df828fe1b85073af"  mac_openssl --if has_broken_mac_openssl
+install_package "snapshot" "https://cache.ruby-lang.org/pub/ruby/snapshot.tar.bz2" ldflags_dirs standard verify_openssl
