@@ -634,6 +634,34 @@ DEF
   assert_success
 }
 
+@test "TruffleRuby post-install hook" {
+  executable "${RUBY_BUILD_CACHE_PATH}/truffleruby-test/lib/truffle/post_install_hook.sh" <<OUT
+echo Running post-install hook
+OUT
+  cached_tarball "truffleruby-test" bin/truffleruby
+  stub opt true
+
+  run_inline_definition <<DEF
+install_package "truffleruby-test" "URL" truffleruby
+DEF
+  assert_success
+  assert_output_contains "Running post-install hook"
+}
+
+@test "TruffleRuby LLVM missing" {
+  executable "${RUBY_BUILD_CACHE_PATH}/truffleruby-test/lib/truffle/post_install_hook.sh" <<OUT
+echo Running post-install hook
+OUT
+  cached_tarball "truffleruby-test" bin/truffleruby
+  stub opt false
+
+  run_inline_definition <<DEF
+install_package "truffleruby-test" "URL" truffleruby
+DEF
+  assert_failure
+  assert_output_contains "TruffleRuby requires LLVM to be installed to run native extensions."
+}
+
 @test "non-writable TMPDIR aborts build" {
   export TMPDIR="${TMP}/build"
   mkdir -p "$TMPDIR"

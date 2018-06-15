@@ -381,7 +381,10 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   fi
 
-  { if tar $tar_args "$package_filename"; then
+  mkdir "$package_name"
+
+  { if tar $tar_args "$package_filename" -C "$package_name" --strip-components=1; then
+  ls >&2
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
@@ -723,6 +726,21 @@ fix_jruby_shebangs() {
       rm "$file".bak
     fi
   done
+}
+
+build_package_truffleruby() {
+  if ! opt --version &>/dev/null; then
+    echo ""
+    echo "TruffleRuby requires LLVM to be installed to run native extensions."
+    echo "For more details and for setup instructions for your system, please see:"
+    echo "https://github.com/oracle/truffleruby/blob/master/doc/user/installing-llvm.md"
+    exit 1
+  fi
+
+  build_package_copy
+
+  cd "${PREFIX_PATH}"
+  ./lib/truffle/post_install_hook.sh
 }
 
 remove_windows_files() {
@@ -1136,7 +1154,7 @@ isolated_gem_install() {
 apply_ruby_patch() {
   local patchfile
   case "$1" in
-  ruby-* | jruby-* | rubinius-* )
+  ruby-* | jruby-* | rubinius-* | truffleruby-* )
     patchfile="$(mktemp "${TMP}/ruby-patch.XXXXXX")"
     cat "${2:--}" >"$patchfile"
 
