@@ -1154,7 +1154,7 @@ isolated_gem_install() {
 apply_ruby_patch() {
   local patchfile
   case "$1" in
-  ruby-* | jruby-* | rubinius-* )
+  ruby-* | jruby-* | rubinius-* | truffleruby-* )
     patchfile="$(mktemp "${TMP}/ruby-patch.XXXXXX")"
     cat "${2:--}" >"$patchfile"
 
