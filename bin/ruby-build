@@ -381,7 +381,10 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   fi
 
-  { if tar $tar_args "$package_filename"; then
+  mkdir "$package_name"
+
+  { if tar $tar_args "$package_filename" -C "$package_name" --strip-components=1; then
+  ls >&2
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
