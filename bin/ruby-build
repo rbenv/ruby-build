@@ -728,6 +728,21 @@ fix_jruby_shebangs() {
   done
 }
 
+build_package_truffleruby() {
+  if ! opt --version &>/dev/null; then
+    echo ""
+    echo "TruffleRuby requires LLVM to be installed to run native extensions."
+    echo "For more details and for setup instructions for your system, please see:"
+    echo "https://github.com/oracle/truffleruby/blob/master/doc/user/installing-llvm.md"
+    exit 1
+  fi
+
+  build_package_copy
+
+  cd "${PREFIX_PATH}"
+  ./lib/truffle/post_install_hook.sh
+}
+
 remove_windows_files() {
   cd "$PREFIX_PATH"
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
