@@ -8,6 +8,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   assert_success
   assert_output_contains "1.9.3-p194"
   assert_output_contains "jruby-1.7.9"
+  assert_output_contains "truffleruby-1.0.0-rc2"
   assert [ "${#lines[*]}" -eq "$NUM_DEFINITIONS" ]
 }
 
@@ -90,7 +91,8 @@ jruby-1.7.1
 jruby-1.7.9
 jruby-1.7.10
 jruby-9000-dev
-jruby-9000"
+jruby-9000
+truffleruby-1.0.0-rc2"
   for ver in $expected; do
     touch "${RUBY_BUILD_ROOT}/share/ruby-build/$ver"
   done
