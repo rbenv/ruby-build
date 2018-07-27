@@ -1151,7 +1151,7 @@ apply_ruby_patch() {
     cat "${2:--}" >"$patchfile"
 
     local striplevel=0
-    grep -q '^diff --git a/' "$patchfile" && striplevel=1
+    grep -q '^--- a/' "$patchfile" && striplevel=1
     patch -p$striplevel --force -i "$patchfile"
     ;;
   esac
