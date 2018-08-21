@@ -375,7 +375,7 @@ fetch_tarball() {
   fi
 
   if ! reuse_existing_tarball "$package_filename" "$checksum"; then
-    local tarball_filename=$(basename $package_url)
+    local tarball_filename="$(basename "$package_url")"
     echo "Downloading ${tarball_filename}..." >&2
     http head "$mirror_url" &&
     download_tarball "$mirror_url" "$package_filename" "$checksum" ||
@@ -384,7 +384,7 @@ fetch_tarball() {
 
   { if tar $tar_args "$package_filename"; then
       if [ ! -d "$package_name" ]; then
-        extracted_dir=$(find_extracted_directory)
+        extracted_dir="$(find_extracted_directory)"
         mv "$extracted_dir" "$package_name"
       fi
 
