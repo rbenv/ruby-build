@@ -20,7 +20,7 @@ setup() {
 
 @test "using aria2c if available" {
   export RUBY_BUILD_ARIA2_OPTS=
-  export RUBY_BUILD_HTTP_CLIENT="aria2c"
+  export -n RUBY_BUILD_HTTP_CLIENT
   stub aria2c "--allow-overwrite=true --no-conf=true -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
 
   install_fixture definitions/without-checksum
