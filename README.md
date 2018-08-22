@@ -69,6 +69,10 @@ The build process may be configured through the following environment variables:
 | `TMPDIR`                 | Where temporary files are stored.                                                                |
 | `RUBY_BUILD_BUILD_PATH`  | Where sources are downloaded and built. (Default: a timestamped subdirectory of `TMPDIR`)        |
 | `RUBY_BUILD_CACHE_PATH`  | Where to cache downloaded package files. (Default: `~/.rbenv/cache` if invoked as rbenv plugin)  |
+| `RUBY_BUILD_HTTP_CLIENT` | One of `aria2c`, `curl`, or `wget` to use for downloading. (Default: first one found in PATH)    |
+| `RUBY_BUILD_ARIA2_OPTS`  | Additional options to pass to `aria2c` for downloading.                                          |
+| `RUBY_BUILD_CURL_OPTS`   | Additional options to pass to `curl` for downloading.                                            |
+| `RUBY_BUILD_WGET_OPTS`   | Additional options to pass to `wget` for downloading.                                            |
 | `RUBY_BUILD_MIRROR_URL`  | Custom mirror URL root.                                                                          |
 | `RUBY_BUILD_SKIP_MIRROR` | Always download from official sources, not mirrors. (Default: unset)                             |
 | `RUBY_BUILD_ROOT`        | Custom build definition directory. (Default: `share/ruby-build`)                                 |

@@ -3,10 +3,8 @@
 load test_helper
 export RUBY_BUILD_SKIP_MIRROR=1
 export RUBY_BUILD_CACHE_PATH=
-export RUBY_BUILD_ARIA2_OPTS=
 
 setup() {
-  ensure_not_found_in_path aria2c
   export RUBY_BUILD_BUILD_PATH="${TMP}/source"
   mkdir -p "${RUBY_BUILD_BUILD_PATH}"
 }
@@ -21,6 +19,8 @@ setup() {
 }
 
 @test "using aria2c if available" {
+  export RUBY_BUILD_ARIA2_OPTS=
+  export -n RUBY_BUILD_HTTP_CLIENT
   stub aria2c "--allow-overwrite=true --no-conf=true -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
 
   install_fixture definitions/without-checksum

@@ -300,20 +300,25 @@ verify_checksum() {
 
 http() {
   local method="$1"
-  local url="$2"
-  local file="$3"
-  [ -n "$url" ] || return 1
+  [ -n "$2" ] || return 1
+  shift 1
 
-  if type aria2c &>/dev/null; then
-    "http_${method}_aria2c" "$url" "$file"
-  elif type curl &>/dev/null; then
-    "http_${method}_curl" "$url" "$file"
-  elif type wget &>/dev/null; then
-    "http_${method}_wget" "$url" "$file"
-  else
-    echo "error: please install \`aria2c\`, \`curl\` or \`wget\` and try again" >&2
-    exit 1
-  fi
+  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
+  [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
+
+  "http_${method}_${RUBY_BUILD_HTTP_CLIENT}" "$@"
+}
+
+detect_http_client() {
+  local client
+  for client in aria2c curl wget; do
+    if type "$client" &>/dev/null; then
+      echo "$client"
+      return
+    fi
+  done
+  echo "error: please install \`aria2c\`, \`curl\`, or \`wget\` and try again" >&2
+  return 1
 }
 
 http_head_aria2c() {
