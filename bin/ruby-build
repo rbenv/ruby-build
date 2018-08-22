@@ -350,6 +350,7 @@ fetch_tarball() {
   local package_url="$2"
   local mirror_url
   local checksum
+  local extracted_dir
 
   if [ "$package_url" != "${package_url/\#}" ]; then
     checksum="${package_url#*#}"
@@ -374,17 +375,19 @@ fetch_tarball() {
   fi
 
   if ! reuse_existing_tarball "$package_filename" "$checksum"; then
-    local tarball_filename=$(basename $package_url)
+    local tarball_filename="$(basename "$package_url")"
     echo "Downloading ${tarball_filename}..." >&2
     http head "$mirror_url" &&
     download_tarball "$mirror_url" "$package_filename" "$checksum" ||
     download_tarball "$package_url" "$package_filename" "$checksum"
   fi
 
-  mkdir "$package_name"
+  { if tar $tar_args "$package_filename"; then
+      if [ ! -d "$package_name" ]; then
+        extracted_dir="$(find_extracted_directory)"
+        mv "$extracted_dir" "$package_name"
+      fi
 
-  { if tar $tar_args "$package_filename" -C "$package_name" --strip-components=1; then
-  ls >&2
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
@@ -392,6 +395,17 @@ fetch_tarball() {
       fi
     fi
   } >&4 2>&1
+}
+
+find_extracted_directory() {
+  for f in *; do
+    if [ -d "$f" ]; then
+      echo "$f"
+      return
+    fi
+  done
+  echo "Extracted directory not found" >&2
+  return 1
 }
 
 reuse_existing_tarball() {
