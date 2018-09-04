@@ -1132,6 +1132,14 @@ build_package_auto_tcltk() {
   fi
 }
 
+build_package_strip_binaries() {
+  local major_version=${DEFINITION_PATH##*/}
+  major_version=${major_version%.*}.0
+
+  strip --strip-all "${PREFIX_PATH}/bin/ruby"
+  find "${PREFIX_PATH}/lib/ruby/${major_version}" -type f -name "*.so" | xargs strip --strip-unneeded
+}
+
 rake() {
   if [ -e "./Gemfile" ]; then
     bundle exec rake "$@"
