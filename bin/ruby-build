@@ -299,12 +299,18 @@ verify_checksum() {
 }
 
 http() {
+  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
+  if [ -z "$RUBY_BUILD_HTTP_CLIENT" ]; then
+    { echo
+      echo "error: please install \`aria2c\`, \`curl\`, or \`wget\` and try again"
+      echo
+    } >&2
+    exit 1
+  fi
+
   local method="$1"
   [ -n "$2" ] || return 1
   shift 1
-
-  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
-  [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
 
   "http_${method}_${RUBY_BUILD_HTTP_CLIENT}" "$@"
 }
@@ -317,7 +323,6 @@ detect_http_client() {
       return
     fi
   done
-  echo "error: please install \`aria2c\`, \`curl\`, or \`wget\` and try again" >&2
   return 1
 }
 
