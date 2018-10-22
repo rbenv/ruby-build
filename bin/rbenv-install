@@ -78,7 +78,7 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "l" | "list" )
     echo "Available versions:"
-    definitions ${ARGUMENTS[0]} | indent
+    definitions "${ARGUMENTS[0]}" | indent
     exit
     ;;
   "f" | "force" )
