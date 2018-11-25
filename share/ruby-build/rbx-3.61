@@ -1,3 +1,3 @@
 require_llvm 3.6
-install_package "openssl-1.0.2p" "https://www.openssl.org/source/openssl-1.0.2p.tar.gz#50a98e07b1a89eb8f6a99477f262df71c6fa7bef77df4dc83025a2845c827d00" mac_openssl --if has_broken_mac_openssl
+install_package "openssl-1.0.2q" "https://www.openssl.org/source/openssl-1.0.2q.tar.gz#5744cfcbcec2b1b48629f7354203bc1e5e9b5466998bbccc5b5fcde3b18eb684" mac_openssl --if has_broken_mac_openssl
 install_package "rubinius-3.61" "https://rubinius-releases-rubinius-com.s3.amazonaws.com/rubinius-3.61.tar.bz2#38623cf198b1b0047b4c3404070252903b4da33c091be8708c205815d1516636" rbx
