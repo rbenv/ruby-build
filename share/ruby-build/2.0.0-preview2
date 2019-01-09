@@ -1,3 +1,3 @@
 install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz#7da6971b4bd08a986dd2a61353bc422362bd0edcc67d7ebaac68c95f74182749" --if needs_yaml
-install_package "openssl-1.0.2p" "https://www.openssl.org/source/openssl-1.0.2p.tar.gz#50a98e07b1a89eb8f6a99477f262df71c6fa7bef77df4dc83025a2845c827d00" mac_openssl --if has_broken_mac_openssl
+install_package "openssl-1.0.2q" "https://www.openssl.org/source/openssl-1.0.2q.tar.gz#5744cfcbcec2b1b48629f7354203bc1e5e9b5466998bbccc5b5fcde3b18eb684" mac_openssl --if has_broken_mac_openssl
 install_package "ruby-2.0.0-preview2" "https://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-preview2.tar.bz2#cea98c000a113f10cb7d55753c759da1f1baa7ca9b3edf75fc19fa5f44bf71a0" warn_eol standard verify_openssl

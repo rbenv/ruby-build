@@ -1,0 +1,1 @@
+install_package "mruby-2.0.0" "https://github.com/mruby/mruby/archive/2.0.0.tar.gz#fa495898d51130c69480a13e90df5dc18cb1a9d9a31836268a895989d902048f" mruby

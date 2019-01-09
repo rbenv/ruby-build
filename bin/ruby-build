@@ -13,7 +13,7 @@
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20181018"
+RUBY_BUILD_VERSION="20181225"
 
 OLDIFS="$IFS"
 
@@ -838,9 +838,9 @@ require_gcc() {
 
         colorize 1 "TO FIX THE PROBLEM"
         if type brew &>/dev/null; then
-          echo ": Install Homebrew's apple-gcc42 package with this"
+          echo ": Install Homebrew's GCC package with this"
           echo -n "command: "
-          colorize 4 "brew tap homebrew/dupes ; brew install apple-gcc42"
+          colorize 4 "brew install gcc@4.9"
         else
           echo ": Install the official GCC compiler using these"
           echo -n "packages: "
