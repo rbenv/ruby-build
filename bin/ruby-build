@@ -1136,8 +1136,12 @@ build_package_strip_binaries() {
   local major_version=${DEFINITION_PATH##*/}
   major_version=${major_version%.*}.0
 
-  strip --strip-all "${PREFIX_PATH}/bin/ruby"
-  find "${PREFIX_PATH}/lib/ruby/${major_version}" -type f -name "*.so" | xargs strip --strip-unneeded
+  if command -v strip >/dev/null 2>&1 ; then
+    strip --strip-all "${PREFIX_PATH}/bin/ruby"
+    find "${PREFIX_PATH}/lib/ruby/${major_version}" -type f -name "*.so" | xargs strip --strip-unneeded
+  else
+    colorize 1 "You need to install \`strip\` from binutils to reduce library size"
+  fi
 }
 
 rake() {
