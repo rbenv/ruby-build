@@ -86,6 +86,7 @@ The build process may be configured through the following environment variables:
 | `RUBY_CONFIGURE_OPTS`    | Additional `./configure` options (applies only to Ruby source).                                  |
 | `RUBY_MAKE_OPTS`         | Additional `make` options (applies only to Ruby source).                                         |
 | `RUBY_MAKE_INSTALL_OPTS` | Additional `make install` options (applies only to Ruby source).                                 |
+| `JRUBY_DISABLE_LAUNCHER` | Do not install the jruby-launcher gem when installing JRuby                                      |
 
 #### Applying Patches
 
