@@ -727,9 +727,13 @@ build_package_jruby() {
   cd "${PREFIX_PATH}/bin"
   ln -fs jruby ruby
   chmod +x ruby
-  install_jruby_launcher
+  [ -z "${JRUBY_LAUNCHER_DISABLED}" ] && install_jruby_launcher
   remove_windows_files
   fix_jruby_shebangs
+}
+
+build_package_disable_launcher() {
+  JRUBY_LAUNCHER_DISABLED=true
 }
 
 install_jruby_launcher() {
