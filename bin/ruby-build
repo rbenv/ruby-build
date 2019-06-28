@@ -969,7 +969,7 @@ needs_yaml() {
 use_homebrew_yaml() {
   local libdir="$(brew --prefix libyaml 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
-    echo "ruby-build: use libyaml from homebrew"
+    echo "ruby-build: using libyaml from homebrew"
     package_option ruby configure --with-libyaml-dir="$libdir"
   else
     return 1
@@ -1004,7 +1004,7 @@ use_homebrew_readline() {
   if [[ "$RUBY_CONFIGURE_OPTS" != *--with-readline-dir=* ]]; then
     local libdir="$(brew --prefix readline 2>/dev/null || true)"
     if [ -d "$libdir" ]; then
-      echo "ruby-build: use readline from homebrew"
+      echo "ruby-build: using readline from homebrew"
       package_option ruby configure --with-readline-dir="$libdir"
     else
       return 1
@@ -1023,7 +1023,7 @@ has_broken_mac_openssl() {
 use_homebrew_openssl() {
   local ssldir="$(brew --prefix openssl 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
-    echo "ruby-build: use openssl from homebrew"
+    echo "ruby-build: using openssl from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
     return 1
