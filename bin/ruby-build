@@ -1021,7 +1021,7 @@ has_broken_mac_openssl() {
 }
 
 use_homebrew_openssl() {
-  local ssldir="$(brew --prefix openssl 2>/dev/null || true)"
+  local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
     echo "ruby-build: using openssl from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
