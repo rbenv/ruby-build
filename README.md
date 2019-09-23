@@ -123,7 +123,10 @@ URL specified in the definition file.
 You can point ruby-build to another mirror by specifying the
 `RUBY_BUILD_MIRROR_URL` environment variable--useful if you'd like to run your
 own local mirror, for example. Package mirror URLs are constructed by joining
-this variable with the SHA2 checksum of the package file.
+this variable with the SHA2 checksum of the package file. For example, the default
+URL for `ruby-2.3.0.tar.bz2` is http://cache.ruby-lang.org/pub/ruby/ruby-2.3.0.tar.bz2.
+That package would be mirrored at `$RUBY_BUILD_MIRROR_URL/ec7579eaba2e4c402a089dbc86c98e5f1f62507880fd800b9b34ca30166bfa5e`,
+where the SHA2 sum is the package to be downloaded.
 
 If you don't have an SHA2 program installed, ruby-build will skip the download
 mirror and use official URLs instead. You can force ruby-build to bypass the
