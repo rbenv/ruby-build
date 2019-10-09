@@ -124,8 +124,8 @@ install_package "ruby-2.6.5" "https://ruby-lang.org/ruby-2.6.5.tgz#<SHA2>"
 ```
 
 ruby-build will first try to fetch this package from `$RUBY_BUILD_MIRROR_URL/<SHA2>`
-(note: this is the complete URL). It will fall back to downloading the package from
-the original location if:
+(note: this is the complete URL), where `<SHA2>` is the checksum for the file. It
+will fall back to downloading the package from the original location if:
 - the package was not found on the mirror;
 - the mirror is down;
 - the download is corrupt, i.e. the file's checksum doesn't match;
