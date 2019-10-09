@@ -74,7 +74,7 @@ The build process may be configured through the following environment variables:
 | `RUBY_BUILD_CURL_OPTS`   | Additional options to pass to `curl` for downloading.                                            |
 | `RUBY_BUILD_WGET_OPTS`   | Additional options to pass to `wget` for downloading.                                            |
 | `RUBY_BUILD_MIRROR_URL`  | Custom mirror URL root.                                                                          |
-| `RUBY_BUILD_SKIP_MIRROR` | Always download from official sources, not mirrors. (Default: unset)                             |
+| `RUBY_BUILD_SKIP_MIRROR` | Bypass the download mirror and fetch all package files from their original URLs.                  |
 | `RUBY_BUILD_ROOT`        | Custom build definition directory. (Default: `share/ruby-build`)                                 |
 | `RUBY_BUILD_DEFINITIONS` | Additional paths to search for build definitions. (Colon-separated list)                         |
 | `CC`                     | Path to the C compiler.                                                                          |
@@ -111,28 +111,30 @@ automatically verify the SHA2 checksum of each downloaded package before
 installing it.
 
 Checksums are optional and specified as anchors on the package URL in each
-definition. (All bundled definitions include checksums.)
+definition. All definitions bundled with ruby-build include checksums.
 
 #### Package Mirrors
 
-By default, ruby-build downloads package files from a mirror hosted on Amazon
-CloudFront. If a package is not available on the mirror, if the mirror is
-down, or if the download is corrupt, ruby-build will fall back to the official
-URL specified in the definition file.
+To speed up downloads, ruby-build fetches package files from a mirror hosted on
+Amazon CloudFront. To benefit from this, the packages must specify their checksum:
 
-You can point ruby-build to another mirror by specifying the
-`RUBY_BUILD_MIRROR_URL` environment variable--useful if you'd like to run your
-own local mirror, for example. Package mirror URLs are constructed by joining
-this variable with the SHA2 checksum of the package file. For example, the default
-URL for `ruby-2.3.0.tar.bz2` is http://cache.ruby-lang.org/pub/ruby/ruby-2.3.0.tar.bz2.
-That package would be mirrored at `$RUBY_BUILD_MIRROR_URL/ec7579eaba2e4c402a089dbc86c98e5f1f62507880fd800b9b34ca30166bfa5e`,
-where the SHA2 sum is the package to be downloaded.
+```sh
+# example:
+install_package "ruby-2.6.5" "https://ruby-lang.org/ruby-2.6.5.tgz#<SHA2>"
+```
 
-If you don't have an SHA2 program installed, ruby-build will skip the download
-mirror and use official URLs instead. You can force ruby-build to bypass the
-mirror by setting the `RUBY_BUILD_SKIP_MIRROR` environment variable.
+ruby-build will first try to fetch this package from `$RUBY_BUILD_MIRROR_URL/<SHA2>`
+(note: this is the complete URL). It will fall back to downloading the package from
+the original location if:
+- the package was not found on the mirror;
+- the mirror is down;
+- the download is corrupt, i.e. the file's checksum doesn't match;
+- no tool is available to calculate the checksum; or
+- `RUBY_BUILD_SKIP_MIRROR` is enabled.
 
-The official ruby-build download mirror is sponsored by
+You may specify a custom mirror by setting `RUBY_BUILD_MIRROR_URL`.
+
+The default ruby-build download mirror is sponsored by
 [Basecamp](https://basecamp.com/).
 
 #### Keeping the build directory after installation
