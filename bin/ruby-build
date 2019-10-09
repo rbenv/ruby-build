@@ -1016,18 +1016,21 @@ has_broken_mac_openssl() {
   is_mac || return 1
   local openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
   [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]] &&
-  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]] &&
   ! use_homebrew_openssl
 }
 
 use_homebrew_openssl() {
   local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
-  if [ -d "$ssldir" ]; then
+  if [ -d "$ssldir" ] && ! openssl_dir_specified; then
     echo "ruby-build: using openssl from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
     return 1
   fi
+}
+
+openssl_dir_specified() {
+  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] || [[ "$CONFIGURE_OPTS" == *--with-openssl-dir=* ]]
 }
 
 build_package_mac_openssl() {
