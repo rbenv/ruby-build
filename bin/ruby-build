@@ -592,6 +592,8 @@ build_package_standard_build() {
 
   { "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
   } >&4 2>&1
+
+  "$MAKE" test >&4 2>&1
 }
 
 build_package_standard_install() {
