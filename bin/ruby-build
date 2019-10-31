@@ -214,7 +214,6 @@ make_package() {
   before_install_package "$package_name"
   build_package "$package_name" $*
   after_install_package "$package_name"
-  fix_directory_permissions
   popd >&4
 }
 
@@ -770,11 +769,6 @@ before_install_package() {
 
 after_install_package() {
   local stub=1
-}
-
-fix_directory_permissions() {
-  # Ensure installed directories are not world-writable to avoid Bundler warnings
-  find "$PREFIX_PATH" -type d \( -perm -020 -o -perm -002 \) -exec chmod go-w {} \;
 }
 
 fix_rbx_gem_binstubs() {
