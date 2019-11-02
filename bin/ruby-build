@@ -800,12 +800,19 @@ fix_rbx_irb() {
 
 require_java() {
   local required="$1"
-  local version="$(java -version 2>&1 | grep '\(java\|openjdk\) version' | head -1 | grep -o '1\.[0-9]\+')"
-  if [ -z "$version" ] || [ "${version##*.}" -lt "$required" ]; then
-    colorize 1 "ERROR" >&3
-    echo ": Java ${required} required. Please install a 1.${required}-compatible JRE." >&3
-    return 1
-  fi
+  local java_version="$(java -version 2>&1)"
+  local version_string="$(grep 'java version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
+  [ -n "$version_string" ] || version_string="$(grep 'openjdk version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
+  IFS="."
+  local nums=($version_string)
+  IFS="$OLDIFS"
+  local found_version="${nums[0]}"
+  [ "$found_version" -gt 1 ] 2>/dev/null || found_version="${nums[1]}"
+  [ "$found_version" -ge "$required" ] 2>/dev/null && return 0
+  colorize 1 "ERROR" >&3
+  echo ": Java ${required} required, but your Java version was:" >&3
+  cat <<<"$java_version" >&3
+  return 1
 }
 
 # keep for backwards compatibility
