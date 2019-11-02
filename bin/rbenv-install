@@ -77,8 +77,7 @@ for option in "${OPTIONS[@]}"; do
     usage 0
     ;;
   "l" | "list" )
-    echo "Available versions:"
-    definitions | indent
+    ruby-build --definitions
     exit
     ;;
   "f" | "force" )
