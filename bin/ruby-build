@@ -1366,7 +1366,7 @@ RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
 if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
-  BUILD_PATH="${TMP}/ruby-build.${SEED}"
+  BUILD_PATH="$(mktemp -d "${LOG_PATH%.log}.XXXXXX")"
 else
   BUILD_PATH="$RUBY_BUILD_BUILD_PATH"
 fi
