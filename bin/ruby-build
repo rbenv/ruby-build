@@ -302,7 +302,7 @@ http() {
   [ -n "$2" ] || return 1
   shift 1
 
-  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
+  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client 2>&3)}"
   [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
 
   "http_${method}_${RUBY_BUILD_HTTP_CLIENT}" "$@"
