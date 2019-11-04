@@ -316,7 +316,7 @@ detect_http_client() {
       return
     fi
   done
-  echo "error: please install \`aria2c\`, \`curl\`, or \`wget\` and try again" >&2
+  echo "error: install \`curl\`, \`wget\`, or \`aria2c\` to download packages" >&2
   return 1
 }
 
