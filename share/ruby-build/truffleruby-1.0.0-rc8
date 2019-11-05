@@ -1,0 +1,7 @@
+install_package "openssl-1.1.0j" "https://www.openssl.org/source/openssl-1.1.0j.tar.gz#31bec6c203ce1a8e93d5994f4ed304c63ccf07676118b6634edded12ad1b3246" mac_openssl --if has_broken_mac_openssl
+
+if is_mac; then
+  install_package "truffleruby-1.0.0-rc8" "https://github.com/oracle/truffleruby/releases/download/vm-1.0.0-rc8/truffleruby-1.0.0-rc8-macos-amd64.tar.gz#e627b43cdd5e8f1711704c6a2f5a1503957df7b226fd722771c54ea6c217457a" truffleruby
+else
+  install_package "truffleruby-1.0.0-rc8" "https://github.com/oracle/truffleruby/releases/download/vm-1.0.0-rc8/truffleruby-1.0.0-rc8-linux-amd64.tar.gz#080e066272184a72dc8019841ad0bca015cfa4ab979c6605c30346fcc0604597" truffleruby
+fi

@@ -3,11 +3,6 @@
 load test_helper
 export RUBY_BUILD_SKIP_MIRROR=1
 export RUBY_BUILD_CACHE_PATH=
-export RUBY_BUILD_CURL_OPTS=
-
-setup() {
-  ensure_not_found_in_path aria2c
-}
 
 
 @test "package URL without checksum" {

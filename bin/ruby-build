@@ -13,7 +13,7 @@
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20180618"
+RUBY_BUILD_VERSION="20191102"
 
 OLDIFS="$IFS"
 
@@ -214,7 +214,6 @@ make_package() {
   before_install_package "$package_name"
   build_package "$package_name" $*
   after_install_package "$package_name"
-  fix_directory_permissions
   popd >&4
 }
 
@@ -300,20 +299,25 @@ verify_checksum() {
 
 http() {
   local method="$1"
-  local url="$2"
-  local file="$3"
-  [ -n "$url" ] || return 1
+  [ -n "$2" ] || return 1
+  shift 1
 
-  if type aria2c &>/dev/null; then
-    "http_${method}_aria2c" "$url" "$file"
-  elif type curl &>/dev/null; then
-    "http_${method}_curl" "$url" "$file"
-  elif type wget &>/dev/null; then
-    "http_${method}_wget" "$url" "$file"
-  else
-    echo "error: please install \`aria2c\`, \`curl\` or \`wget\` and try again" >&2
-    exit 1
-  fi
+  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
+  [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
+
+  "http_${method}_${RUBY_BUILD_HTTP_CLIENT}" "$@"
+}
+
+detect_http_client() {
+  local client
+  for client in aria2c curl wget; do
+    if type "$client" &>/dev/null; then
+      echo "$client"
+      return
+    fi
+  done
+  echo "error: install \`curl\`, \`wget\`, or \`aria2c\` to download packages" >&2
+  return 1
 }
 
 http_head_aria2c() {
@@ -350,6 +354,7 @@ fetch_tarball() {
   local package_url="$2"
   local mirror_url
   local checksum
+  local extracted_dir
 
   if [ "$package_url" != "${package_url/\#}" ]; then
     checksum="${package_url#*#}"
@@ -374,17 +379,19 @@ fetch_tarball() {
   fi
 
   if ! reuse_existing_tarball "$package_filename" "$checksum"; then
-    local tarball_filename=$(basename $package_url)
+    local tarball_filename="$(basename "$package_url")"
     echo "Downloading ${tarball_filename}..." >&2
     http head "$mirror_url" &&
     download_tarball "$mirror_url" "$package_filename" "$checksum" ||
     download_tarball "$package_url" "$package_filename" "$checksum"
   fi
 
-  mkdir "$package_name"
+  { if tar $tar_args "$package_filename"; then
+      if [ ! -d "$package_name" ]; then
+        extracted_dir="$(find_extracted_directory)"
+        mv "$extracted_dir" "$package_name"
+      fi
 
-  { if tar $tar_args "$package_filename" -C "$package_name" --strip-components=1; then
-  ls >&2
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
       else
@@ -392,6 +399,17 @@ fetch_tarball() {
       fi
     fi
   } >&4 2>&1
+}
+
+find_extracted_directory() {
+  for f in *; do
+    if [ -d "$f" ]; then
+      echo "$f"
+      return
+    fi
+  done
+  echo "Extracted directory not found" >&2
+  return 1
 }
 
 reuse_existing_tarball() {
@@ -594,7 +612,7 @@ build_package_standard_install_with_bundled_gems() {
   build_package_standard_install "$@"
 }
 
-# Backword Compatibility for standard function
+# Backward Compatibility for standard function
 build_package_standard() {
   build_package_standard_build "$@"
   build_package_standard_install "$@"
@@ -753,11 +771,6 @@ after_install_package() {
   local stub=1
 }
 
-fix_directory_permissions() {
-  # Ensure installed directories are not world-writable to avoid Bundler warnings
-  find "$PREFIX_PATH" -type d \( -perm -020 -o -perm -002 \) -exec chmod go-w {} \;
-}
-
 fix_rbx_gem_binstubs() {
   local prefix="$1"
   local gemdir="${prefix}/gems/bin"
@@ -785,13 +798,26 @@ fix_rbx_irb() {
     true
 }
 
+require_java() {
+  local required="$1"
+  local java_version="$(java -version 2>&1)"
+  local version_string="$(grep 'java version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
+  [ -n "$version_string" ] || version_string="$(grep 'openjdk version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
+  IFS="."
+  local nums=($version_string)
+  IFS="$OLDIFS"
+  local found_version="${nums[0]}"
+  [ "$found_version" -gt 1 ] 2>/dev/null || found_version="${nums[1]}"
+  [ "$found_version" -ge "$required" ] 2>/dev/null && return 0
+  colorize 1 "ERROR" >&3
+  echo ": Java ${required} required, but your Java version was:" >&3
+  cat <<<"$java_version" >&3
+  return 1
+}
+
+# keep for backwards compatibility
 require_java7() {
-  local version="$(java -version 2>&1 | grep '\(java\|openjdk\) version' | head -1)"
-  if [[ $version != *[789]* ]]; then
-    colorize 1 "ERROR" >&3
-    echo ": Java 7 required. Please install a 1.7-compatible JRE." >&3
-    return 1
-  fi
+  require_java 7
 }
 
 require_gcc() {
@@ -819,9 +845,9 @@ require_gcc() {
 
         colorize 1 "TO FIX THE PROBLEM"
         if type brew &>/dev/null; then
-          echo ": Install Homebrew's apple-gcc42 package with this"
+          echo ": Install Homebrew's GCC package with this"
           echo -n "command: "
-          colorize 4 "brew tap homebrew/dupes ; brew install apple-gcc42"
+          colorize 4 "brew install gcc@4.9"
         else
           echo ": Install the official GCC compiler using these"
           echo -n "packages: "
@@ -950,7 +976,7 @@ needs_yaml() {
 use_homebrew_yaml() {
   local libdir="$(brew --prefix libyaml 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
-    echo "ruby-build: use libyaml from homebrew"
+    echo "ruby-build: using libyaml from homebrew"
     package_option ruby configure --with-libyaml-dir="$libdir"
   else
     return 1
@@ -985,7 +1011,7 @@ use_homebrew_readline() {
   if [[ "$RUBY_CONFIGURE_OPTS" != *--with-readline-dir=* ]]; then
     local libdir="$(brew --prefix readline 2>/dev/null || true)"
     if [ -d "$libdir" ]; then
-      echo "ruby-build: use readline from homebrew"
+      echo "ruby-build: using readline from homebrew"
       package_option ruby configure --with-readline-dir="$libdir"
     else
       return 1
@@ -1002,9 +1028,9 @@ has_broken_mac_openssl() {
 }
 
 use_homebrew_openssl() {
-  local ssldir="$(brew --prefix openssl 2>/dev/null || true)"
+  local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
-    echo "ruby-build: use openssl from homebrew"
+    echo "ruby-build: using openssl from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
     return 1
@@ -1340,7 +1366,7 @@ RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
 if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
-  BUILD_PATH="${TMP}/ruby-build.${SEED}"
+  BUILD_PATH="$(mktemp -d "${LOG_PATH%.log}.XXXXXX")"
 else
   BUILD_PATH="$RUBY_BUILD_BUILD_PATH"
 fi
