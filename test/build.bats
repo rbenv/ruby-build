@@ -92,7 +92,11 @@ OUT
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
 
-  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<<""
+  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<PATCH
+diff -pU3 align.c align.c
+--- align.c 2017-09-14 21:09:29.000000000 +0900
++++ align.c 2017-09-15 05:56:46.000000000 +0900
+PATCH
   assert_success
 
   unstub uname
@@ -110,6 +114,38 @@ make install
 OUT
 }
 
+@test "striplevel ruby patch before building" {
+  cached_tarball "yaml-0.1.6"
+  cached_tarball "ruby-2.0.0"
+
+  stub uname '-s : echo Linux'
+  stub brew false
+  stub_make_install
+  stub_make_install
+  stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
+
+  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<PATCH
+diff -pU3 a/configure b/configure
+--- a/configure 2017-09-14 21:09:29.000000000 +0900
++++ b/configure 2017-09-15 05:56:46.000000000 +0900
+PATCH
+  assert_success
+
+  unstub uname
+  unstub make
+  unstub patch
+
+  assert_build_log <<OUT
+yaml-0.1.6: --prefix=$INSTALL_ROOT
+make -j 2
+make install
+patch -p1 --force -i $TMP/ruby-patch.XXX
+ruby-2.0.0: --prefix=$INSTALL_ROOT
+make -j 2
+make install
+OUT
+}
+
 @test "apply ruby patch from git diff before building" {
   cached_tarball "yaml-0.1.6"
   cached_tarball "ruby-2.0.0"
@@ -120,7 +156,12 @@ OUT
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
 
-  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<<"diff --git a/script.rb"
+  TMPDIR="$TMP" install_fixture --patch definitions/needs-yaml <<PATCH
+diff --git a/test/build.bats b/test/build.bats
+index 4760c31..66a237a 100755
+--- a/test/build.bats
++++ b/test/build.bats
+PATCH
   assert_success
 
   unstub uname
