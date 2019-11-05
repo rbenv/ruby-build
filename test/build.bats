@@ -455,41 +455,41 @@ OUT
   assert_success "hello world"
 }
 
-@test "mruby strategy overwrites non-writable files" {
-  cached_tarball "mruby-1.0" build/host/bin/{mruby,mirb}
+@test "mruby strategy" {
+  package="$TMP/mruby-1.0"
+  executable "$package/minirake" <<OUT
+#!$BASH
+set -e
+echo \$0 "\$@" >> '$INSTALL_ROOT'/build.log
+mkdir -p build/host/bin
+touch build/host/bin/{mruby,mirb}
+chmod +x build/host/bin/{mruby,mirb}
+OUT
+  mkdir -p "$package/include"
+  touch "$package/include/mruby.h"
+  mkdir -p "$RUBY_BUILD_CACHE_PATH"
+  tar czf "$RUBY_BUILD_CACHE_PATH/${package##*/}.tar.gz" -C "${package%/*}" "${package##*/}"
+  rm -rf "$package"
+
+  stub gem false
+  stub rake false
 
   mkdir -p "$INSTALL_ROOT/bin"
   touch "$INSTALL_ROOT/bin/mruby"
   chmod -w "$INSTALL_ROOT/bin/mruby"
 
-  stub gem false
-  stub rake '--version : echo 1' true
-
   run_inline_definition <<DEF
 install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
 DEF
   assert_success
-
-  unstub rake
+  assert_build_log <<OUT
+./minirake
+OUT
 
   assert [ -w "$INSTALL_ROOT/bin/mruby" ]
   assert [ -e "$INSTALL_ROOT/bin/ruby" ]
   assert [ -e "$INSTALL_ROOT/bin/irb" ]
-}
-
-@test "mruby strategy fetches rake if missing" {
-  cached_tarball "mruby-1.0" build/host/bin/mruby
-
-  stub rake '--version : false' true
-  stub gem 'install rake -v *10.1.0 : true'
-
-  run_inline_definition <<DEF
-install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
-DEF
-  assert_success
-
-  unstub gem
-  unstub rake
+  assert [ -e "$INSTALL_ROOT/include/mruby.h" ]
 }
 
 @test "rbx uses bundle then rake" {

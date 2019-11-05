@@ -677,14 +677,11 @@ build_package_rbx() {
 }
 
 build_package_mruby() {
-  local package_name="$1"
-
-  { rake
+  { ./minirake
     mkdir -p "$PREFIX_PATH"
-    cp -fR build/host/* "$PREFIX_PATH"
-    cd "$PREFIX_PATH/bin"
-    ln -fs mruby ruby
-    ln -fs mirb irb
+    cp -fR build/host/* include "$PREFIX_PATH"
+    ln -fs mruby "$PREFIX_PATH/bin/ruby"
+    ln -fs mirb "$PREFIX_PATH/bin/irb"
   } >&4 2>&1
 }
 
