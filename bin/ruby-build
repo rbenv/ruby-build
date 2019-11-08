@@ -1023,6 +1023,16 @@ has_broken_mac_openssl() {
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
 }
 
+use_homebrew_openssl() {
+  local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
+  if [ -d "$ssldir" ]; then
+    echo "ruby-build: using openssl from homebrew"
+    package_option ruby configure --with-openssl-dir="$ssldir"
+  else
+    return 1
+  fi
+}
+
 build_package_mac_openssl() {
   # Install to a subdirectory since we don't want shims for bin/openssl.
   OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
