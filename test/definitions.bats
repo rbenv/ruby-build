@@ -9,14 +9,15 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   assert_output_contains "1.9.3-p194"
   assert_output_contains "jruby-1.7.9"
   assert_output_contains "truffleruby-1.0.0-rc2"
-  assert [ "${#lines[*]}" -eq "$NUM_DEFINITIONS" ]
+  assert [ "${#lines[*]}" -eq "$((NUM_DEFINITIONS + 2))" ]
 }
 
 @test "custom RUBY_BUILD_ROOT: nonexistent" {
   export RUBY_BUILD_ROOT="$TMP"
   refute [ -e "${RUBY_BUILD_ROOT}/share/ruby-build" ]
   run ruby-build --definitions
-  assert_success ""
+  assert_success
+  assert [ "${#lines[*]}" -eq "2" ]
 }
 
 @test "custom RUBY_BUILD_ROOT: single definition" {
@@ -24,7 +25,9 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   mkdir -p "${RUBY_BUILD_ROOT}/share/ruby-build"
   touch "${RUBY_BUILD_ROOT}/share/ruby-build/1.9.3-test"
   run ruby-build --definitions
-  assert_success "1.9.3-test"
+  assert_success
+  assert_output_contains "1.9.3-test"
+  assert [ "${#lines[*]}" -eq "3" ]
 }
 
 @test "one path via RUBY_BUILD_DEFINITIONS" {
@@ -34,7 +37,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   run ruby-build --definitions
   assert_success
   assert_output_contains "1.9.3-test"
-  assert [ "${#lines[*]}" -eq "$((NUM_DEFINITIONS + 1))" ]
+  assert [ "${#lines[*]}" -eq "$((NUM_DEFINITIONS + 2 + 1))" ]
 }
 
 @test "multiple paths via RUBY_BUILD_DEFINITIONS" {
@@ -47,7 +50,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   assert_success
   assert_output_contains "1.9.3-test"
   assert_output_contains "2.1.2-test"
-  assert [ "${#lines[*]}" -eq "$((NUM_DEFINITIONS + 2))" ]
+  assert [ "${#lines[*]}" -eq "$((NUM_DEFINITIONS + 2 + 2))" ]
 }
 
 @test "installing definition from RUBY_BUILD_DEFINITIONS by priority" {
@@ -97,7 +100,9 @@ truffleruby-1.0.0-rc2"
     touch "${RUBY_BUILD_ROOT}/share/ruby-build/$ver"
   done
   run ruby-build --definitions
-  assert_success "$expected"
+  assert_success "$expected
+Can't find the version you want? Run:
+rbenv install how-do-i-update-my-rbenv-build-plugin"
 }
 
 @test "removing duplicate Ruby versions" {
@@ -112,5 +117,7 @@ truffleruby-1.0.0-rc2"
   assert_output <<OUT
 1.9.3
 2.2.0
+Can't find the version you want? Run:
+rbenv install how-do-i-update-my-rbenv-build-plugin
 OUT
 }

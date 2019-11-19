@@ -1199,6 +1199,10 @@ list_definitions() {
       [ -d "$DEFINITION_DIR" ] && ls "$DEFINITION_DIR"
     done
   } | sort_versions | uniq
+  {
+    echo "Can't find the version you want? Run:"
+    echo "rbenv install how-do-i-update-my-rbenv-build-plugin"
+  } >&2
 }
 
 sort_versions() {

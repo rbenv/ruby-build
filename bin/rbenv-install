@@ -23,6 +23,10 @@
 # ruby-build, including a list of environment variables for adjusting
 # compilation, see: https://github.com/rbenv/ruby-build#usage
 #
+# If the version you are looking for is missing, you probably need to update
+# ruby-build. For information on how to do so, run:
+#   rbenv install how-do-i-update-my-ruby-build-plugin
+#
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
