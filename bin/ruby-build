@@ -1320,15 +1320,12 @@ fi
 
 if [ -z "$MAKE" ]; then
   if [ "FreeBSD" = "$(uname -s)" ]; then
-    if [ "$(echo $1 | sed 's/-.*$//')" = "jruby" ]; then
-      export MAKE="gmake"
-    else
-      if [ "$(uname -r | sed 's/[^[:digit:]].*//')" -lt 10 ]; then
-        export MAKE="gmake"
-      else
-        export MAKE="make"
-      fi
-    fi
+    # Workaround for Ruby bug 16331: https://bugs.ruby-lang.org/issues/16331
+    # Due to this bug, build will fail with FreeBSD's make after #1368
+    # The bug is already fixed in upstream but GNU make is still required
+    # when building older releases of Ruby. Use GNU make rather than switching
+    # depending of Ruby version.
+    export MAKE="gmake"
   else
     export MAKE="make"
   fi
