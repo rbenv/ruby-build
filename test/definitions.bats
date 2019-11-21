@@ -92,7 +92,9 @@ jruby-1.7.9
 jruby-1.7.10
 jruby-9000-dev
 jruby-9000
-truffleruby-1.0.0-rc2"
+truffleruby-1.0.0-rc2
+truffleruby-19.0.0
+truffleruby-19.3.0"
   for ver in $expected; do
     touch "${RUBY_BUILD_ROOT}/share/ruby-build/$ver"
   done
