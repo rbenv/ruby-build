@@ -747,7 +747,7 @@ build_package_truffleruby() {
   build_package_copy
 
   cd "${PREFIX_PATH}"
-  ./lib/truffle/post_install_hook.sh
+  "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
 
 remove_windows_files() {
