@@ -1029,6 +1029,7 @@ use_homebrew_openssl() {
     echo "ruby-build: using openssl from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
+    colorize 1 "ERROR openssl@1.1 from Homebrew is required, run 'brew install openssl@1.1'"
     return 1
   fi
 }
