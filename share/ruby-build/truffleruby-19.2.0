@@ -1,7 +1,13 @@
-install_package "openssl-1.1.1d" "https://www.openssl.org/source/openssl-1.1.1d.tar.gz#1e3a91bc1f9dfce01af26026f856e064eab4c8ee0a8f457b5ae30b40b8b711f2" mac_openssl --if has_broken_mac_openssl
-
-if is_mac; then
-  install_package "truffleruby-19.2.0" "https://github.com/oracle/truffleruby/releases/download/vm-19.2.0/truffleruby-19.2.0-macos-amd64.tar.gz#7f717cb86bd93e0c191f7a7ec39aaa66bad0b9e76348efc4c9104983290c1ffb" truffleruby
-else
+case $(uname -s) in
+Linux)
   install_package "truffleruby-19.2.0" "https://github.com/oracle/truffleruby/releases/download/vm-19.2.0/truffleruby-19.2.0-linux-amd64.tar.gz#9dd36f703b862cb5d6ffb93be7b5f9ad92992fa93664fdadfd487af0c9c3f40a" truffleruby
-fi
+  ;;
+Darwin)
+  use_homebrew_openssl
+  install_package "truffleruby-19.2.0" "https://github.com/oracle/truffleruby/releases/download/vm-19.2.0/truffleruby-19.2.0-macos-amd64.tar.gz#7f717cb86bd93e0c191f7a7ec39aaa66bad0b9e76348efc4c9104983290c1ffb" truffleruby
+  ;;
+*)
+  colorize 1 "Unsupported operating system: Linux"
+  return 1
+  ;;
+esac
