@@ -13,7 +13,7 @@
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20190401"
+RUBY_BUILD_VERSION="20191205"
 
 OLDIFS="$IFS"
 
@@ -214,7 +214,6 @@ make_package() {
   before_install_package "$package_name"
   build_package "$package_name" $*
   after_install_package "$package_name"
-  fix_directory_permissions
   popd >&4
 }
 
@@ -303,7 +302,7 @@ http() {
   [ -n "$2" ] || return 1
   shift 1
 
-  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
+  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client 2>&3)}"
   [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
 
   "http_${method}_${RUBY_BUILD_HTTP_CLIENT}" "$@"
@@ -317,7 +316,7 @@ detect_http_client() {
       return
     fi
   done
-  echo "error: please install \`aria2c\`, \`curl\`, or \`wget\` and try again" >&2
+  echo "error: install \`curl\`, \`wget\`, or \`aria2c\` to download packages" >&2
   return 1
 }
 
@@ -613,7 +612,7 @@ build_package_standard_install_with_bundled_gems() {
   build_package_standard_install "$@"
 }
 
-# Backword Compatibility for standard function
+# Backward Compatibility for standard function
 build_package_standard() {
   build_package_standard_build "$@"
   build_package_standard_install "$@"
@@ -678,14 +677,11 @@ build_package_rbx() {
 }
 
 build_package_mruby() {
-  local package_name="$1"
-
-  { rake
+  { ./minirake
     mkdir -p "$PREFIX_PATH"
-    cp -fR build/host/* "$PREFIX_PATH"
-    cd "$PREFIX_PATH/bin"
-    ln -fs mruby ruby
-    ln -fs mirb irb
+    cp -fR build/host/* include "$PREFIX_PATH"
+    ln -fs mruby "$PREFIX_PATH/bin/ruby"
+    ln -fs mirb "$PREFIX_PATH/bin/irb"
   } >&4 2>&1
 }
 
@@ -751,7 +747,7 @@ build_package_truffleruby() {
   build_package_copy
 
   cd "${PREFIX_PATH}"
-  ./lib/truffle/post_install_hook.sh
+  "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
 
 remove_windows_files() {
@@ -770,11 +766,6 @@ before_install_package() {
 
 after_install_package() {
   local stub=1
-}
-
-fix_directory_permissions() {
-  # Ensure installed directories are not world-writable to avoid Bundler warnings
-  find "$PREFIX_PATH" -type d \( -perm -020 -o -perm -002 \) -exec chmod go-w {} \;
 }
 
 fix_rbx_gem_binstubs() {
@@ -804,13 +795,26 @@ fix_rbx_irb() {
     true
 }
 
+require_java() {
+  local required="$1"
+  local java_version="$(java -version 2>&1)"
+  local version_string="$(grep 'java version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
+  [ -n "$version_string" ] || version_string="$(grep 'openjdk version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
+  IFS="."
+  local nums=($version_string)
+  IFS="$OLDIFS"
+  local found_version="${nums[0]}"
+  [ "$found_version" -gt 1 ] 2>/dev/null || found_version="${nums[1]}"
+  [ "$found_version" -ge "$required" ] 2>/dev/null && return 0
+  colorize 1 "ERROR" >&3
+  echo ": Java ${required} required, but your Java version was:" >&3
+  cat <<<"$java_version" >&3
+  return 1
+}
+
+# keep for backwards compatibility
 require_java7() {
-  local version="$(java -version 2>&1 | grep '\(java\|openjdk\) version' | head -1)"
-  if [[ $version != *[789]* ]]; then
-    colorize 1 "ERROR" >&3
-    echo ": Java 7 required. Please install a 1.7-compatible JRE." >&3
-    return 1
-  fi
+  require_java 7
 }
 
 require_gcc() {
@@ -969,7 +973,7 @@ needs_yaml() {
 use_homebrew_yaml() {
   local libdir="$(brew --prefix libyaml 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
-    echo "ruby-build: use libyaml from homebrew"
+    echo "ruby-build: using libyaml from homebrew"
     package_option ruby configure --with-libyaml-dir="$libdir"
   else
     return 1
@@ -1004,7 +1008,7 @@ use_homebrew_readline() {
   if [[ "$RUBY_CONFIGURE_OPTS" != *--with-readline-dir=* ]]; then
     local libdir="$(brew --prefix readline 2>/dev/null || true)"
     if [ -d "$libdir" ]; then
-      echo "ruby-build: use readline from homebrew"
+      echo "ruby-build: using readline from homebrew"
       package_option ruby configure --with-readline-dir="$libdir"
     else
       return 1
@@ -1016,16 +1020,16 @@ has_broken_mac_openssl() {
   is_mac || return 1
   local openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
   [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]] &&
-  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]] &&
-  ! use_homebrew_openssl
+  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
 }
 
 use_homebrew_openssl() {
-  local ssldir="$(brew --prefix openssl 2>/dev/null || true)"
+  local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
-    echo "ruby-build: use openssl from homebrew"
+    echo "ruby-build: using openssl from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
+    colorize 1 "ERROR openssl@1.1 from Homebrew is required, run 'brew install openssl@1.1'"
     return 1
   fi
 }
@@ -1170,7 +1174,7 @@ apply_ruby_patch() {
     cat "${2:--}" >"$patchfile"
 
     local striplevel=0
-    grep -q '^diff --git a/' "$patchfile" && striplevel=1
+    grep -q '^--- a/' "$patchfile" && striplevel=1
     patch -p$striplevel --force -i "$patchfile"
     ;;
   esac
@@ -1317,15 +1321,12 @@ fi
 
 if [ -z "$MAKE" ]; then
   if [ "FreeBSD" = "$(uname -s)" ]; then
-    if [ "$(echo $1 | sed 's/-.*$//')" = "jruby" ]; then
-      export MAKE="gmake"
-    else
-      if [ "$(uname -r | sed 's/[^[:digit:]].*//')" -lt 10 ]; then
-        export MAKE="gmake"
-      else
-        export MAKE="make"
-      fi
-    fi
+    # Workaround for Ruby bug 16331: https://bugs.ruby-lang.org/issues/16331
+    # Due to this bug, build will fail with FreeBSD's make after #1368
+    # The bug is already fixed in upstream but GNU make is still required
+    # when building older releases of Ruby. Use GNU make rather than switching
+    # depending of Ruby version.
+    export MAKE="gmake"
   else
     export MAKE="make"
   fi
@@ -1359,7 +1360,7 @@ RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
 if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
-  BUILD_PATH="${TMP}/ruby-build.${SEED}"
+  BUILD_PATH="$(mktemp -d "${LOG_PATH%.log}.XXXXXX")"
 else
   BUILD_PATH="$RUBY_BUILD_BUILD_PATH"
 fi

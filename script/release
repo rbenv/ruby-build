@@ -12,6 +12,8 @@
 set -e
 
 git fetch -q --tags origin master
+git checkout -q master
+git merge --ff-only @{upstream}
 
 existing="$(git tag --points-at HEAD)"
 if [ -n "$existing" ]; then
@@ -19,12 +21,10 @@ if [ -n "$existing" ]; then
   exit 1
 fi
 
-git checkout -q master
-
 binfile="bin/ruby-build"
 new_version="$(date '+%Y%m%d')"
 version_tag="v${new_version}"
-previous_tag="$(git tag | grep '^v' | sort | tail -1)"
+previous_tag="$(git describe --tags HEAD --abbrev=0)"
 
 if git diff --quiet "${previous_tag}..HEAD" -- bin share; then
   echo "Aborting: No features to release since '${previous_tag}'" >&2
@@ -34,13 +34,17 @@ fi
 sed -i.bak -E "s!^(RUBY_BUILD_VERSION=).+!\\1\"${new_version}\"!" "$binfile"
 rm -f "${binfile}.bak"
 
-git commit -m "ruby-build ${new_version}" "$binfile"
-git tag "$version_tag"
+git commit -m "ruby-build ${new_version}" -- "$binfile"
+
+notes_file="$(mktemp)"
+{ echo "ruby-build $new_version"
+  echo
+  git log --no-merges --format='* %s%n%w(0,2,2)%+b' --reverse "${previous_tag}..HEAD^" -- bin share
+} >"$notes_file"
+trap "rm -f '$notes_file'" EXIT
+
+git tag "$version_tag" -F "$notes_file" --edit
 git push origin master "${version_tag}"
 
-{ echo "ruby-build ${new_version}"
-  echo
-  git log --no-merges --format='%w(0,0,2)* %B' --reverse "${previous_tag}..HEAD^" -- bin share
-} | hub release create -dF - "$version_tag" || true
-
-script/brew-publish ruby-build rbenv/ruby-build "$version_tag"
+git tag --list "$version_tag" --format='%(contents:subject)%0a%0a%(contents:body)' | \
+  hub release create -F- "$version_tag"
