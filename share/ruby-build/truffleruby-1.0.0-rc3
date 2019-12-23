@@ -7,7 +7,7 @@ Darwin)
   install_package "truffleruby-1.0.0-rc3" "https://github.com/oracle/truffleruby/releases/download/vm-1.0.0-rc3/truffleruby-1.0.0-rc3-macos-amd64.tar.gz#8b6805df62e6e11982d1ec035269a51c325626c5d38ac8e10d28ae17eefee041" truffleruby
   ;;
 *)
-  colorize 1 "Unsupported operating system: Linux"
+  colorize 1 "Unsupported operating system: $(uname -s)"
   return 1
   ;;
 esac
