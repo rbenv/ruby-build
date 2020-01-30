@@ -10,6 +10,8 @@
 #   -4/--ipv4        Resolve names to IPv4 addresses only
 #   -6/--ipv6        Resolve names to IPv6 addresses only
 #   --definitions    List all built-in definitions
+#   --definitions-exclude-eol
+#                    List all builtt-in definitions excluding EoL'ed
 #   --version        Show version of ruby-build
 #
 
@@ -1202,6 +1204,13 @@ list_definitions() {
   } | sort_versions | uniq
 }
 
+list_definitions_exclude_eol() {
+  { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+    [ -d "$DEFINITION_DIR" ] && (cd "$DEFINITION_DIR"; grep -L -e warn_eol -e warn_unsupported *)
+    done
+  } | sort_versions | uniq
+}
+
 sort_versions() {
   sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
@@ -1230,6 +1239,10 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "definitions" )
     list_definitions
+    exit 0
+    ;;
+  "definitions-exclude-eol")
+    list_definitions_exclude_eol
     exit 0
     ;;
   "k" | "keep" )

@@ -8,6 +8,8 @@
 #        rbenv install --version
 #
 #   -l/--list          List all available versions
+#   -L/--list-exclude-eol
+#                      List available versions excluding EoL'ed
 #   -f/--force         Install even if the version appears to be installed already
 #   -s/--skip-existing Skip if the version appears to be installed already
 #
@@ -38,6 +40,7 @@ shopt -u nullglob
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
   echo --list
+  echo --list-exclude-eol
   echo --force
   echo --skip-existing
   echo --keep
@@ -79,6 +82,9 @@ for option in "${OPTIONS[@]}"; do
   "l" | "list" )
     ruby-build --definitions
     exit
+    ;;
+  "L" | "list-exclude-eol" )
+    ruby-build --definitions-exclude-eol
     ;;
   "f" | "force" )
     FORCE=true
