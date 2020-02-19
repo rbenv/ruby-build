@@ -140,7 +140,7 @@ OUT
   assert_success
   assert_output <<OUT
 --list
---list-exclude-eol
+--list-all
 --force
 --skip-existing
 --keep
