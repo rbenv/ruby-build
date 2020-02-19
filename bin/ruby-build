@@ -10,8 +10,7 @@
 #   -4/--ipv4        Resolve names to IPv4 addresses only
 #   -6/--ipv6        Resolve names to IPv6 addresses only
 #   -d/--definitions List all built-in definitions
-#   --definitions-exclude-eol
-#                    List all builtt-in definitions excluding EoL'ed
+#   -l/--list        List built-in definitions except EoL'ed versions
 #   --version        Show version of ruby-build
 #
 
@@ -1241,7 +1240,7 @@ for option in "${OPTIONS[@]}"; do
     list_definitions
     exit 0
     ;;
-  "definitions-exclude-eol")
+  "l" | "list")
     list_definitions_exclude_eol
     exit 0
     ;;
