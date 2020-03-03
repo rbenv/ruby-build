@@ -1203,9 +1203,15 @@ list_definitions() {
   } | sort_versions | uniq
 }
 
+# listing exclude RC, preview, dev versions and EoL'ed versions
 list_definitions_exclude_eol() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
-    [ -d "$DEFINITION_DIR" ] && (cd "$DEFINITION_DIR"; grep -L -e warn_eol -e warn_unsupported *)
+      [ -d "$DEFINITION_DIR" ] && \
+      (
+        cd "$DEFINITION_DIR";
+        grep -L -e warn_eol -e warn_unsupported * | \
+        grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$'
+      )
     done
   } | sort_versions | uniq
 }
