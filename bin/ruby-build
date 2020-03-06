@@ -1209,7 +1209,7 @@ list_definitions_exclude_eol() {
       [ -d "$DEFINITION_DIR" ] && \
       (
         cd "$DEFINITION_DIR";
-        grep -L -e warn_eol -e warn_unsupported * | \
+        grep -L -e warn_eol * | \
         grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$'
       )
     done
