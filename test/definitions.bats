@@ -102,6 +102,71 @@ truffleruby-19.3.0"
   assert_success "$expected"
 }
 
+@test "filtering previous Ruby versions" {
+  export RUBY_BUILD_ROOT="$TMP"
+  mkdir -p "${RUBY_BUILD_ROOT}/share/ruby-build"
+
+  all_versions="
+2.4.0
+2.4.1
+2.4.2
+2.4.3
+2.4.4
+2.4.5
+2.4.6
+2.4.7
+2.4.8
+2.4.9
+2.5.0
+2.5.1
+2.5.2
+2.5.3
+2.5.4
+2.5.5
+2.5.6
+2.5.7
+2.6.0
+2.6.1
+2.6.2
+2.6.3
+2.6.4
+2.6.5
+2.7.0
+jruby-1.5.6
+jruby-9.2.7.0
+jruby-9.2.8.0
+jruby-9.2.9.0
+maglev-1.0.0
+mruby-1.4.1
+mruby-2.0.0
+mruby-2.0.1
+mruby-2.1.0
+rbx-3.104
+rbx-3.105
+rbx-3.106
+rbx-3.107
+truffleruby-19.2.0.1
+truffleruby-19.3.0
+truffleruby-19.3.0.2
+truffleruby-19.3.1"
+
+  expected="2.4.9
+2.5.7
+2.6.5
+2.7.0
+jruby-9.2.9.0
+maglev-1.0.0
+mruby-2.1.0
+rbx-3.107
+truffleruby-19.3.1"
+
+  for ver in $all_versions; do
+    touch "${RUBY_BUILD_ROOT}/share/ruby-build/$ver"
+  done
+  run ruby-build --list
+  assert_success "$expected"
+}
+
 @test "removing duplicate Ruby versions" {
   export RUBY_BUILD_ROOT="$TMP"
   export RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_ROOT}/share/ruby-build"

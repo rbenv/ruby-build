@@ -10,7 +10,7 @@
 #   -4/--ipv4        Resolve names to IPv4 addresses only
 #   -6/--ipv6        Resolve names to IPv6 addresses only
 #   -d/--definitions List all built-in definitions
-#   -l/--list        List built-in definitions except EoL'ed versions
+#   -l/--list        List latest stable releases for each Ruby
 #   --version        Show version of ruby-build
 #
 
@@ -1196,6 +1196,7 @@ usage() {
   [ -z "$1" ] || exit "$1"
 }
 
+# list all versions
 list_definitions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && ls "$DEFINITION_DIR"
@@ -1203,8 +1204,8 @@ list_definitions() {
   } | sort_versions | uniq
 }
 
-# listing exclude RC, preview, dev versions and EoL'ed versions
-list_definitions_exclude_eol() {
+# list only latest stable versions excluding RC, preview, dev and EoL'ed
+list_latest_definitions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && \
       (
@@ -1213,7 +1214,16 @@ list_definitions_exclude_eol() {
         grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$'
       )
     done
-  } | sort_versions | uniq
+  } | filter_previous_versions | sort_versions | uniq
+}
+
+filter_previous_versions() {
+  # sort in this function looks redundunt but it is necessary
+  # rbx-3.99 appears latest unless the sort
+  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
+    LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | \
+    sed 's/[+.]/ /; s/[0-9].*z //; s/^\([0-9].[0-9]\)/mri\1 \1/' | \
+    awk '{ latest[$1] =$2 } END{ for(key in latest) { print latest[key] } }'
 }
 
 sort_versions() {
@@ -1247,7 +1257,7 @@ for option in "${OPTIONS[@]}"; do
     exit 0
     ;;
   "l" | "list")
-    list_definitions_exclude_eol
+    list_latest_definitions
     exit 0
     ;;
   "k" | "keep" )
