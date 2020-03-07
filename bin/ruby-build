@@ -1205,7 +1205,7 @@ list_definitions() {
 }
 
 # list only latest stable versions excluding RC, preview, dev and EoL'ed
-list_latest_definitions() {
+list_maintained_versions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && \
       (
@@ -1214,10 +1214,10 @@ list_latest_definitions() {
         grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$'
       )
     done
-  } | filter_previous_versions | sort_versions | uniq
+  } | extract_latest_versions | sort_versions | uniq
 }
 
-filter_previous_versions() {
+extract_latest_versions() {
   # sort in this function looks redundunt but it is necessary
   # rbx-3.99 appears latest unless the sort
   sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
@@ -1257,7 +1257,7 @@ for option in "${OPTIONS[@]}"; do
     exit 0
     ;;
   "l" | "list")
-    list_latest_definitions
+    list_maintained_versions
     exit 0
     ;;
   "k" | "keep" )
