@@ -1208,11 +1208,9 @@ list_definitions() {
 list_maintained_versions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && \
-      (
-        cd "$DEFINITION_DIR";
-        grep -L -e warn_eol * | \
+        grep -L -e warn_eol "$DEFINITION_DIR"/* 2>/dev/null | \
+        sed 's|.*/||' | \
         grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$'
-      )
     done
   } | extract_latest_versions | sort_versions | uniq
 }
