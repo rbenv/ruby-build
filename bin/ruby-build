@@ -1440,6 +1440,11 @@ WGET_OPTS="${RUBY_BUILD_WGET_OPTS} ${IPV4+--inet4-only} ${IPV6+--inet6-only}"
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="${TMP}/ruby-build.${SEED}.log"
 RUBY_BIN="${PREFIX_PATH}/bin/ruby"
+if [ -n "${DESTDIR}" ]; then
+    RUBY_BIN="${DESTDIR}${RUBY_BIN}"
+    MAKE_INSTALL_OPTS="${MAKE_INSTALL_OPTS} DESTDIR=${DESTDIR}"
+fi
+
 CWD="$(pwd)"
 
 if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
@@ -1455,11 +1460,21 @@ if [ -n "$VERBOSE" ]; then
   trap "kill $TAIL_PID" SIGINT SIGTERM EXIT
 fi
 
-export LDFLAGS="-L${PREFIX_PATH}/lib ${LDFLAGS}"
-export CPPFLAGS="-I${PREFIX_PATH}/include ${CPPFLAGS}"
+if [ -n "${DESTDIR}" ]; then
+    export LDFLAGS="-L${DESTDIR}${PREFIX_PATH}/lib ${LDFLAGS}"
+    export LD_LIBRARY_PATH="${DESTDIR}${PREFIX_PATH}/lib:${LD_LIBRARY_PATH}"
+    export CPPFLAGS="-I${DESTDIR}${PREFIX_PATH}/include ${CPPFLAGS}"
+else
+    export LDFLAGS="-L${PREFIX_PATH}/lib ${LDFLAGS}"
+    export CPPFLAGS="-I${PREFIX_PATH}/include ${CPPFLAGS}"
+fi
 
 unset RUBYOPT
-unset RUBYLIB
+if [ -n "${DESTDIR}" ]; then
+    export RUBYLIB="${DESTDIR}${PREFIX_PATH}/lib/ruby/${ARGUMENTS[0]}:${DESTDIR}${PREFIX_PATH}/lib/ruby/${ARGUMENTS[0]}/$(uname -m)-$(uname | tr '[:upper:]' '[:lower:]')"
+else
+    unset RUBYLIB
+fi
 
 trap build_failed ERR
 mkdir -p "$BUILD_PATH"
