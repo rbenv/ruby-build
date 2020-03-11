@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+if [ $# -ne 2 ]; then
+  echo "usage: $0 VERSION RELEASE_DIRECTORY"
+  exit 1
+fi
+
+version="$1"
+release_directory="$2"
+file="share/ruby-build/jruby-${version}"
+
+basename="jruby-bin-${version}.tar.gz"
+url="https://s3.amazonaws.com/jruby.org/downloads/${version}/${basename}"
+sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
+
+cat > "$file" <<EOS
+require_java 8
+install_package "jruby-${version}" "${url}#${sha256}" jruby
+EOS
