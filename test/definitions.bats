@@ -3,7 +3,7 @@
 load test_helper
 NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 
-@test "list built-in definitions" {
+@test "list all available definitions" {
   run ruby-build --definitions
   assert_success
   assert_output_contains "1.9.3-p194"
