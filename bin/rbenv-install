@@ -8,7 +8,7 @@
 #        rbenv install --version
 #
 #   -l/--list          List latest stable versions for each Ruby
-#   -L/--list-all      List all available versions
+#   -L/--list-all      List all local versions
 #   -f/--force         Install even if the version appears to be installed already
 #   -s/--skip-existing Skip if the version appears to be installed already
 #
