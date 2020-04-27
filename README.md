@@ -28,7 +28,7 @@ $ PREFIX=/usr/local ./ruby-build/install.sh
 $ brew update && brew upgrade ruby-build
 
 # As an rbenv plugin
-$ cd "$(rbenv root)"/plugins/ruby-build && git pull
+$ git -C "$(rbenv root)"/plugins/ruby-build pull
 ```
 
 ## Usage

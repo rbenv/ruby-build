@@ -9,12 +9,12 @@
 #   -v/--verbose     Verbose mode: print compilation status to stdout
 #   -4/--ipv4        Resolve names to IPv4 addresses only
 #   -6/--ipv6        Resolve names to IPv6 addresses only
-#   --definitions    List all built-in definitions
+#   --definitions    List all local definitions
 #   -l/--list        List latest stable releases for each Ruby
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20200115"
+RUBY_BUILD_VERSION="20200401"
 
 OLDIFS="$IFS"
 
@@ -757,6 +757,8 @@ remove_windows_files() {
 }
 
 build_package_copy() {
+  # Make sure there are no leftover files in $PREFIX_PATH
+  rm -rf "$PREFIX_PATH"
   mkdir -p "$PREFIX_PATH"
   cp -fR . "$PREFIX_PATH"
 }

@@ -68,7 +68,7 @@ See all available versions with \`rbenv install --list'.
 
 If the version you need is missing, try upgrading ruby-build:
 
-  cd ${BATS_TEST_DIRNAME}/.. && git pull && cd -
+  git -C ${BATS_TEST_DIRNAME}/.. pull
 OUT
 
   unstub ruby-build
