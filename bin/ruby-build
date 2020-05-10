@@ -750,6 +750,18 @@ build_package_truffleruby() {
   "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
 
+build_package_artichoke() {
+  build_package_copy
+
+  rm -rf "$PREFIX_PATH"
+  mkdir -p "$PREFIX_PATH/bin"
+  cd "${PREFIX_PATH}/bin"
+  ln -fs ../artichoke ruby
+  ln -fs ../airb irb
+  ln -fs ../artichoke artichoke
+  ln -fs ../airb airb
+}
+
 remove_windows_files() {
   cd "$PREFIX_PATH"
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
