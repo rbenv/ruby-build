@@ -1057,6 +1057,7 @@ build_package_mac_openssl() {
 
   # Tell Ruby to use this openssl for its extension.
   package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
+  package_option ruby configure --with-opt-dir="$OPENSSL_PREFIX_PATH"
 
   # Make sure pkg-config finds our build first.
   export PKG_CONFIG_PATH="${OPENSSL_PREFIX_PATH}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
