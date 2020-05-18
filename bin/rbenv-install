@@ -7,7 +7,8 @@
 #        rbenv install -l|--list
 #        rbenv install --version
 #
-#   -l/--list          List all available versions
+#   -l/--list          List latest stable versions for each Ruby
+#   -L/--list-all      List all local versions
 #   -f/--force         Install even if the version appears to be installed already
 #   -s/--skip-existing Skip if the version appears to be installed already
 #
@@ -38,6 +39,7 @@ shopt -u nullglob
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
   echo --list
+  echo --list-all
   echo --force
   echo --skip-existing
   echo --keep
@@ -77,6 +79,15 @@ for option in "${OPTIONS[@]}"; do
     usage 0
     ;;
   "l" | "list" )
+    ruby-build --list
+    {
+      echo
+      echo "Only latest stable releases for each Ruby implementation are shown."
+      echo "Use 'rbenv install --list-all' to show all local versions."
+    } 1>&2
+    exit
+    ;;
+  "L" | "list-all" )
     ruby-build --definitions
     exit
     ;;
