@@ -754,7 +754,6 @@ build_package_truffleruby() {
 build_package_artichoke() {
   build_package_copy
 
-  rm -rf "$PREFIX_PATH"
   mkdir -p "$PREFIX_PATH/bin"
   cd "${PREFIX_PATH}/bin"
   ln -fs ../artichoke ruby
