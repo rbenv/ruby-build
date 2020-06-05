@@ -82,6 +82,7 @@ The build process may be configured through the following environment variables:
 | `CONFIGURE_OPTS`         | Additional `./configure` options.                                                                |
 | `MAKE`                   | Custom `make` command (_e.g.,_ `gmake`).                                                         |
 | `MAKE_OPTS` / `MAKEOPTS` | Additional `make` options.                                                                       |
+| `MAKE_INSTALL_DESTDIR`   | Set `DESTDIR` for `make install`.                                                                |
 | `MAKE_INSTALL_OPTS`      | Additional `make install` options.                                                               |
 | `RUBY_CONFIGURE_OPTS`    | Additional `./configure` options (applies only to Ruby source).                                  |
 | `RUBY_MAKE_OPTS`         | Additional `make` options (applies only to Ruby source).                                         |

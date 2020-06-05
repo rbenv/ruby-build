@@ -601,7 +601,9 @@ build_package_standard_install() {
   local PACKAGE_MAKE_INSTALL_OPTS="${package_var_name}_MAKE_INSTALL_OPTS"
   local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
 
-  { "$MAKE" install $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}"
+  local DESTDIR_OPT="DESTDIR=${MAKE_INSTALL_DESTDIR}"
+
+  { "$MAKE" install "$DESTDIR_OPT" $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}"
   } >&4 2>&1
 }
 
@@ -643,8 +645,9 @@ build_package_ree_installer() {
   done
 
   # Work around install_useful_libraries crash with --dont-install-useful-gems
-  mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
+  mkdir -p "$BUILT_PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
+  # TODO: this is one PREFIX_PATH i'm not sure if it should be BUILT_ or not
   { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems $options $CONFIGURE_OPTS
   } >&4 2>&1
 }
@@ -672,26 +675,26 @@ build_package_rbx() {
 
     RUBYOPT="-rrubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${configure_opts[@]}"
     rake install
-    fix_rbx_gem_binstubs "$PREFIX_PATH"
-    fix_rbx_irb "$PREFIX_PATH"
+    fix_rbx_gem_binstubs "$BUILT_PREFIX_PATH"
+    fix_rbx_irb "$BUILT_PREFIX_PATH"
   } >&4 2>&1
 }
 
 build_package_mruby() {
   { ./minirake
-    mkdir -p "$PREFIX_PATH"
-    cp -fR build/host/* include "$PREFIX_PATH"
-    ln -fs mruby "$PREFIX_PATH/bin/ruby"
-    ln -fs mirb "$PREFIX_PATH/bin/irb"
+    mkdir -p "$BUILT_PREFIX_PATH"
+    cp -fR build/host/* include "$BUILT_PREFIX_PATH"
+    ln -fs mruby "$BUILT_PREFIX_PATH/bin/ruby"
+    ln -fs mirb "$BUILT_PREFIX_PATH/bin/irb"
   } >&4 2>&1
 }
 
 build_package_maglev() {
   build_package_copy
 
-  { cd "${PREFIX_PATH}"
+  { cd "${BUILT_PREFIX_PATH}"
     ./install.sh
-    cd "${PREFIX_PATH}/bin"
+    cd "${BUILT_PREFIX_PATH}/bin"
     echo "Creating symlink for ruby*"
     ln -fs maglev-ruby ruby
     echo "Creating symlink for irb*"
@@ -703,7 +706,7 @@ build_package_maglev() {
 
 build_package_topaz() {
   build_package_copy
-  { cd "${PREFIX_PATH}/bin"
+  { cd "${BUILT_PREFIX_PATH}/bin"
     echo "Creating symlink for ruby*"
     ln -fs topaz ruby
   } >&4 2>&1
@@ -721,7 +724,7 @@ topaz_architecture() {
 
 build_package_jruby() {
   build_package_copy
-  cd "${PREFIX_PATH}/bin"
+  cd "${BUILT_PREFIX_PATH}/bin"
   ln -fs jruby ruby
   chmod +x ruby
   install_jruby_launcher
@@ -730,13 +733,13 @@ build_package_jruby() {
 }
 
 install_jruby_launcher() {
-  cd "${PREFIX_PATH}/bin"
+  cd "${BUILT_PREFIX_PATH}/bin"
   { ./ruby gem install jruby-launcher
   } >&4 2>&1
 }
 
 fix_jruby_shebangs() {
-  for file in "${PREFIX_PATH}/bin"/*; do
+  for file in "${BUILT_PREFIX_PATH}/bin"/*; do
     if [ "$(head -c 20 "$file")" = "#!/usr/bin/env jruby" ]; then
       sed -i.bak "1 s:.*:#\!${PREFIX_PATH}\/bin\/jruby:" "$file"
       rm "$file".bak
@@ -747,15 +750,15 @@ fix_jruby_shebangs() {
 build_package_truffleruby() {
   build_package_copy
 
-  cd "${PREFIX_PATH}"
-  "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
+  cd "${BUILT_PREFIX_PATH}"
+  "${BUILT_PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
 
 build_package_artichoke() {
   build_package_copy
 
-  mkdir -p "$PREFIX_PATH/bin"
-  cd "${PREFIX_PATH}/bin"
+  mkdir -p "$BUILT_PREFIX_PATH/bin"
+  cd "${BUILT_PREFIX_PATH}/bin"
   ln -fs ../artichoke ruby
   ln -fs ../airb irb
   ln -fs ../artichoke artichoke
@@ -763,15 +766,15 @@ build_package_artichoke() {
 }
 
 remove_windows_files() {
-  cd "$PREFIX_PATH"
+  cd "$BUILT_PREFIX_PATH"
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
 }
 
 build_package_copy() {
-  # Make sure there are no leftover files in $PREFIX_PATH
-  rm -rf "$PREFIX_PATH"
-  mkdir -p "$PREFIX_PATH"
-  cp -fR . "$PREFIX_PATH"
+  # Make sure there are no leftover files in $BUILT_PREFIX_PATH
+  rm -rf "$BUILT_PREFIX_PATH"
+  mkdir -p "$BUILT_PREFIX_PATH"
+  cp -fR . "$BUILT_PREFIX_PATH"
 }
 
 before_install_package() {
@@ -1319,6 +1322,11 @@ elif [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
   PREFIX_PATH="${PWD}/${PREFIX_PATH}"
 fi
 
+BUILT_PREFIX_PATH="${MAKE_INSTALL_DESTDIR}${PREFIX_PATH}"
+if [ "${BUILT_PREFIX_PATH#/}" = "$BUILT_PREFIX_PATH" ]; then
+  BUILT_PREFIX_PATH="${PWD}/${BUILT_PREFIX_PATH}"
+fi
+
 if [ -z "$TMPDIR" ]; then
   TMP="/tmp"
 else
@@ -1395,7 +1403,7 @@ WGET_OPTS="${RUBY_BUILD_WGET_OPTS} ${IPV4+--inet4-only} ${IPV6+--inet6-only}"
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="${TMP}/ruby-build.${SEED}.log"
-RUBY_BIN="${PREFIX_PATH}/bin/ruby"
+RUBY_BIN="${BUILT_PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
 if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
@@ -1411,8 +1419,8 @@ if [ -n "$VERBOSE" ]; then
   trap "kill $TAIL_PID" SIGINT SIGTERM EXIT
 fi
 
-export LDFLAGS="-L${PREFIX_PATH}/lib ${LDFLAGS}"
-export CPPFLAGS="-I${PREFIX_PATH}/include ${CPPFLAGS}"
+export LDFLAGS="-L${BUILT_PREFIX_PATH}/lib ${LDFLAGS}"
+export CPPFLAGS="-I${BUILT_PREFIX_PATH}/include ${CPPFLAGS}"
 
 unset RUBYOPT
 unset RUBYLIB
