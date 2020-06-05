@@ -629,6 +629,8 @@ build_package_autoconf() {
 build_package_ruby() {
   local package_name="$1"
 
+  have_installed_ruby || echo 'Skipping package_ruby due to DESTDIR installation'; return 0
+
   { "$RUBY_BIN" setup.rb
   } >&4 2>&1
 }
@@ -1088,6 +1090,8 @@ build_package_mac_openssl() {
 
 # Post-install check that the openssl extension was built.
 build_package_verify_openssl() {
+  have_installed_ruby || echo 'Skipping verify_openssl due to DESTDIR installation'; return 0
+
   "$RUBY_BIN" -e '
     manager = ARGV[0]
     packages = {
@@ -1195,6 +1199,11 @@ apply_ruby_patch() {
     patch -p$striplevel --force -i "$patchfile"
     ;;
   esac
+}
+
+have_installed_ruby() {
+    [ "$BUILT_PREFIX_PATH" = "$PREFIX_PATH" ]
+    return $?
 }
 
 version() {
@@ -1403,7 +1412,7 @@ WGET_OPTS="${RUBY_BUILD_WGET_OPTS} ${IPV4+--inet4-only} ${IPV6+--inet6-only}"
 
 SEED="$(date "+%Y%m%d%H%M%S").$$"
 LOG_PATH="${TMP}/ruby-build.${SEED}.log"
-RUBY_BIN="${BUILT_PREFIX_PATH}/bin/ruby"
+RUBY_BIN="${PREFIX_PATH}/bin/ruby"
 CWD="$(pwd)"
 
 if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
