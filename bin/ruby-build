@@ -629,7 +629,7 @@ build_package_autoconf() {
 build_package_ruby() {
   local package_name="$1"
 
-  have_installed_ruby || echo 'Skipping package_ruby due to DESTDIR installation'; return 0
+  have_installed_ruby || { echo 'Skipping package_ruby due to DESTDIR installation'; return 0; }
 
   { "$RUBY_BIN" setup.rb
   } >&4 2>&1
@@ -1090,7 +1090,8 @@ build_package_mac_openssl() {
 
 # Post-install check that the openssl extension was built.
 build_package_verify_openssl() {
-  have_installed_ruby || echo 'Skipping verify_openssl due to DESTDIR installation'; return 0
+  have_installed_ruby || { echo 'Skipping verify_openssl due to DESTDIR installation'; return 0; }
+  echo "Doing verify_openssl"
 
   "$RUBY_BIN" -e '
     manager = ARGV[0]
