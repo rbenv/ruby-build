@@ -81,6 +81,6 @@ DEF
 CC=clang
 CFLAGS=no
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }

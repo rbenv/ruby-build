@@ -75,10 +75,10 @@ assert_build_log() {
   assert_build_log <<OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -106,11 +106,11 @@ PATCH
   assert_build_log <<OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 patch -p0 --force -i $TMP/ruby-patch.XXX
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -138,11 +138,11 @@ PATCH
   assert_build_log <<OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 patch -p1 --force -i $TMP/ruby-patch.XXX
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -171,11 +171,11 @@ PATCH
   assert_build_log <<OUT
 yaml-0.1.6: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 patch -p1 --force -i $TMP/ruby-patch.XXX
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -199,7 +199,7 @@ OUT
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT --with-libyaml-dir=$brew_libdir
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -223,7 +223,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT --with-readline-dir=$readline_libdir
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -245,7 +245,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT --with-readline-dir=/custom
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -268,7 +268,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -292,7 +292,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 4
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -316,7 +316,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 1
-make install
+make install DESTDIR=
 OUT
 }
 
@@ -338,7 +338,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install DOGE="such wow"
+make install DESTDIR= DOGE="such wow"
 OUT
 }
 
@@ -360,7 +360,7 @@ DEF
   assert_build_log <<OUT
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install DOGE="such wow"
+make install DESTDIR= DOGE="such wow"
 OUT
 }
 
@@ -413,7 +413,7 @@ DEF
 apply -p1 -i /my/patch.diff
 ruby-2.0.0: --prefix=$INSTALL_ROOT
 make -j 2
-make install
+make install DESTDIR=
 OUT
 }
 
