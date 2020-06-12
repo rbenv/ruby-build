@@ -7,7 +7,7 @@ require 'openssl'
 file = "http://rubinius-releases-rubinius-com.s3-us-west-2.amazonaws.com/index.txt"
 dir = Pathname(File.expand_path("share/ruby-build"))
 
-open(file).each do |package|
+URI.open(file).each do |package|
   next if package.match(/sha512/)
   version = package.match(/rubinius-([345].[\d\.]+).tar.bz2/)
 
@@ -16,10 +16,10 @@ open(file).each do |package|
   version = version[1]
   defname = "rbx-#{version}"
 
-  next if File.exists?(dir.join(defname))
+  next if File.exist?(dir.join(defname))
 
   package_url = "https://rubinius-releases-rubinius-com.s3.amazonaws.com/rubinius-#{version}.tar.bz2"
-  sha256 = OpenSSL::Digest::SHA256.hexdigest(File.read(open(package_url)))
+  sha256 = OpenSSL::Digest::SHA256.hexdigest(File.read(URI.open(package_url)))
 
   definition = <<-TEMPLATE
 require_llvm 3.7
