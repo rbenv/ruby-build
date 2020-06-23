@@ -91,7 +91,7 @@ os_information() {
   if type -p lsb_release >/dev/null; then
     lsb_release -sir | xargs echo
   elif type -p sw_vers >/dev/null; then
-    echo "OS X $(sw_vers -productVersion)"
+    echo "$(sw_vers -productName) $(sw_vers -productVersion)"
   elif [ -r /etc/os-release ]; then
     source /etc/os-release
     echo "$NAME" $VERSION_ID
