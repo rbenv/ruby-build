@@ -36,7 +36,7 @@ EOS
 add_platform "macos-amd64"
 cat >> "$file" <<EOS
 *)
-  colorize 1 "Unsupported operating system: Linux"
+  colorize 1 "Unsupported operating system: \$(uname -s)"
   return 1
   ;;
 esac

@@ -9,11 +9,12 @@
 #   -v/--verbose     Verbose mode: print compilation status to stdout
 #   -4/--ipv4        Resolve names to IPv4 addresses only
 #   -6/--ipv6        Resolve names to IPv6 addresses only
-#   --definitions    List all built-in definitions
+#   --definitions    List all local definitions
+#   -l/--list        List latest stable releases for each Ruby
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20191205"
+RUBY_BUILD_VERSION="20200520"
 
 OLDIFS="$IFS"
 
@@ -90,7 +91,7 @@ os_information() {
   if type -p lsb_release >/dev/null; then
     lsb_release -sir | xargs echo
   elif type -p sw_vers >/dev/null; then
-    echo "OS X $(sw_vers -productVersion)"
+    echo "$(sw_vers -productName) $(sw_vers -productVersion)"
   elif [ -r /etc/os-release ]; then
     source /etc/os-release
     echo "$NAME" $VERSION_ID
@@ -736,7 +737,7 @@ install_jruby_launcher() {
 
 fix_jruby_shebangs() {
   for file in "${PREFIX_PATH}/bin"/*; do
-    if [ "$(head -c 20 "$file")" = "#!/usr/bin/env jruby" ]; then
+    if [ "$(head -c 20 "$file" | tr -d '\0')" = "#!/usr/bin/env jruby" ]; then
       sed -i.bak "1 s:.*:#\!${PREFIX_PATH}\/bin\/jruby:" "$file"
       rm "$file".bak
     fi
@@ -750,12 +751,25 @@ build_package_truffleruby() {
   "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
 
+build_package_artichoke() {
+  build_package_copy
+
+  mkdir -p "$PREFIX_PATH/bin"
+  cd "${PREFIX_PATH}/bin"
+  ln -fs ../artichoke ruby
+  ln -fs ../airb irb
+  ln -fs ../artichoke artichoke
+  ln -fs ../airb airb
+}
+
 remove_windows_files() {
   cd "$PREFIX_PATH"
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
 }
 
 build_package_copy() {
+  # Make sure there are no leftover files in $PREFIX_PATH
+  rm -rf "$PREFIX_PATH"
   mkdir -p "$PREFIX_PATH"
   cp -fR . "$PREFIX_PATH"
 }
@@ -1195,11 +1209,32 @@ usage() {
   [ -z "$1" ] || exit "$1"
 }
 
+# list all versions
 list_definitions() {
   { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       [ -d "$DEFINITION_DIR" ] && ls "$DEFINITION_DIR"
     done
   } | sort_versions | uniq
+}
+
+# list only latest stable versions excluding RC, preview, dev and EoL'ed
+list_maintained_versions() {
+  { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      [ -d "$DEFINITION_DIR" ] && \
+        grep -L -e warn_eol "$DEFINITION_DIR"/* 2>/dev/null | \
+        sed 's|.*/||' | \
+        grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$'
+    done
+  } | extract_latest_versions | sort_versions | uniq
+}
+
+extract_latest_versions() {
+  # sort in this function looks redundunt but it is necessary
+  # rbx-3.99 appears latest unless the sort
+  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
+    LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | \
+    sed 's/[+.]/ /; s/[0-9].*z //; s/^\([0-9].[0-9]\)/mri\1 \1/' | \
+    awk '{ latest[$1] =$2 } END{ for(key in latest) { print latest[key] } }'
 }
 
 sort_versions() {
@@ -1230,6 +1265,10 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "definitions" )
     list_definitions
+    exit 0
+    ;;
+  "l" | "list")
+    list_maintained_versions
     exit 0
     ;;
   "k" | "keep" )

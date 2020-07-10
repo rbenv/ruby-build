@@ -38,7 +38,7 @@ stub_ruby_build() {
   stub_ruby_build \
     "--definitions : echo 1.8.7 1.9.3-p0 1.9.3-p194 2.1.2 | tr ' ' $'\\n'"
 
-  run rbenv-install --list
+  run rbenv-install --list-all
   assert_success
   assert_output <<OUT
 1.8.7
@@ -68,7 +68,7 @@ See all available versions with \`rbenv install --list'.
 
 If the version you need is missing, try upgrading ruby-build:
 
-  cd ${BATS_TEST_DIRNAME}/.. && git pull && cd -
+  git -C ${BATS_TEST_DIRNAME}/.. pull
 OUT
 
   unstub ruby-build
@@ -122,7 +122,7 @@ OUT
   mkdir -p "${RBENV_ROOT}/plugins/bar/share/ruby-build"
   stub_ruby_build "--definitions : echo \$RUBY_BUILD_DEFINITIONS | tr ':' $'\\n'"
 
-  run rbenv-install --list
+  run rbenv-install --list-all
   assert_success
   assert_output <<OUT
 
@@ -140,6 +140,7 @@ OUT
   assert_success
   assert_output <<OUT
 --list
+--list-all
 --force
 --skip-existing
 --keep

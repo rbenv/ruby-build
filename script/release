@@ -11,6 +11,10 @@
 
 set -e
 
+echo "Running hub to see if configured correctly"
+echo "This shows the latest release:"
+hub release -L1
+
 git fetch -q --tags origin master
 git checkout -q master
 git merge --ff-only @{upstream}

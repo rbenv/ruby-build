@@ -1,0 +1,12 @@
+case $(uname -s) in
+Linux)
+  install_package "artichoke-nightly" "https://github.com/artichoke/nightly/releases/latest/download/artichoke-nightly-x86_64-unknown-linux-gnu.tar.gz" artichoke
+  ;;
+Darwin)
+  install_package "artichoke-nightly" "https://github.com/artichoke/nightly/releases/latest/download/artichoke-nightly-x86_64-apple-darwin.tar.gz" artichoke
+  ;;
+*)
+  colorize 1 "Unsupported operating system: $(uname -s)"
+  return 1
+  ;;
+esac
