@@ -751,6 +751,25 @@ build_package_truffleruby() {
   "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
 
+build_package_graalvm() {
+  clean_prefix_path
+  build_package_copy_to "${PREFIX_PATH}/graalvm"
+
+  cd "${PREFIX_PATH}/graalvm"
+  bin/gu install ruby || return $?
+
+  local ruby_home
+  ruby_home=$(bin/ruby -e 'print RbConfig::CONFIG["prefix"]')
+
+  # Make gu available in PATH (useful to install other languages)
+  ln -s "${PREFIX_PATH}/graalvm/bin/gu" "$ruby_home/bin/gu"
+
+  cd "${PREFIX_PATH}"
+  ln -s "${ruby_home#"$PREFIX_PATH/"}/bin" . || return $?
+
+  "$ruby_home/lib/truffle/post_install_hook.sh"
+}
+
 build_package_artichoke() {
   build_package_copy
 
@@ -767,11 +786,20 @@ remove_windows_files() {
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
 }
 
-build_package_copy() {
+clean_prefix_path() {
   # Make sure there are no leftover files in $PREFIX_PATH
   rm -rf "$PREFIX_PATH"
-  mkdir -p "$PREFIX_PATH"
-  cp -fR . "$PREFIX_PATH"
+}
+
+build_package_copy_to() {
+  to="$1"
+  mkdir -p "$to"
+  cp -fR . "$to"
+}
+
+build_package_copy() {
+  clean_prefix_path
+  build_package_copy_to "$PREFIX_PATH"
 }
 
 before_install_package() {
