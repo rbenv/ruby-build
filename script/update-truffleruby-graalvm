@@ -10,7 +10,7 @@ fi
 
 version="$1"
 release_directory="$2"
-file="share/ruby-build/graalvm-${version}"
+file="share/ruby-build/truffleruby+graalvm-${version}"
 
 add_platform() {
   platform="$1"
@@ -19,7 +19,7 @@ add_platform() {
   sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
 
   cat >> "$file" <<EOS
-  install_package "graalvm-${version}" "${url}#${sha256}" graalvm
+  install_package "truffleruby+graalvm-${version}" "${url}#${sha256}" truffleruby_graalvm
   ;;
 EOS
 }
