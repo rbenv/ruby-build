@@ -82,8 +82,6 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 2.1.0
 2.1.1
 2.2.0-dev
-graalvm-20.0.0
-graalvm-20.1.0
 jruby-1.6.5
 jruby-1.6.5.1
 jruby-1.7.0-preview1
@@ -96,7 +94,9 @@ jruby-9000-dev
 jruby-9000
 truffleruby-1.0.0-rc2
 truffleruby-19.0.0
-truffleruby-19.3.0"
+truffleruby-19.3.0
+truffleruby+graalvm-20.0.0
+truffleruby+graalvm-20.1.0"
   for ver in $expected; do
     touch "${RUBY_BUILD_ROOT}/share/ruby-build/$ver"
   done
@@ -134,8 +134,6 @@ truffleruby-19.3.0"
 2.6.4
 2.6.5
 2.7.0
-graalvm-20.0.0
-graalvm-20.1.0
 jruby-1.5.6
 jruby-9.2.7.0
 jruby-9.2.8.0
@@ -152,18 +150,20 @@ rbx-3.107
 truffleruby-19.2.0.1
 truffleruby-19.3.0
 truffleruby-19.3.0.2
-truffleruby-19.3.1"
+truffleruby-19.3.1
+truffleruby+graalvm-20.0.0
+truffleruby+graalvm-20.1.0"
 
   expected="2.4.9
 2.5.7
 2.6.5
 2.7.0
-graalvm-20.1.0
 jruby-9.2.9.0
 maglev-1.0.0
 mruby-2.1.0
 rbx-3.107
-truffleruby-19.3.1"
+truffleruby-19.3.1
+truffleruby+graalvm-20.1.0"
 
   for ver in $all_versions; do
     touch "${RUBY_BUILD_ROOT}/share/ruby-build/$ver"
