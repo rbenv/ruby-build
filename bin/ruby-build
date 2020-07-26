@@ -756,6 +756,12 @@ build_package_truffleruby_graalvm() {
   build_package_copy_to "${PREFIX_PATH}/graalvm"
 
   cd "${PREFIX_PATH}/graalvm"
+
+  if is_mac; then
+    mv Contents/Home/* .
+    rm -rf Contents 
+  fi
+
   bin/gu install ruby || return $?
 
   local ruby_home
