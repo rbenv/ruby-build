@@ -756,13 +756,17 @@ build_package_truffleruby_graalvm() {
   build_package_copy_to "${PREFIX_PATH}/graalvm"
 
   cd "${PREFIX_PATH}/graalvm"
+  if is_mac; then
+    cd Contents/Home || return $?
+  fi
+
   bin/gu install ruby || return $?
 
   local ruby_home
   ruby_home=$(bin/ruby -e 'print RbConfig::CONFIG["prefix"]')
 
   # Make gu available in PATH (useful to install other languages)
-  ln -s "${PREFIX_PATH}/graalvm/bin/gu" "$ruby_home/bin/gu"
+  ln -s "$PWD/bin/gu" "$ruby_home/bin/gu"
 
   cd "${PREFIX_PATH}"
   ln -s "${ruby_home#"$PREFIX_PATH/"}/bin" . || return $?
