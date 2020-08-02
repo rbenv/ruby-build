@@ -1471,10 +1471,19 @@ fi
 
 unset RUBYOPT
 if [ -n "${DESTDIR}" ]; then
-    export RUBYLIB="${DESTDIR}${PREFIX_PATH}/lib/ruby/${ARGUMENTS[0]}:${DESTDIR}${PREFIX_PATH}/lib/ruby/${ARGUMENTS[0]}/$(uname -m)-$(uname | tr '[:upper:]' '[:lower:]')"
+    argument_version="${ARGUMENTS[0]}"
+    # Ruby puts the lib for e.g "2.7.1" in "2.7.0", so also make that adjustment
+    # here, see
+    # https://github.com/rbenv/ruby-build/issues/1433#issuecomment-618833687.
+    IFS=. read major minor patch <<<"${argument_version##*-}"
+    argument_api_version="${major}.${minor}.0"
+    export RUBYLIB="${DESTDIR}${PREFIX_PATH}/lib/ruby/${argument_api_version}:${DESTDIR}${PREFIX_PATH}/lib/ruby/${argument_api_version}/$(uname -m)-$(uname | tr '[:upper:]' '[:lower:]')"
 else
     unset RUBYLIB
 fi
+# enable Ruby verbose logging
+export V=1
+echo "RUBYLIB set to $RUBYLIB"
 
 trap build_failed ERR
 mkdir -p "$BUILD_PATH"
