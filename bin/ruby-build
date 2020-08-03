@@ -1481,9 +1481,6 @@ if [ -n "${DESTDIR}" ]; then
 else
     unset RUBYLIB
 fi
-# enable Ruby verbose logging
-export V=1
-echo "RUBYLIB set to $RUBYLIB"
 
 trap build_failed ERR
 mkdir -p "$BUILD_PATH"
