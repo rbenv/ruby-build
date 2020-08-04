@@ -1,0 +1,2 @@
+require_java 8
+install_package "jruby-9.2.13.0" "https://s3.amazonaws.com/jruby.org/downloads/9.2.13.0/jruby-bin-9.2.13.0.tar.gz#73a8c241a162e644c87e864c3485c55adedeb82a6fd80fa3cb538fdacda7af58" jruby
