@@ -235,6 +235,14 @@ fi
 # Execute `after_install` hooks.
 for hook in "${after_hooks[@]}"; do eval "$hook"; done
 
+# Remove trash from *.cmd files (only for MSYS2).
+if [ $(uname -o) = "Msys" ] && [ -d "${PREFIX}/bin" ]; then
+  for cmdfile in $(find "${PREFIX}/bin" -name "*.cmd"); do
+    echo created file: "${cmdfile%.*}"
+    tail -n +9 "$cmdfile" > "${cmdfile%.*}"
+  done
+fi
+
 # Run `rbenv-rehash` after a successful installation.
 if [ "$STATUS" == "0" ]; then
   rbenv-rehash

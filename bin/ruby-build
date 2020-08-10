@@ -1347,6 +1347,8 @@ fi
 PREFIX_PATH="${ARGUMENTS[1]}"
 if [ -z "$PREFIX_PATH" ]; then
   usage 1 >&2
+elif [ $(uname -o) = "Msys" ]; then
+  PREFIX_PATH=$(cygpath -wa $PREFIX_PATH)
 elif [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
   PREFIX_PATH="${PWD}/${PREFIX_PATH}"
 fi
