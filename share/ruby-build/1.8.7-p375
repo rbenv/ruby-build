@@ -1,3 +1,4 @@
 require_gcc
+install_package "openssl-1.0.2u" "https://www.openssl.org/source/openssl-1.0.2u.tar.gz#ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16" linux_legacy_openssl --if has_wrong_openssl
 install_svn "ruby-1.8.7-p375" "http://svn.ruby-lang.org/repos/ruby/branches/ruby_1_8_7" "44351" warn_eol autoconf auto_tcltk standard
 install_package "rubygems-1.6.2" "https://rubygems.org/rubygems/rubygems-1.6.2.tgz#cb5261818b931b5ea2cb54bc1d583c47823543fcf9682f0d6298849091c1cea7" ruby
