@@ -101,6 +101,10 @@ os_information() {
   fi
 }
 
+is_linux() {
+  [ "$(uname -s)" = "Linux" ] || return 1
+}
+
 is_mac() {
   [ "$(uname -s)" = "Darwin" ] || return 1
   [ $# -eq 0 ] || [ "$(osx_version)" "$@" ]
@@ -1069,6 +1073,13 @@ has_broken_mac_openssl() {
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
 }
 
+has_wrong_openssl() {
+  is_linux || return 1
+  local openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
+  [[ $openssl_version != "OpenSSL 1.0"?* ]] &&
+  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
+}
+
 use_homebrew_openssl() {
   local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
@@ -1078,6 +1089,39 @@ use_homebrew_openssl() {
     colorize 1 "ERROR openssl@1.1 from Homebrew is required, run 'brew install openssl@1.1'"
     return 1
   fi
+}
+
+build_package_linux_legacy_openssl() {
+  # Install to a subdirectory since we don't want shims for bin/openssl.
+  OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
+
+  # Put openssl.conf, certs, etc in ~/.rbenv/versions/*/openssl/ssl
+  OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
+
+  # Tell Ruby to use this openssl for its extension.
+  package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
+
+  # Make sure pkg-config finds our build first.
+  export PKG_CONFIG_PATH="${OPENSSL_PREFIX_PATH}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+
+  # Hint OpenSSL that we prefer a 64-bit build.
+  export KERNEL_BITS="64"
+  OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}"
+
+  local nokerberos
+  [[ "$1" != openssl-1.0.* ]] || nokerberos=1
+
+  # Compile a shared lib with zlib dynamically linked.
+  package_option openssl configure --openssldir="$OPENSSLDIR" zlib-dynamic no-ssl3 shared ${nokerberos:+no-ssl2 no-krb5}
+
+  # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
+  # gives precedence to the last -j option, so we can override that.
+  package_option openssl make -j 1
+
+  build_package_standard "$@"
+
+  # Copy systems certs to local install
+  rsync -av /etc/ssl/certs/ "$OPENSSLDIR"/certs/
 }
 
 build_package_mac_openssl() {
