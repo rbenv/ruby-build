@@ -1120,8 +1120,9 @@ build_package_linux_legacy_openssl() {
 
   build_package_standard "$@"
 
-  # Copy systems certs to local install
-  rsync -av /etc/ssl/certs/ "$OPENSSLDIR"/certs/
+  # Link to systems certs
+  rmdir "$OPENSSLDIR"/certs
+  ln -s /etc/ssl/certs "$OPENSSLDIR"/certs
 }
 
 build_package_mac_openssl() {
