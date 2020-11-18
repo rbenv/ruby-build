@@ -1,0 +1,13 @@
+case $(uname -s) in
+Linux)
+  install_package "truffleruby+graalvm-20.3.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.3.0/graalvm-ce-java8-linux-amd64-20.3.0.tar.gz#455cadf810780161b74da9e23b529426398ce40843603cacbc11edbd2310aba4" truffleruby_graalvm
+  ;;
+Darwin)
+  use_homebrew_openssl
+  install_package "truffleruby+graalvm-20.3.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.3.0/graalvm-ce-java8-darwin-amd64-20.3.0.tar.gz#01e84c44032f8932ed04b2b829e0454973145bf55ddeeeed0ce71220c2213ae7" truffleruby_graalvm
+  ;;
+*)
+  colorize 1 "Unsupported operating system: $(uname -s)"
+  return 1
+  ;;
+esac
