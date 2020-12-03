@@ -64,28 +64,29 @@ definitions.
 
 The build process may be configured through the following environment variables:
 
-| Variable                 | Function                                                                                         |
-| ------------------------ | ------------------------------------------------------------------------------------------------ |
-| `TMPDIR`                 | Where temporary files are stored.                                                                |
-| `RUBY_BUILD_BUILD_PATH`  | Where sources are downloaded and built. (Default: a timestamped subdirectory of `TMPDIR`)        |
-| `RUBY_BUILD_CACHE_PATH`  | Where to cache downloaded package files. (Default: `~/.rbenv/cache` if invoked as rbenv plugin)  |
-| `RUBY_BUILD_HTTP_CLIENT` | One of `aria2c`, `curl`, or `wget` to use for downloading. (Default: first one found in PATH)    |
-| `RUBY_BUILD_ARIA2_OPTS`  | Additional options to pass to `aria2c` for downloading.                                          |
-| `RUBY_BUILD_CURL_OPTS`   | Additional options to pass to `curl` for downloading.                                            |
-| `RUBY_BUILD_WGET_OPTS`   | Additional options to pass to `wget` for downloading.                                            |
-| `RUBY_BUILD_MIRROR_URL`  | Custom mirror URL root.                                                                          |
-| `RUBY_BUILD_SKIP_MIRROR` | Bypass the download mirror and fetch all package files from their original URLs.                  |
-| `RUBY_BUILD_ROOT`        | Custom build definition directory. (Default: `share/ruby-build`)                                 |
-| `RUBY_BUILD_DEFINITIONS` | Additional paths to search for build definitions. (Colon-separated list)                         |
-| `CC`                     | Path to the C compiler.                                                                          |
-| `RUBY_CFLAGS`            | Additional `CFLAGS` options (_e.g.,_ to override `-O3`).                                         |
-| `CONFIGURE_OPTS`         | Additional `./configure` options.                                                                |
-| `MAKE`                   | Custom `make` command (_e.g.,_ `gmake`).                                                         |
-| `MAKE_OPTS` / `MAKEOPTS` | Additional `make` options.                                                                       |
-| `MAKE_INSTALL_OPTS`      | Additional `make install` options.                                                               |
-| `RUBY_CONFIGURE_OPTS`    | Additional `./configure` options (applies only to Ruby source).                                  |
-| `RUBY_MAKE_OPTS`         | Additional `make` options (applies only to Ruby source).                                         |
-| `RUBY_MAKE_INSTALL_OPTS` | Additional `make install` options (applies only to Ruby source).                                 |
+| Variable                        | Function                                                                                         |
+| ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `TMPDIR`                        | Where temporary files are stored.                                                                |
+| `RUBY_BUILD_BUILD_PATH`         | Where sources are downloaded and built. (Default: a timestamped subdirectory of `TMPDIR`)        |
+| `RUBY_BUILD_CACHE_PATH`         | Where to cache downloaded package files. (Default: `~/.rbenv/cache` if invoked as rbenv plugin)  |
+| `RUBY_BUILD_HTTP_CLIENT`        | One of `aria2c`, `curl`, or `wget` to use for downloading. (Default: first one found in PATH)    |
+| `RUBY_BUILD_ARIA2_OPTS`         | Additional options to pass to `aria2c` for downloading.                                          |
+| `RUBY_BUILD_CURL_OPTS`          | Additional options to pass to `curl` for downloading.                                            |
+| `RUBY_BUILD_WGET_OPTS`          | Additional options to pass to `wget` for downloading.                                            |
+| `RUBY_BUILD_MIRROR_URL`         | Custom mirror URL root.                                                                          |
+| `RUBY_BUILD_MIRROR_PACKAGE_URL` | Custom complete mirror URL (e.g. http://mirror.example.com/package-1.0.0.tar.gz).                  |
+| `RUBY_BUILD_SKIP_MIRROR`        | Bypass the download mirror and fetch all package files from their original URLs.                 |
+| `RUBY_BUILD_ROOT`               | Custom build definition directory. (Default: `share/ruby-build`)                                 |
+| `RUBY_BUILD_DEFINITIONS`        | Additional paths to search for build definitions. (Colon-separated list)                         |
+| `CC`                            | Path to the C compiler.                                                                          |
+| `RUBY_CFLAGS`                   | Additional `CFLAGS` options (_e.g.,_ to override `-O3`).                                         |
+| `CONFIGURE_OPTS`                | Additional `./configure` options.                                                                |
+| `MAKE`                          | Custom `make` command (_e.g.,_ `gmake`).                                                         |
+| `MAKE_OPTS` / `MAKEOPTS`        | Additional `make` options.                                                                       |
+| `MAKE_INSTALL_OPTS`             | Additional `make install` options.                                                               |
+| `RUBY_CONFIGURE_OPTS`           | Additional `./configure` options (applies only to Ruby source).                                  |
+| `RUBY_MAKE_OPTS`                | Additional `make` options (applies only to Ruby source).                                         |
+| `RUBY_MAKE_INSTALL_OPTS`        | Additional `make install` options (applies only to Ruby source).                                 |
 
 #### Applying Patches
 
@@ -133,6 +134,10 @@ will fall back to downloading the package from the original location if:
 - `RUBY_BUILD_SKIP_MIRROR` is enabled.
 
 You may specify a custom mirror by setting `RUBY_BUILD_MIRROR_URL`.
+
+If a mirror site doesn't conform to the above URL format, you can specify the
+complete URL by setting `RUBY_BUILD_MIRROR_PACKAGE_URL`. It behaves the same as
+`RUBY_BUILD_MIRROR_URL` except being a complete URL.
 
 The default ruby-build download mirror is sponsored by
 [Basecamp](https://basecamp.com/).

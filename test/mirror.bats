@@ -126,3 +126,62 @@ DEF
   unstub curl
   unstub shasum
 }
+
+
+@test "package is fetched from complete mirror URL" {
+  export RUBY_BUILD_MIRROR_URL=
+  export RUBY_BUILD_MIRROR_PACKAGE_URL=http://mirror.example.com/package-1.0.0.tar.gz
+  local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
+
+  stub shasum true "echo $checksum"
+  stub curl "-*I* $RUBY_BUILD_MIRROR_PACKAGE_URL : true" \
+    "-q -o * -*S* $RUBY_BUILD_MIRROR_PACKAGE_URL : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$3"
+
+  install_fixture definitions/with-checksum
+
+  assert_success
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub curl
+  unstub shasum
+}
+
+
+@test "package is fetched from original URL if complete mirror URL download fails" {
+  export RUBY_BUILD_MIRROR_URL=
+  export RUBY_BUILD_MIRROR_PACKAGE_URL=http://mirror.example.com/package-1.0.0.tar.gz
+  local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
+
+  stub shasum true "echo $checksum"
+  stub curl "-*I* $RUBY_BUILD_MIRROR_PACKAGE_URL : false" \
+    "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+
+  install_fixture definitions/with-checksum
+
+  assert_success
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub curl
+  unstub shasum
+}
+
+
+@test "package is fetched from original URL if complete mirror URL download checksum is invalid" {
+  export RUBY_BUILD_MIRROR_URL=
+  export RUBY_BUILD_MIRROR_PACKAGE_URL=http://mirror.example.com/package-1.0.0.tar.gz
+  local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
+
+  stub shasum true "echo invalid" "echo $checksum"
+  stub curl "-*I* $RUBY_BUILD_MIRROR_PACKAGE_URL : true" \
+    "-q -o * -*S* $RUBY_BUILD_MIRROR_PACKAGE_URL : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$3" \
+    "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+
+  install_fixture definitions/with-checksum
+  echo "$output" >&2
+
+  assert_success
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub curl
+  unstub shasum
+}
