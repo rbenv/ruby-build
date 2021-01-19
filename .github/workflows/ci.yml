@@ -1,10 +1,14 @@
-name: test with macos
+name: Test
 
 on: [push, pull_request]
 
 jobs:
-  build:
-    runs-on: macos-latest
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - run: git clone --depth 1 https://github.com/sstephenson/bats.git
