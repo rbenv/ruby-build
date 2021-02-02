@@ -1,0 +1,1 @@
+install_package "jruby-1.7.0.RC2" "https://s3.amazonaws.com/jruby-org/downloads/1.7.0.RC2/jruby-bin-1.7.0.RC2.tar.gz#db409e892782e39584bd2daca8b9fb7e937512cf73b23f3961efa165c09dc895" warn_eol jruby

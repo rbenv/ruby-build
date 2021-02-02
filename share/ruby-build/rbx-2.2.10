@@ -1,0 +1,2 @@
+require_llvm 3.2
+install_package "rubinius-2.2.10" "https://github.com/rubinius/rubinius/releases/download/v2.2.10/rubinius-2.2.10.tar.bz2#3cb1a6ab2eba19b6dc84734666bb17a34332d247641b1a88b4c9324c69347780" warn_eol rbx

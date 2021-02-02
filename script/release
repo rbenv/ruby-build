@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Usage: script/release
+#
+# - checks out the master branch
+# - changes version in `bin/ruby-build` to current date
+# - commits and tags the change
+# - pushes master + tag to GitHub
+# - opens pull request to update the Homebrew formula
+#
+# TODO: handle making multiple releases on the same date
+
+set -e
+
+echo "Running hub to see if configured correctly"
+echo "This shows the latest release:"
+hub release -L1
+
+git fetch -q --tags origin master
+git checkout -q master
+git merge --ff-only @{upstream}
+
+existing="$(git tag --points-at HEAD)"
+if [ -n "$existing" ]; then
+  echo "Aborting: HEAD is already tagged as '${existing}'" >&2
+  exit 1
+fi
+
+binfile="bin/ruby-build"
+new_version="$(date '+%Y%m%d')"
+version_tag="v${new_version}"
+previous_tag="$(git describe --tags HEAD --abbrev=0)"
+
+if git diff --quiet "${previous_tag}..HEAD" -- bin share; then
+  echo "Aborting: No features to release since '${previous_tag}'" >&2
+  exit 1
+fi
+
+sed -i.bak -E "s!^(RUBY_BUILD_VERSION=).+!\\1\"${new_version}\"!" "$binfile"
+rm -f "${binfile}.bak"
+
+git commit -m "ruby-build ${new_version}" -- "$binfile"
+
+notes_file="$(mktemp)"
+{ echo "ruby-build $new_version"
+  echo
+  git log --no-merges --format='* %s%n%w(0,2,2)%+b' --reverse "${previous_tag}..HEAD^" -- bin share
+} >"$notes_file"
+trap "rm -f '$notes_file'" EXIT
+
+git tag "$version_tag" -F "$notes_file" --edit
+git push origin master "${version_tag}"
+
+git tag --list "$version_tag" --format='%(contents:subject)%0a%0a%(contents:body)' | \
+  hub release create -F- "$version_tag"

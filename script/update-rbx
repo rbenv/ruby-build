@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'open-uri'
+require 'pathname'
+require 'openssl'
+
+file = "http://rubinius-releases-rubinius-com.s3-us-west-2.amazonaws.com/index.txt"
+dir = Pathname(File.expand_path("share/ruby-build"))
+
+URI.open(file).each do |package|
+  next if package.match(/sha512/)
+  version = package.match(/rubinius-([345].[\d\.]+).tar.bz2/)
+
+  next unless version
+
+  version = version[1]
+  defname = "rbx-#{version}"
+
+  next if File.exist?(dir.join(defname))
+
+  package_url = "https://rubinius-releases-rubinius-com.s3.amazonaws.com/rubinius-#{version}.tar.bz2"
+  sha256 = OpenSSL::Digest::SHA256.hexdigest(File.read(URI.open(package_url)))
+
+  definition = <<-TEMPLATE
+require_llvm 3.7
+install_package "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz#ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d" mac_openssl --if has_broken_mac_openssl
+install_package "rubinius-#{version}" "#{package_url}##{sha256}" rbx
+  TEMPLATE
+
+  File.open(dir.join(defname), "w"){|f| f.write definition}
+end

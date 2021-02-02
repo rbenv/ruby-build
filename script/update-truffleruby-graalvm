@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+if [ $# -ne 2 ]; then
+  echo "usage: $0 VERSION RELEASE_DIRECTORY"
+  exit 1
+fi
+
+version="$1"
+release_directory="$2"
+file="share/ruby-build/truffleruby+graalvm-${version}"
+
+add_platform() {
+  platform="$1"
+  basename="graalvm-ce-java8-${platform}-${version}.tar.gz"
+  url="https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-${version}/${basename}"
+  sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
+
+  cat >> "$file" <<EOS
+  install_package "truffleruby+graalvm-${version}" "${url}#${sha256}" truffleruby_graalvm
+  ;;
+EOS
+}
+
+cat > "$file" <<EOS
+case \$(uname -s) in
+Linux)
+EOS
+add_platform "linux-amd64"
+cat >> "$file" <<EOS
+Darwin)
+  use_homebrew_openssl
+EOS
+add_platform "darwin-amd64"
+cat >> "$file" <<EOS
+*)
+  colorize 1 "Unsupported operating system: \$(uname -s)"
+  return 1
+  ;;
+esac
+EOS

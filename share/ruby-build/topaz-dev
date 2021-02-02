@@ -1,0 +1,1 @@
+install_package topaz "http://topazruby.com/builds/$(topaz_architecture)/latest/?_=.tar.bz2" topaz

@@ -1,0 +1,13 @@
+case $(uname -s) in
+Linux)
+  install_package "truffleruby-1.0.0-rc2" "https://github.com/oracle/truffleruby/releases/download/vm-1.0.0-rc2/truffleruby-1.0.0-rc2-linux-amd64.tar.gz#2b7d999646dcfb895e49a41606a0b53ca055f291fb0cc33002944655fc3e2acb" truffleruby
+  ;;
+Darwin)
+  use_homebrew_openssl
+  install_package "truffleruby-1.0.0-rc2" "https://github.com/oracle/truffleruby/releases/download/vm-1.0.0-rc2/truffleruby-1.0.0-rc2-macos-amd64.tar.gz#308a5bf727914803cc0f794fd1aea89fd5f80ce00a97120372be9c58a930b82c" truffleruby
+  ;;
+*)
+  colorize 1 "Unsupported operating system: $(uname -s)"
+  return 1
+  ;;
+esac

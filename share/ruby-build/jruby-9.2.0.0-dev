@@ -1,0 +1,2 @@
+require_java 8
+install_package "jruby-9.2.0.0-SNAPSHOT" "https://projectodd.ci.cloudbees.com/view/JRuby/job/jruby-development-dist/lastSuccessfulBuild/artifact/release/jruby-bin-9.2.0.0-SNAPSHOT.tar.gz" jruby

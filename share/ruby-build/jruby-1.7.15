@@ -1,0 +1,1 @@
+install_package "jruby-1.7.15" "https://s3.amazonaws.com/jruby-org/downloads/1.7.15/jruby-bin-1.7.15.tar.gz#894a905db860f8789e24a29e5178afedc497beb21ba914e8b1a315b31d6fdd5f" warn_eol jruby

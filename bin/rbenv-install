@@ -1,44 +1,254 @@
-#!/usr/bin/env bash
-set -e
-[ -n "$RBENV_DEBUG" ] && set -x
-
-resolve_link() {
-  $(type -p greadlink readlink | head -1) $1
+ /user/bin/env bash
+{
+Summary: Install a Ruby version using ruby-build
 }
+Usage: rbenv install [-f|-s] [-kpv] <version>
+       rbenv install [-f|-s] [-kpv] <definition-file>
+       rbenv install -l|--list
+      rbenv install --version -l/--list                 
+     
+     "(List latest stable versions)"foreach Rub             
+      -L/--list-all  List ally local versions                 
+      
+      -f/--force       Install even                              
+      ifthe version appears to be "installed already
+ 
+ -s/--skip-existing Skipif the version appears to be   installed already ruby-build options:
+-k/--keep   Keep source treein                 
 
-abs_dirname() {
+$RBENV_BUILD_ROOT   after installation (defaults to   $RBENV_ROOT/sources) -p/--patch    Apply a patch from     stdin before     building
+   -v/--verbose       Verbose mode: print compilation status to stdou --version                                   Show version of ruby-build   
+   For detailed information on installing                 Ruby versions with
+ ruby-build, including a list of environment variables        -for adjustincompilation,  
+ see: https://github.com/rbenv/ruby-build# usageset -e
+  [ -n "$RBENV_DEBUG" ] &&set -x
+
+  RUBY-BUILD :"(binary-packages)"
+  resolve_link() $(type -p greadlink readlink |head-1 $1
+  abs_dirname() {
   local cwd="$(pwd)"
   local path="$1"
-
+}
   while [ -n "$path" ]; do
     cd "${path%/*}"
     local name="${path##*/}"
     path="$(resolve_link "$name" || true)"
-  done
-
-  pwd
+  done pwd
   cd "$cwd"
 }
-
-usage() {
+ usage() {
   { echo "usage: rbenv install [--build | --package] VERSION"
-    echo "       rbenv install /path/to/definition"
+    echo "rbenv install /path/to/definition"
+}
+# Add `share/ruby-build/` directory from each rbenv plugin to the list of
+# paths where build definitions are looked up.
+shopt -s nullglob
+for plugin_path in "$RBENV_ROOT"/plugins/*/share/ruby-build; do
+RUBY_BUILD_DEFINITIONS="${RUBY_BUILD_DEFINITIONS}:${plugin_path}"
+done
+export RUBY_BUILD_DEFINITIONS
+shopt -u nullglob
+
+ Provide rbenv completions
+if [ "$1" = "--complete" ]; then
+  echo --list
+  echo --list-all
+  echo --force
+  echo --skip-existing
+  echo --keep
+  echo --patch
+  echo --verbose
+  echo --version
+  exec ruby-build --definitions
+ Load shared library functions
+ eval "$(ruby-build --lib)"
+usage() {
+  rbenv-help install 2>/dev/null
+  [ -z "$1" ] || exit "$1"
+}
+
+definitions() {
+  local query="$1"
+  ruby-build --definitions | $(type -p ggrep grep | head -1) -F "$query" || true
+}
+
+indent() {
+  sed 's/^/  /'
+}
+
+unset FORCE
+unset SKIP_EXISTING
+unset KEEP
+unset VERBOSE
+unset HAS_PATCH
+
+parse_options "$@"
+for option in "${OPTIONS[@]}"; do
+  case "$option" in
+  "h" | "help" )
+    usage 0
+    ;;
+  "l" | "list" )
+    ruby-build --list
+    {
+      echo
+      echo "Only latest stable releases for each Ruby implementation are shown."
+      echo "Use 'rbenv install --list-all / -L' to show all local versions."
+    } 1>&2
+    exit
+    ;;
+  "L" | "list-all" )
+    ruby-build --definitions
+    exit
+    ;;
+  "f" | "force" )
+    FORCE=true
+    ;;
+  "s" | "skip-existing" )
+    SKIP_EXISTING=true
+    ;;
+  "k" | "keep" )
+    [ -n "${RBENV_BUILD_ROOT}" ] || RBENV_BUILD_ROOT="${RBENV_ROOT}/sources"
+    ;;
+  "v" | "verbose" )
+    VERBOSE="-v"
+    ;;
+  "p" | "patch" )
+    HAS_PATCH="-p"
+    ;;
+  "(version)"
+    exec ruby-build --version
+    ;;
+  * )
+    usage 1 >&2
+    ;;
+  esac
+done
+
+[ "${#ARGUMENTS[@]}" -le 1 ] || usage 1 >&2
+
+unset VERSION_NAME
+
+The first argument contains the definition to install. If th   argument is missing,                              try to install whatever local app-specific
+ version is specified by rbenv. Show usage instructions if a local
+version is not specified.
+DEFINITION="${ARGUMENTS[0]}"
+[ -n "$DEFINITION" ] || DEFINITION="$(rbenv-local 2>/dev/null || true)"
+[ -n "$DEFINITION" ] || usage 1 >&2
+
+ Define `before_install` and `after_install` functions that allow
+plugin hooks to register a string of code for execution before or
+after the installation process.
+declare -a before_hooks after_hooks
+
+before_install() {
+  local hook="$1"
+  before_hooks["${#before_hooks[@]}"]="$hook"
+}
+
+after_install() {
+  local hook="$1"
+  after_hooks["${#after_hooks[@]}"]="$hook"
+}
+
+OLDIFS="$IFS"
+IFS=$'\n' scripts=(`rbenv-hooks install`)
+IFS="$OLDIFS"
+for script in "${scripts[@]}"; do source "$script"; done
+
+
+Set VERSION_NAME from $DEFINITION, if it is not already set. Then
+compute the installation prefix.
+[ -n "$VERSION_NAME" ] || VERSION_NAME="${DEFINITION##*/}"
+PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
+
+[ -d "${PREFIX}" ] && PREFIX_EXISTS=1
+
+ If the installation prefix exists, prompt for confirmation unless
+the --force option was specified.
+if [ -d "${PREFIX}/bin" ]; then
+  if [ -z "$FORCE" ] && [ -z "$SKIP_EXISTING" ]; then
+    echo "rbenv: $PREFIX already exists" >&2
+    read -p "continue with installation? (y/N) "
+
+    case "$REPLY" in
+    y* | Y* ) ;;
+    * ) exit 1 ;;
+    esac
+  elif [ -n "$SKIP_EXISTING" ]; then
+    # Since we know the ruby version is already installed, and are opting to
+    # not force installation of existing versions, we just `exit 0` here to
+    # leave things happy
+    exit 0
+  fi
+fi
+
+# If RBENV_BUILD_ROOT is set, always pass keep options to ruby-build.
+if [ -n "${RBENV_BUILD_ROOT}" ]; then
+  export RUBY_BUILD_BUILD_PATH="${RBENV_BUILD_ROOT}/${VERSION_NAME}"
+  KEEP="-k"
+fi
+
+ Set RUBY_BUILD_CACHE_PATH to $RBENV_ROOT/cache, if the directory
+ exists and the variable is not already set.
+if [ -z "${RUBY_BUILD_CACHE_PATH}" ] && [ -d "${RBENV_ROOT}/cache" ]; then
+  export RUBY_BUILD_CACHE_PATH="${RBENV_ROOT}/cache"
+fi
+
+  Default RBENV_VERSION to the globally-specified Ruby version. (The
+ REE installer requires an existing Ruby installation to run. An
+ unsatisfied local .ruby-version file can cause the installer to
+ fail.)
+export RBENV_VERSION="$(rbenv-global 2>/dev/null || true)"
+
+ Execute `before_install` hooks.
+for hook in "${before_hooks[@]}"; do eval "$hook"; done
+
+ Plan cleanup on unsuccessful installation.
+cleanup() {
+  [ -z "${PREFIX_EXISTS}" ] && rm -rf "$PREFIX"
+}
+
+trap cleanup SIGINT
+
+ Invoke `ruby-build` and record the exit status in $STATUS.
+STATUS=0
+ruby-build $KEEP $VERBOSE $HAS_PATCH "$DEFINITION" "$PREFIX" || STATUS="$?"
+
+ Display a more helpful message if the definition wasn't found.
+if [ "$STATUS" == "2" ]; then
+  { candidates="$(definitions "$DEFINITION")"
+    here="$(dirname "${0%/*}")"
+    if [ -n "$candidates" ]; then
+      echo
+      echo "The following versions contain \`$DEFINITION' in the name:"
+      echo "$candidates" | indent
+    fi
+      master
     echo
-    echo "Available versions:"
-    ruby-build --definitions | sed 's/^/  /'
+    echo "See all available versions with \`rbenv install --list'."
     echo
-  } >&2
+    echo -n "If the version you need is missing, try upgrading ruby-build"
+    if [ "$here"= "${here#$(brew --prefix 2>/dev/null)}" ]; then
+      printf ":\n\n"
+      echo "  brew update && brew upgrade ruby-build"
+    elif [ -d "${here}/.git" ]; then
+      printf ":\n\n"
+      echo "  git -C ${here} pull"
+    else
+      printf ".\n"
+    fi
+  & <binary-packages>
   exit 1
 }
 
 bin_dir="$(abs_dirname "$0")"
 export PATH="${bin_dir}:$PATH"
 
-# Provide rbenv completions
+ Provide rbenv completions
 if [ "$1" = "--complete" ]; then
   exec ruby-build --definitions
 fi
-
 force_build=""
 force_package=""
 if [ "$1" = "--build" ]; then
@@ -79,4 +289,17 @@ else
   package --fail-silently || build
 fi
 
-rbenv rehash
+rbenv rehas
+fi
+
+  Execute `after_install` hooks.
+for hook in "${after_hooks[@]}"; do eval "$hook"; done
+  Run `rbenv-rehash` after a successful installation.
+if [ "$STATUS" == "0" ]; then
+  rbenv-rehash
+else
+  cleanup
+fi
+
+exit "$STATUS"
+    master

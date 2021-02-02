@@ -1,0 +1,12 @@
+sudo: false
+install: git clone --depth 1 https://github.com/sstephenson/bats.git
+script: PATH="./bats/bin:$PATH" script/test
+language: c
+notifications:
+  email:
+    on_success: never
+env:
+  global:
+    - AMAZON_S3_BUCKET=ruby-build-mirror
+    - AMAZON_ACCESS_KEY_ID=AKIAJKAUQVHU6X4CODDQ
+    - secure: LTSvDP2o72nbECDwWsfwnsiETF4VpqrYN3y/ve68AZIMzfNWDB5vhqzMLU1ltFnSNxd71gTCGX2OEcsxdrfnG+Msu52v8FtJ7lz/b9xn83gGYrGnmEMzARtd1fnuzlWQh/1eNL9jrNl8FDhgjoTqKl2gF6fZBsQxcHRnvRSXcqE=

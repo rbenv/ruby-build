@@ -1,0 +1,3 @@
+require_llvm 3.7
+install_package "openssl-1.0.2u" "https://www.openssl.org/source/openssl-1.0.2u.tar.gz#ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16" mac_openssl --if has_broken_mac_openssl
+install_package "rubinius-3.93" "https://rubinius-releases-rubinius-com.s3.amazonaws.com/rubinius-3.93.tar.bz2#851a93d68727f41603dbafa498ffe37bcdf2e6c697ba07c7804062f6a07200a9" rbx

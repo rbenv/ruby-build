@@ -1,95 +1,168 @@
 # ruby-build
 
-ruby-build provides a simple way to compile and install different
-versions of Ruby on UNIX-like systems.
+ruby-build is a command-line utility that makes it easy to install virtually any
+version of Ruby, from source.
 
-### Installing ruby-build
+It is available as a plugin for [rbenv][] that
+provides the `rbenv install` command, or as a standalone program.
 
-    $ git clone git://github.com/sstephenson/ruby-build.git
-    $ cd ruby-build
-    $ ./install.sh
+## Installation
 
-This will install ruby-build into `/usr/local`. If you do not have
-write permission to `/usr/local`, you will need to run `sudo
-./install.sh` instead. You can install to a different prefix by
-setting the `PREFIX` environment variable.
+```sh
+# Using Homebrew on macOS
+$ brew install ruby-build
 
-### Installing Ruby
+# As an rbenv plugin
+$ mkdir -p "$(rbenv root)"/plugins
+$ git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
 
-To install a Ruby version, run the `ruby-build` command with the path
-to a definition file and the path where you want to install it. (A
-number of [built-in
-definitions](https://github.com/sstephenson/ruby-build/tree/master/share/ruby-build)
-may be specified instead.)
+# As a standalone program
+$ git clone https://github.com/rbenv/ruby-build.git
+$ PREFIX=/usr/local ./ruby-build/install.sh
+```
 
-    $ ruby-build 1.9.2-p290 ~/local/ruby-1.9.2-p290
-    ...
-    $ ~/local/ruby-1.9.2-p290/bin/ruby --version
-    ruby 1.9.2p290 (2011-07-09 revision 32553) [x86_64-darwin11.0.0]
+### Upgrading
 
-You can use it with [rbenv](https://github.com/sstephenson/rbenv):
+```sh
+# Via Homebrew
+$ brew update && brew upgrade ruby-build
 
-    $ ruby-build 1.9.2-p290 ~/.rbenv/versions/1.9.2-p290
+# As an rbenv plugin
+$ git -C "$(rbenv root)"/plugins/ruby-build pull
+```
 
-ruby-build provides an `rbenv-install` command that shortens this to:
+## Usage
 
-    $ rbenv install 1.9.2-p290
+### Basic Usage
 
-### Version History
+```sh
+# As an rbenv plugin
+$ rbenv install --list                 # lists all available versions of Ruby
+$ rbenv install 2.2.0                  # installs Ruby 2.2.0 to ~/.rbenv/versions
 
-#### 20110928
+# As a standalone program
+$ ruby-build --definitions             # lists all available versions of Ruby
+$ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2.0
+```
 
-* ruby-build now uses the `--with-gcc` configure flag on OS X Lion.
-* Added definitions for REE 1.8.7-2010.02 and 1.8.6-2009.06.
-* Modified `rbenv-install` to run `rbenv rehash` after installation.
-* Added a Ruby 1.9.3-rc1 definition.
-* Updated the JRuby defintions to install the `jruby-launcher` gem.
-* Updated the rbx-2.0.0 definition to point to the master branch.
-* Added a jruby-1.7.0-dev definition.
-* Added a Ruby 1.9.4-dev definition.
+ruby-build does not check for system dependencies before downloading and
+attempting to compile the Ruby source. Please ensure that [all requisite
+libraries][build-env] are available on your system.
 
-#### 20110914
+### Advanced Usage
 
-* Added an rbx-2.0.0-dev definition for Rubinius 2.0.0 from git.
-* Added support for setting `./configure` options with the
-  `CONFIGURE_OPTS` environment variable.
-* Added a 1.9.3-dev definition for Ruby 1.9.3 from Git.
-* Added support for fetching package sources via Git.
-* Added an `rbenv-install` script which provides an `install` command
-  for rbenv users.
+#### Custom Build Definitions
 
-#### 20110906.1
+If you wish to develop and install a version of Ruby that is not yet supported
+by ruby-build, you may specify the path to a custom “build definition file” in
+place of a Ruby version number.
 
-* Changed the REE definition not to install its default gem
-  collection.
-* Reverted a poorly-tested change that intended to enable support for
-  relative installation paths.
+Use the [default build definitions][definitions] as a template for your custom
+definitions.
 
-#### 20110906
+#### Custom Build Configuration
 
- * Initial public release.
+The build process may be configured through the following environment variables:
 
-### License
+| Variable                        | Function                                                                                         |
+| ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `TMPDIR`                        | Where temporary files are stored.                                                                |
+| `RUBY_BUILD_BUILD_PATH`         | Where sources are downloaded and built. (Default: a timestamped subdirectory of `TMPDIR`)        |
+| `RUBY_BUILD_CACHE_PATH`         | Where to cache downloaded package files. (Default: `~/.rbenv/cache` if invoked as rbenv plugin)  |
+| `RUBY_BUILD_HTTP_CLIENT`        | One of `aria2c`, `curl`, or `wget` to use for downloading. (Default: first one found in PATH)    |
+| `RUBY_BUILD_ARIA2_OPTS`         | Additional options to pass to `aria2c` for downloading.                                          |
+| `RUBY_BUILD_CURL_OPTS`          | Additional options to pass to `curl` for downloading.                                            |
+| `RUBY_BUILD_WGET_OPTS`          | Additional options to pass to `wget` for downloading.                                            |
+| `RUBY_BUILD_MIRROR_URL`         | Custom mirror URL root.                                                                          |
+| `RUBY_BUILD_MIRROR_PACKAGE_URL` | Custom complete mirror URL (e.g. http://mirror.example.com/package-1.0.0.tar.gz).                  |
+| `RUBY_BUILD_SKIP_MIRROR`        | Bypass the download mirror and fetch all package files from their original URLs.                 |
+| `RUBY_BUILD_ROOT`               | Custom build definition directory. (Default: `share/ruby-build`)                                 |
+| `RUBY_BUILD_DEFINITIONS`        | Additional paths to search for build definitions. (Colon-separated list)                         |
+| `CC`                            | Path to the C compiler.                                                                          |
+| `RUBY_CFLAGS`                   | Additional `CFLAGS` options (_e.g.,_ to override `-O3`).                                         |
+| `CONFIGURE_OPTS`                | Additional `./configure` options.                                                                |
+| `MAKE`                          | Custom `make` command (_e.g.,_ `gmake`).                                                         |
+| `MAKE_OPTS` / `MAKEOPTS`        | Additional `make` options.                                                                       |
+| `MAKE_INSTALL_OPTS`             | Additional `make install` options.                                                               |
+| `RUBY_CONFIGURE_OPTS`           | Additional `./configure` options (applies only to Ruby source).                                  |
+| `RUBY_MAKE_OPTS`                | Additional `make` options (applies only to Ruby source).                                         |
+| `RUBY_MAKE_INSTALL_OPTS`        | Additional `make install` options (applies only to Ruby source).                                 |
 
-(The MIT License)
+#### Applying Patches
 
-Copyright (c) 2011 Sam Stephenson
+Both `rbenv install` and `ruby-build` support the `--patch` (`-p`) flag to apply
+a patch to the Ruby (/JRuby/Rubinius/TruffleRuby) source code before building.
+Patches are read from `STDIN`:
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+```sh
+# applying a single patch
+$ rbenv install --patch 1.9.3-p429 < /path/to/ruby.patch
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+# applying a patch from HTTP
+$ rbenv install --patch 1.9.3-p429 < <(curl -sSL http://git.io/ruby.patch)
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# applying multiple patches
+$ cat fix1.patch fix2.patch | rbenv install --patch 1.9.3-p429
+```
+
+#### Checksum Verification
+
+If you have the `shasum`, `openssl`, or `sha256sum` tool installed, ruby-build will
+automatically verify the SHA2 checksum of each downloaded package before
+installing it.
+
+Checksums are optional and specified as anchors on the package URL in each
+definition. All definitions bundled with ruby-build include checksums.
+
+#### Package Mirrors
+
+To speed up downloads, ruby-build fetches package files from a mirror hosted on
+Amazon CloudFront. To benefit from this, the packages must specify their checksum:
+
+```sh
+# example:
+install_package "ruby-2.6.5" "https://ruby-lang.org/ruby-2.6.5.tgz#<SHA2>"
+```
+
+ruby-build will first try to fetch this package from `$RUBY_BUILD_MIRROR_URL/<SHA2>`
+(note: this is the complete URL), where `<SHA2>` is the checksum for the file. It
+will fall back to downloading the package from the original location if:
+- the package was not found on the mirror;
+- the mirror is down;
+- the download is corrupt, i.e. the file's checksum doesn't match;
+- no tool is available to calculate the checksum; or
+- `RUBY_BUILD_SKIP_MIRROR` is enabled.
+
+You may specify a custom mirror by setting `RUBY_BUILD_MIRROR_URL`.
+
+If a mirror site doesn't conform to the above URL format, you can specify the
+complete URL by setting `RUBY_BUILD_MIRROR_PACKAGE_URL`. It behaves the same as
+`RUBY_BUILD_MIRROR_URL` except being a complete URL.
+
+The default ruby-build download mirror is sponsored by
+[Basecamp](https://basecamp.com/).
+
+#### Keeping the build directory after installation
+
+Both `ruby-build` and `rbenv install` accept the `-k` or `--keep` flag, which
+tells ruby-build to keep the downloaded source after installation. This can be
+useful if you need to use `gdb` and `memprof` with Ruby.
+
+Source code will be kept in a parallel directory tree `~/.rbenv/sources` when
+using `--keep` with the `rbenv install` command. You should specify the
+location of the source code with the `RUBY_BUILD_BUILD_PATH` environment
+variable when using `--keep` with `ruby-build`.
+
+## Getting Help
+
+Please see the [ruby-build wiki][wiki] for solutions to common problems.
+
+If you can't find an answer on the wiki, open an issue on the [issue tracker][].
+Be sure to include the full build log for build failures.
+
+
+  [rbenv]: https://github.com/rbenv/rbenv
+  [definitions]: https://github.com/rbenv/ruby-build/tree/master/share/ruby-build
+  [wiki]: https://github.com/rbenv/ruby-build/wiki
+  [build-env]: https://github.com/rbenv/ruby-build/wiki#suggested-build-environment
+  [issue tracker]: https://github.com/rbenv/ruby-build/issues

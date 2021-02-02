@@ -1,0 +1,2 @@
+require_gcc
+install_package "ruby-enterprise-1.8.7-2012.02" "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition/ruby-enterprise-1.8.7-2012.02.tar.gz#ecf4a6d4c96b547b3bf4b6be14e082ddaa781e83ad7f69437cd3169fb7576e42" warn_eol ree_installer

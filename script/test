@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -e
+
+STATUS=0
+bats ${CI:+--tap} test || STATUS="$?"
+
+if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then
+  ./script/mirror update "$TRAVIS_COMMIT_RANGE"
+elif [ "${TRAVIS_PULL_REQUEST:-false}" != "false" ]; then
+  ./script/mirror verify "$TRAVIS_COMMIT_RANGE"
+fi
+
+exit "$STATUS"

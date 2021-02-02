@@ -1,0 +1,11 @@
+name: test with macos
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: git clone --depth 1 https://github.com/sstephenson/bats.git
+    - run: PATH="./bats/bin:$PATH" script/test
