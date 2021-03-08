@@ -14,7 +14,7 @@
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20200520"
+RUBY_BUILD_VERSION="20210119"
 
 OLDIFS="$IFS"
 
@@ -365,6 +365,8 @@ fetch_tarball() {
       if [[ -z "$RUBY_BUILD_DEFAULT_MIRROR" || $package_url != */cache.ruby-lang.org/* ]]; then
         mirror_url="${RUBY_BUILD_MIRROR_URL}/$checksum"
       fi
+    elif [ -n "$RUBY_BUILD_MIRROR_PACKAGE_URL" ]; then
+      mirror_url="$RUBY_BUILD_MIRROR_PACKAGE_URL"
     fi
   fi
 
@@ -751,6 +753,29 @@ build_package_truffleruby() {
   "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
 
+build_package_truffleruby_graalvm() {
+  clean_prefix_path
+  build_package_copy_to "${PREFIX_PATH}/graalvm"
+
+  cd "${PREFIX_PATH}/graalvm"
+  if is_mac; then
+    cd Contents/Home || return $?
+  fi
+
+  bin/gu install ruby || return $?
+
+  local ruby_home
+  ruby_home=$(bin/ruby -e 'print RbConfig::CONFIG["prefix"]')
+
+  # Make gu available in PATH (useful to install other languages)
+  ln -s "$PWD/bin/gu" "$ruby_home/bin/gu"
+
+  cd "${PREFIX_PATH}"
+  ln -s "${ruby_home#"$PREFIX_PATH/"}/bin" . || return $?
+
+  "$ruby_home/lib/truffle/post_install_hook.sh"
+}
+
 build_package_artichoke() {
   build_package_copy
 
@@ -767,11 +792,20 @@ remove_windows_files() {
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
 }
 
-build_package_copy() {
+clean_prefix_path() {
   # Make sure there are no leftover files in $PREFIX_PATH
   rm -rf "$PREFIX_PATH"
-  mkdir -p "$PREFIX_PATH"
-  cp -fR . "$PREFIX_PATH"
+}
+
+build_package_copy_to() {
+  to="$1"
+  mkdir -p "$to"
+  cp -fR . "$to"
+}
+
+build_package_copy() {
+  clean_prefix_path
+  build_package_copy_to "$PREFIX_PATH"
 }
 
 before_install_package() {
@@ -1231,14 +1265,14 @@ list_maintained_versions() {
 extract_latest_versions() {
   # sort in this function looks redundunt but it is necessary
   # rbx-3.99 appears latest unless the sort
-  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
+  sed 'h; s/[-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | \
-    sed 's/[+.]/ /; s/[0-9].*z //; s/^\([0-9].[0-9]\)/mri\1 \1/' | \
+    sed 's/[.]/ /; s/[0-9].*z //; s/^\([0-9].[0-9]\)/mri\1 \1/' | \
     awk '{ latest[$1] =$2 } END{ for(key in latest) { print latest[key] } }'
 }
 
 sort_versions() {
-  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
+  sed 'h; s/[-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
@@ -1377,7 +1411,7 @@ else
   unset RUBY_BUILD_CACHE_PATH
 fi
 
-if [ -z "$RUBY_BUILD_MIRROR_URL" ]; then
+if [ -z "$RUBY_BUILD_MIRROR_URL" -a -z "$RUBY_BUILD_MIRROR_PACKAGE_URL" ]; then
   RUBY_BUILD_MIRROR_URL="https://dqw8nmjcqpjn7.cloudfront.net"
   RUBY_BUILD_DEFAULT_MIRROR=1
 else
@@ -1386,7 +1420,7 @@ else
 fi
 
 if [ -n "$RUBY_BUILD_SKIP_MIRROR" ] || ! has_checksum_support compute_sha2; then
-  unset RUBY_BUILD_MIRROR_URL
+  unset RUBY_BUILD_MIRROR_URL RUBY_BUILD_MIRROR_PACKAGE_URL
 fi
 
 ARIA2_OPTS="${RUBY_BUILD_ARIA2_OPTS} ${IPV4+--disable-ipv6=true} ${IPV6+--disable-ipv6=false}"

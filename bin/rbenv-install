@@ -83,7 +83,7 @@ for option in "${OPTIONS[@]}"; do
     {
       echo
       echo "Only latest stable releases for each Ruby implementation are shown."
-      echo "Use 'rbenv install --list-all' to show all local versions."
+      echo "Use 'rbenv install --list-all / -L' to show all local versions."
     } 1>&2
     exit
     ;;
