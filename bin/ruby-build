@@ -622,7 +622,7 @@ build_package_standard() {
 }
 
 build_package_autoconf() {
-  { autoconf
+  { autoreconf -i
   } >&4 2>&1
 }
 
