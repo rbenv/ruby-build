@@ -12,6 +12,7 @@
 #   --definitions    List all local definitions
 #   -l/--list        List latest stable releases for each Ruby
 #   --movable        Build so the resulting ruby can moved elsewhere on the filesystem, another host, etc
+#   --binary         Download an install a binary the RVM prebuilt tarballs
 #   --version        Show version of ruby-build
 #
 
@@ -1279,9 +1280,29 @@ sort_versions() {
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
+fetch_binary() {
+  # FIXME need to only allow MRI or find another place for them
+  local version="$BINARY_DEFINITION"
+  # FIXME need to account for macos, and non-ubuntu releases
+  local release=$(lsb_release --short --release)
+  local distributor_id=$(lsb_release --short --id | tr 'A-Z' 'a-z') # needs to be lowercase
+  local hardware_platform=$(uname --hardware-platform)
+
+  local package_with_version="ruby-${version}"
+  local filename="${package_with_version}.tar.bz2"
+  local url="https://rvm_io.global.ssl.fastly.net/binaries/${distributor_id}/${release}/x86_64/${filename}"
+
+  # TODO use checksum
+  # echo "would download $url"
+  http get "${url}" "${filename}"
+  tar xf "${filename}"
+
+  cp -a "${package_with_version}" "${PREFIX_PATH}"
+}
 
 unset VERBOSE
 unset MOVABLE
+unset BINARY
 unset KEEP_BUILD_PATH
 unset HAS_PATCH
 unset IPV4
@@ -1318,6 +1339,9 @@ for option in "${OPTIONS[@]}"; do
   "movable" )
     MOVABLE=true
     ;;
+  "binary" )
+    BINARY=true
+    ;;
   "p" | "patch" )
     HAS_PATCH=true
     ;;
@@ -1339,17 +1363,22 @@ done
 DEFINITION_PATH="${ARGUMENTS[0]}"
 if [ -z "$DEFINITION_PATH" ]; then
   usage 1 >&2
-elif [ ! -f "$DEFINITION_PATH" ]; then
-  for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
-    if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
-      DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
-      break
-    fi
-  done
+# if the definition file isn't a file, try looking in the definition directories
+elif  [ ! -f "$DEFINITION_PATH" ]; then
+  if [ -z "${BINARY}" ]; then
+    for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
+        DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
+        break
+      fi
+    done
 
-  if [ ! -f "$DEFINITION_PATH" ]; then
-    echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
-    exit 2
+    if [ ! -f "$DEFINITION_PATH" ]; then
+      echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
+      exit 2
+    fi
+  else
+    BINARY_DEFINITION="$DEFINITION_PATH"
   fi
 fi
 
@@ -1470,6 +1499,13 @@ unset RUBYLIB
 
 trap build_failed ERR
 mkdir -p "$BUILD_PATH"
-source "$DEFINITION_PATH"
+
+if [ -n "${BINARY_DEFINITION}" ]; then
+  cd "$BUILD_PATH"
+  fetch_binary
+else
+  source "$DEFINITION_PATH"
+fi
+
 [ -z "${KEEP_BUILD_PATH}" ] && rm -fr "$BUILD_PATH"
 trap - ERR

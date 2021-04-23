@@ -18,6 +18,7 @@
 #                      (defaults to $RBENV_ROOT/sources)
 #   -p/--patch         Apply a patch from stdin before building
 #   --movable          Build so the resulting ruby can moved elsewhere on the filesystem, another host, etc
+#   --binary           Download an install a binary the RVM prebuilt tarballs
 #   -v/--verbose       Verbose mode: print compilation status to stdout
 #   --version          Show version of ruby-build
 #
@@ -48,6 +49,7 @@ if [ "$1" = "--complete" ]; then
   echo --verbose
   echo --version
   echo --movable
+  echo --binary
   exec ruby-build --definitions
 fi
 
@@ -73,6 +75,7 @@ unset SKIP_EXISTING
 unset KEEP
 unset VERBOSE
 unset MOVABLE
+unset BINARY
 unset HAS_PATCH
 
 parse_options "$@"
@@ -114,6 +117,9 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "movable" )
     MOVABLE="--movable"
+    ;;
+  "binary" )
+    BINARY="--binary"
     ;;
   * )
     usage 1 >&2
@@ -211,7 +217,7 @@ trap cleanup SIGINT
 
 # Invoke `ruby-build` and record the exit status in $STATUS.
 STATUS=0
-ruby-build $KEEP $VERBOSE $HAS_PATCH $MOVABLE "$DEFINITION" "$PREFIX" || STATUS="$?"
+ruby-build $KEEP $VERBOSE $HAS_PATCH $MOVABLE $BINARY "$DEFINITION" "$PREFIX" || STATUS="$?"
 
 # Display a more helpful message if the definition wasn't found.
 if [ "$STATUS" == "2" ]; then
