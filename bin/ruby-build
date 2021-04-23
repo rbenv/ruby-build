@@ -11,6 +11,7 @@
 #   -6/--ipv6        Resolve names to IPv6 addresses only
 #   --definitions    List all local definitions
 #   -l/--list        List latest stable releases for each Ruby
+#   --movable        Build so the resulting ruby can moved elsewhere on the filesystem, another host, etc
 #   --version        Show version of ruby-build
 #
 
@@ -21,6 +22,7 @@ OLDIFS="$IFS"
 set -E
 exec 3<&2 # preserve original stderr at fd 3
 
+[ -n "$RBENV_DEBUG" ] && set -x
 
 lib() {
   parse_options() {
@@ -560,6 +562,7 @@ build_package_warn_unsupported() {
 }
 
 build_package_standard_build() {
+  set -x
   local package_name="$1"
 
   if [ "${MAKEOPTS+defined}" ]; then
@@ -1278,6 +1281,7 @@ sort_versions() {
 
 
 unset VERBOSE
+unset MOVABLE
 unset KEEP_BUILD_PATH
 unset HAS_PATCH
 unset IPV4
@@ -1310,6 +1314,9 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "v" | "verbose" )
     VERBOSE=true
+    ;;
+  "movable" )
+    MOVABLE=true
     ;;
   "p" | "patch" )
     HAS_PATCH=true
@@ -1436,6 +1443,16 @@ if [ -z "$RUBY_BUILD_BUILD_PATH" ]; then
   BUILD_PATH="$(mktemp -d "${LOG_PATH%.log}.XXXXXX")"
 else
   BUILD_PATH="$RUBY_BUILD_BUILD_PATH"
+fi
+
+if [ -n "$MOVABLE" ]; then
+  RUBY_CONFIGURE_OPTS="${RUBY_CONFIG_OPTS} --enable-load-relative"
+  case $(uname -s) in
+  Darwin)
+    RUBY_CONFIGURE_OPTS="${RUBY_CONFIG_OPTS} --with-static-linked-ext --with-out-ext=dl/win32,fiddle/win32,tk/tkutil,tk,win32ole,-test-/win32/dln,-test-/win32/fd_setsize"
+    ;;
+  esac
+  RUBY_CONFIGURE_OPTS="${RUBY_CONFIG_OPTS} --sysconfdir=/etc"
 fi
 
 exec 4<> "$LOG_PATH" # open the log file at fd 4
