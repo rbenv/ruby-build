@@ -1,10 +1,10 @@
 case $(uname -s) in
 Linux)
-  install_package "truffleruby+graalvm-21.1.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-linux-amd64-21.1.0.tar.gz#268d6ecabce3f49e69988f6089816faecc04dade0218f02355224ff5108411d9" truffleruby_graalvm
+  install_package "truffleruby+graalvm-21.1.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-linux-amd64-21.1.0.tar.gz#39252954d2cb16dbc8ce4269f8b93a326a0efffdce04625615e827fe5b5e4ab7" truffleruby_graalvm
   ;;
 Darwin)
   use_homebrew_openssl
-  install_package "truffleruby+graalvm-21.1.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-darwin-amd64-21.1.0.tar.gz#c95108f380e71db44aa3c911705b0878646419e3b0372f97248e8f1ca5a484e0" truffleruby_graalvm
+  install_package "truffleruby+graalvm-21.1.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-darwin-amd64-21.1.0.tar.gz#b53cd5a085fea39cb27fc0e3974f00140c8bb774fb2854d72db99e1be405ae2b" truffleruby_graalvm
   ;;
 *)
   colorize 1 "Unsupported operating system: $(uname -s)"
