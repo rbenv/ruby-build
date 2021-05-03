@@ -592,7 +592,7 @@ build_package_standard_build() {
       "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} || return 1
   ) >&4 2>&1
 
-  { "$MAKE" "${!PACKAGE_MAKE_OPTS_ARRAY}" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} 
+  { "$MAKE" "${!PACKAGE_MAKE_OPTS_ARRAY}" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
   } >&4 2>&1
 }
 
@@ -1169,7 +1169,9 @@ build_package_ldflags_dirs() {
 }
 
 build_package_enable_shared() {
-  package_option ruby configure --enable-shared
+  if [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-shared"* ]]; then
+    package_option ruby configure --enable-shared
+  fi
 }
 
 build_package_auto_tcltk() {
