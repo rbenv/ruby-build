@@ -1,0 +1,7 @@
+Gem::Specification.new do |gem|
+  gem.name = "#{GEM_NAME}"
+  gem.homepage = "#{GEM_HOMEPAGE}"
+  s.metadata = {
+    "funding_uri" => "#{GEM_FUNDING_PAGE}"
+  }
+end
