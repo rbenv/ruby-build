@@ -11,5 +11,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - run: git clone --depth 1 https://github.com/sstephenson/bats.git
     - run: PATH="./bats/bin:$PATH" script/test
+      env:
+        COMMIT_RANGE: ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
