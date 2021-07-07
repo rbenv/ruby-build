@@ -5,13 +5,7 @@ set -x
 STATUS=0
 bats ${CI:+--tap} test || STATUS="$?"
 
-if [ -n "$TRAVIS_COMMIT_RANGE" ]; then
-  COMMIT_RANGE="$TRAVIS_COMMIT_RANGE"
-fi
-
-if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then
-  ./script/mirror update "$COMMIT_RANGE"
-elif [ "${TRAVIS_PULL_REQUEST:-false}" != "false" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
   ./script/mirror verify "$COMMIT_RANGE"
 fi
 
