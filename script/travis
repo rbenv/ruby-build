@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-set -e
-set -x
-
-if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then
-  ./script/mirror update "$TRAVIS_COMMIT_RANGE"
-fi
