@@ -13,7 +13,12 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - run: git clone --depth 1 https://github.com/sstephenson/bats.git
-    - run: PATH="./bats/bin:$PATH" script/test
+    - name: Install bats
+      run: git clone --depth 1 https://github.com/sstephenson/bats.git
+    - name: Run tests
+      run: PATH="./bats/bin:$PATH" script/test
+    - name: Verify download URL checksums
+      if: github.event_name == 'pull_request'
+      run: ./script/mirror verify "$COMMIT_RANGE"
       env:
-        COMMIT_RANGE: ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
+        COMMIT_RANGE: ${{ github.event.pull_request.base.sha }}..

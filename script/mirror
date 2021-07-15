@@ -53,31 +53,38 @@ update() {
   local url
   local checksum
   local file
+  local tmp_path
   for url in $(potentially_new_packages "$1"); do
     checksum="${url#*#}"
     url="${url%#*}"
     if test_mirrored "$checksum"; then
       echo "Already mirrored: $url"
     else
-      echo "Mirroring: $url"
-      file="${TMPDIR:-/tmp}/$checksum"
+      echo "Will mirror: $url"
+      [ -n "$tmp_path" ] || tmp_path="$(mktemp -d "${TMPDIR:-/tmp}/s3-sync.XXXXX")"
+      file="$tmp_path/$checksum"
       download_and_verify "$url" "$file" "$checksum"
-      ./script/s3-put "$file" "${AMAZON_S3_BUCKET?}"
     fi
   done
+  if [ -n "$tmp_path" ]; then
+    echo "Uploading..."
+    aws s3 sync --acl=public-read --size-only "$tmp_path" "s3://${AMAZON_S3_BUCKET?}"
+  fi
 }
 
 verify() {
   local url
   local checksum
   local file
+  local status=0
   for url in $(potentially_new_packages "$1"); do
     checksum="${url#*#}"
     url="${url%#*}"
     echo "Verifying checksum for $url"
     file="${TMPDIR:-/tmp}/$checksum"
-    download_and_verify "$url" "$file" "$checksum"
+    download_and_verify "$url" "$file" "$checksum" || status=$?
   done
+  return $status
 }
 
 stats() {
@@ -88,7 +95,7 @@ stats() {
   for url in "${packages[@]}"; do
     checksum="${url#*#}"
     if test_mirrored "$checksum"; then
-      confirmed="$((confirmed + 1))"
+      : $((confirmed++))
     else
       echo "failed: $url" >&2
     fi
