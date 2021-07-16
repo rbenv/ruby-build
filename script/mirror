@@ -15,8 +15,9 @@ test_mirrored() {
 }
 
 compute_sha2() {
-  local output="$(openssl dgst -sha256)"
-  echo "${output##* }" | tr '[A-Z]' '[a-z]'
+  local output
+  output="$(openssl dgst -sha256)"
+  tr '[:upper:]' '[:lower:]' <<<"${output##* }"
 }
 
 download_package() {
@@ -41,12 +42,15 @@ changed_files() {
 }
 
 potentially_new_packages() {
-  local files="$(changed_files "$1" -- ./share/ruby-build)"
-  [ -n "$files" ] && extract_urls $files
+  local head="${1#*..}"
+  local files
+  IFS=$'\n' read -d '' -r -a files < <(changed_files "$1" -- ./share/ruby-build)
+  [ ${#files[@]} -gt 0 ] || return 0
+  extract_urls "${head:-HEAD}" -- "${files[@]}"
 }
 
 extract_urls() {
-  $(type -p ggrep grep | head -1) -hoe 'http[^"]\+#[^"]\+' "$@" | sort | uniq
+  git grep -hoe 'http[^"]\+#[^"]\+' "$@" | sort | uniq
 }
 
 update() {
@@ -88,7 +92,8 @@ verify() {
 }
 
 stats() {
-  local packages=( $(extract_urls ./share/ruby-build/*) )
+  local packages
+  IFS=$'\n' read -d '' -r -a packages < <(extract_urls -- ./share/ruby-build/\*)
   local total="${#packages[@]}"
   local confirmed=0
   local checksum
