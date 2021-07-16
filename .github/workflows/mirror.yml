@@ -1,6 +1,14 @@
 name: Mirror
 
-on: push
+on:
+  push:
+    branches:
+    - master
+  workflow_dispatch:
+    inputs:
+      beforeRef:
+        description: Git commit reference to start comparing from
+        required: true
 
 jobs:
   test:
@@ -12,7 +20,7 @@ jobs:
     - name: Update download mirror
       run: script/mirror update "${BEFORE_REF}.."
       env:
-        BEFORE_REF: ${{ github.event.push.before }}
+        BEFORE_REF: ${{ github.event.before }}${{ github.event.inputs.beforeRef }}
         AMAZON_S3_BUCKET: ruby-build-mirror
         AWS_ACCESS_KEY_ID: AKIAJKAUQVHU6X4CODDQ
         AWS_SECRET_ACCESS_KEY: ${{ secrets.MIRROR_UPLOAD_SECRET }}
