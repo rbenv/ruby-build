@@ -1,12 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
-set -x
 
-STATUS=0
-bats ${CI:+--tap} test || STATUS="$?"
-
-if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-  ./script/mirror verify "$COMMIT_RANGE"
-fi
-
-exit "$STATUS"
+bats ${CI:+--tap} test
