@@ -664,6 +664,7 @@ DEF
 }
 
 @test "TruffleRuby post-install hook" {
+  rmdir "$INSTALL_ROOT"
   executable "${RUBY_BUILD_CACHE_PATH}/truffleruby-test/lib/truffle/post_install_hook.sh" <<OUT
 echo Running post-install hook
 OUT
