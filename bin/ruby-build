@@ -747,6 +747,7 @@ fix_jruby_shebangs() {
 }
 
 build_package_truffleruby() {
+  clean_prefix_path_truffleruby || return $?
   build_package_copy
 
   cd "${PREFIX_PATH}"
@@ -754,7 +755,7 @@ build_package_truffleruby() {
 }
 
 build_package_truffleruby_graalvm() {
-  clean_prefix_path
+  clean_prefix_path_truffleruby || return $?
   build_package_copy_to "${PREFIX_PATH}/graalvm"
 
   cd "${PREFIX_PATH}/graalvm"
@@ -792,7 +793,15 @@ remove_windows_files() {
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
 }
 
-clean_prefix_path() {
+clean_prefix_path_truffleruby() {
+  if [ -d "$PREFIX_PATH" ] && [ ! -e "$PREFIX_PATH/bin/truffleruby" ]; then
+    echo
+    echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix" >&2
+    echo "TruffleRuby only supports being installed to a not existing directory or replacing an existing TruffleRuby installation"
+    echo "See https://github.com/oracle/truffleruby/issues/1389 for details" >&2
+    return 1
+  fi
+
   # Make sure there are no leftover files in $PREFIX_PATH
   rm -rf "$PREFIX_PATH"
 }
@@ -804,7 +813,6 @@ build_package_copy_to() {
 }
 
 build_package_copy() {
-  clean_prefix_path
   build_package_copy_to "$PREFIX_PATH"
 }
 
