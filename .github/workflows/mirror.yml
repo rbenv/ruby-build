@@ -24,3 +24,4 @@ jobs:
         AMAZON_S3_BUCKET: ruby-build-mirror
         AWS_ACCESS_KEY_ID: AKIAJKAUQVHU6X4CODDQ
         AWS_SECRET_ACCESS_KEY: ${{ secrets.MIRROR_UPLOAD_SECRET }}
+        AWS_REGION: us-east-1
