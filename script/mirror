@@ -72,7 +72,7 @@ update() {
   done
   if [ -n "$tmp_path" ]; then
     echo "Uploading..."
-    aws s3 sync --acl=public-read --size-only "$tmp_path" "s3://${AMAZON_S3_BUCKET?}"
+    aws s3 sync --acl=public-read --size-only --no-progress "$tmp_path" "s3://${AMAZON_S3_BUCKET?}"
   fi
 }
 
