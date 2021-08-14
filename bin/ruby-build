@@ -475,7 +475,7 @@ fetch_tarball() {
     elif [ -n "$RUBY_BUILD_MIRROR_PACKAGE_URL" ]; then
       mirror_url="$RUBY_BUILD_MIRROR_PACKAGE_URL"
     elif [ -n "$RUBY_BUILD_MIRROR_CMD" ]; then
-      mirror_url="$("$RUBY_BUILD_MIRROR_CMD" "$package_url" "$checksum")"
+      mirror_url="$(command "$RUBY_BUILD_MIRROR_CMD" "$package_url" "$checksum")"
     fi
   fi
 
