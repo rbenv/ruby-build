@@ -1,2 +1,2 @@
-install_package "openssl-1.1.1k" "https://www.openssl.org/source/openssl-1.1.1k.tar.gz#892a0875b9872acd04a9fde79b1f943075d5ea162415de3047c327df33fbaee5" mac_openssl --if has_broken_mac_openssl
+install_package "openssl-1.1.1l" "https://www.openssl.org/source/openssl-1.1.1l.tar.gz#0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1" mac_openssl --if has_broken_mac_openssl
 install_git "ruby-2.4.0-dev" "https://github.com/ruby/ruby.git" "ruby_2_4" warn_eol ldflags_dirs autoconf standard_build standard_install_with_bundled_gems verify_openssl
