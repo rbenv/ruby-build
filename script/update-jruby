@@ -14,7 +14,9 @@ file="share/ruby-build/jruby-${version}"
 
 basename="jruby-bin-${version}.tar.gz"
 url="https://s3.amazonaws.com/jruby.org/downloads/${version}/${basename}"
-sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
+archive="$release_directory/$basename"
+[ -e "$archive" ] || wget -O "$archive" "$url"
+sha256=$(sha256sum "$archive" | cut -d ' ' -f 1)
 
 cat > "$file" <<EOS
 require_java 8
