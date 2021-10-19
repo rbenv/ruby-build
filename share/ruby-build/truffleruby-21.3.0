@@ -1,0 +1,17 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby-21.3.0" "https://github.com/oracle/truffleruby/releases/download/vm-21.3.0/truffleruby-21.3.0-linux-amd64.tar.gz#d439f741deaff47a9564c70b737c96176b1aa88cf79a5b139e18fd5480c61079" truffleruby
+  ;;
+Linux-aarch64)
+  install_package "truffleruby-21.3.0" "https://github.com/oracle/truffleruby/releases/download/vm-21.3.0/truffleruby-21.3.0-linux-aarch64.tar.gz#110298de4743abf156314fb06011cb2f92c52b6ee2ef4cbb8b28ff1933672940" truffleruby
+  ;;
+Darwin-x86_64)
+  use_homebrew_openssl
+  install_package "truffleruby-21.3.0" "https://github.com/oracle/truffleruby/releases/download/vm-21.3.0/truffleruby-21.3.0-macos-amd64.tar.gz#3ca0c851386d872239404d41c69f1ba738332eb25da6cf89e157fa1356e68de0" truffleruby
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
