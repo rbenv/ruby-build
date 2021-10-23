@@ -6,8 +6,7 @@
     # Engine and version to use, see the syntax in the README. Reads from .ruby-version or .tool-versions if unset.
     ruby-version: 1.84.0
     # The version of Bundler to install. Either 'none', 'latest', 'Gemfile.lock', or a version number (e.g., 1, 2, 2.1.4).
-For 'Gemfile.lock'
-the version is determined based on the BUNDLED WITH section from the file Gemfile.lock, 
+
 BUNDLE_GEMFILE.lock or gems.locked.
 Defaults to 'Gemfile.lock' if the file exists and 'latest' otherwise.
 
