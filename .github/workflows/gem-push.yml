@@ -1,27 +1,22 @@
-name: Publish gem
+- name: Setup Ruby, JRuby and TruffleRuby
+  # You may pin to the exact commit or the version.
+  # uses: ruby/setup-ruby@b00551441a6fa3d528f3443dbff264a934b6e316
+  uses: ruby/setup-ruby@v1.84.0
+  with:
+    # Engine and version to use, see the syntax in the README. Reads from .ruby-version or .tool-versions if unset.
+    ruby-version: 1.84.0
+    # The version of Bundler to install. Either 'none', 'latest', 'Gemfile.lock', or a version number (e.g., 1, 2, 2.1.4).
+For 'Gemfile.lock'
+the version is determined based on the BUNDLED WITH section from the file Gemfile.lock, 
+BUNDLE_GEMFILE.lock or gems.locked.
+Defaults to 'Gemfile.lock' if the file exists and 'latest' otherwise.
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    bundler: # optional, default is default
+    # Run "bundle install", and cache the result automatically. Either true or false.
+    bundler-cache: # optional, default is false
+    # The working directory to use for resolving paths for .ruby-version, .tool-versions and Gemfile.lock.
+    working-directory: # optional, default is .
+    # Arbitrary string that will be added to the cache key of the bundler cache. Set or change it if you need
+to invalidate the cache.
 
-jobs:
-  test:
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        ruby-version: [2.7.x, 2.6.x, 2.5.x]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby ${{ matrix.ruby-version }}
-        uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
-        with:
-          ruby-version: ${{ matrix.ruby-version }}
-      - name: Install dependencies
-        run: bundle install
-      - name: Run tests
-        run: bundle exec rake
+    cache-version: # optional, default is 0
