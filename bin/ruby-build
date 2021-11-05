@@ -1091,6 +1091,22 @@ use_homebrew_openssl() {
 }
 
 build_package_mac_openssl() {
+  # Patch OpenSSL 1.0 to work with sites that use expired Let's Encrypt CA (DST Root CA X3)
+  [[ "$1" != openssl-1.0.* ]] || patch -p0 <<- EOF
+	diff -ruN crypto/x509/x509_vpm.c crypto/x509/x509_vpm.c
+	--- crypto/x509/x509_vpm.c	2019-12-20 07:02:41.000000000 -0600
+	+++ crypto/x509/x509_vpm.c	2021-11-05 09:59:12.062606932 -0500
+	@@ -537,7 +537,7 @@
+	      "default",                 /* X509 default parameters */
+	      0,                         /* Check time */
+	      0,                         /* internal flags */
+	-     0,                         /* flags */
+	+     X509_V_FLAG_TRUSTED_FIRST, /* flags */
+	      0,                         /* purpose */
+	      0,                         /* trust */
+	      100,                       /* depth */
+	EOF
+
   # Install to a subdirectory since we don't want shims for bin/openssl.
   OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
 
