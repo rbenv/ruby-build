@@ -12,7 +12,7 @@ version="$1"
 release_directory="$2"
 file="share/ruby-build/${version}"
 
-basename="ruby-${version}.tar.bz2"
+basename="ruby-${version}.tar.gz"
 major_minor_version=$(echo ${version} | cut -d '.' -f 1,2)
 url="https://cache.ruby-lang.org/pub/ruby/${major_minor_version}/${basename}"
 sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
