@@ -562,7 +562,6 @@ build_package_warn_unsupported() {
 }
 
 build_package_standard_build() {
-  set -x
   local package_name="$1"
 
   if [ "${MAKEOPTS+defined}" ]; then
@@ -1278,7 +1277,6 @@ sort_versions() {
   sed 'h; s/[-]/./g; s/.p\([[:digit:]]\)/.z.\1/; s/$/.z/; G; s/\n/ /' | \
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
-
 
 unset VERBOSE
 unset MOVABLE
