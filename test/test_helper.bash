@@ -16,13 +16,15 @@ fi
 
 remove_commands_from_path() {
   local path cmd
-  local paths=( $(command -v "$@" | sed 's!/[^/]*$!!' | sort -u) )
   local NEWPATH=":$PATH:"
-  for path in "${paths[@]}"; do
-    local tmp_path="$(mktemp -d "$TMP/path.XXXXX")"
-    ln -fs "$path"/* "$tmp_path/"
-    for cmd; do rm -f "$tmp_path/$cmd"; done
-    NEWPATH="${NEWPATH/:$path:/:$tmp_path:}"
+  while PATH="${NEWPATH#:}" command -v "$@" >/dev/null; do
+    local paths=( $(PATH="${NEWPATH#:}" command -v "$@" | sed 's!/[^/]*$!!' | sort -u) )
+    for path in "${paths[@]}"; do
+      local tmp_path="$(mktemp -d "$TMP/path.XXXXX")"
+      ln -fs "$path"/* "$tmp_path/"
+      for cmd; do rm -f "$tmp_path/$cmd"; done
+      NEWPATH="${NEWPATH/:$path:/:$tmp_path:}"
+    done
   done
   echo "${NEWPATH#:}"
 }

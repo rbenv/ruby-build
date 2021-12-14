@@ -15,7 +15,7 @@
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20210423"
+RUBY_BUILD_VERSION="20211203"
 
 OLDIFS="$IFS"
 
@@ -591,10 +591,10 @@ build_package_standard_build() {
       export CC=clang
     fi
     ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
-      $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" || return 1
+      "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} || return 1
   ) >&4 2>&1
 
-  { "$MAKE" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} "${!PACKAGE_MAKE_OPTS_ARRAY}"
+  { "$MAKE" "${!PACKAGE_MAKE_OPTS_ARRAY}" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
   } >&4 2>&1
 }
 
@@ -605,7 +605,7 @@ build_package_standard_install() {
   local PACKAGE_MAKE_INSTALL_OPTS="${package_var_name}_MAKE_INSTALL_OPTS"
   local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
 
-  { "$MAKE" install $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}"
+  { "$MAKE" install "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}" $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS}
   } >&4 2>&1
 }
 
@@ -642,7 +642,7 @@ build_package_ree_installer() {
   is_mac && options="--no-tcmalloc"
 
   local option
-  for option in $RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[@]}; do
+  for option in ${RUBY_CONFIGURE_OPTS_ARRAY[@]} $RUBY_CONFIGURE_OPTS; do
     options="$options -c $option"
   done
 
@@ -674,7 +674,7 @@ build_package_rbx() {
       fi
     done
 
-    RUBYOPT="-rrubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" $RUBY_CONFIGURE_OPTS "${configure_opts[@]}"
+    RUBYOPT="-rrubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" "${configure_opts[@]}" $RUBY_CONFIGURE_OPTS
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
     fix_rbx_irb "$PREFIX_PATH"
@@ -749,6 +749,7 @@ fix_jruby_shebangs() {
 }
 
 build_package_truffleruby() {
+  clean_prefix_path_truffleruby || return $?
   build_package_copy
 
   cd "${PREFIX_PATH}"
@@ -756,7 +757,7 @@ build_package_truffleruby() {
 }
 
 build_package_truffleruby_graalvm() {
-  clean_prefix_path
+  clean_prefix_path_truffleruby || return $?
   build_package_copy_to "${PREFIX_PATH}/graalvm"
 
   cd "${PREFIX_PATH}/graalvm"
@@ -794,7 +795,15 @@ remove_windows_files() {
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
 }
 
-clean_prefix_path() {
+clean_prefix_path_truffleruby() {
+  if [ -d "$PREFIX_PATH" ] && [ ! -e "$PREFIX_PATH/bin/truffleruby" ]; then
+    echo
+    echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix" >&2
+    echo "TruffleRuby only supports being installed to a not existing directory or replacing an existing TruffleRuby installation"
+    echo "See https://github.com/oracle/truffleruby/issues/1389 for details" >&2
+    return 1
+  fi
+
   # Make sure there are no leftover files in $PREFIX_PATH
   rm -rf "$PREFIX_PATH"
 }
@@ -806,7 +815,6 @@ build_package_copy_to() {
 }
 
 build_package_copy() {
-  clean_prefix_path
   build_package_copy_to "$PREFIX_PATH"
 }
 
@@ -848,8 +856,8 @@ fix_rbx_irb() {
 require_java() {
   local required="$1"
   local java_version="$(java -version 2>&1)"
-  local version_string="$(grep 'java version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
-  [ -n "$version_string" ] || version_string="$(grep 'openjdk version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' || true)"
+  local version_string="$(grep 'java version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' | head -1 || true)"
+  [ -n "$version_string" ] || version_string="$(grep 'openjdk version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' | head -1 || true)"
   IFS="."
   local nums=($version_string)
   IFS="$OLDIFS"
@@ -857,7 +865,7 @@ require_java() {
   [ "$found_version" -gt 1 ] 2>/dev/null || found_version="${nums[1]}"
   [ "$found_version" -ge "$required" ] 2>/dev/null && return 0
   colorize 1 "ERROR" >&3
-  echo ": Java ${required} required, but your Java version was:" >&3
+  echo ": Java >= ${required} required, but your Java version was:" >&3
   cat <<<"$java_version" >&3
   return 1
 }
@@ -1171,7 +1179,9 @@ build_package_ldflags_dirs() {
 }
 
 build_package_enable_shared() {
+  if [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-shared"* ]]; then
     package_option ruby configure --enable-shared
+  fi
 }
 
 build_package_auto_tcltk() {
