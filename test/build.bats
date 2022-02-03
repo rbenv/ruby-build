@@ -186,10 +186,12 @@ OUT
   mkdir -p "$brew_libdir"
 
   stub uname '-s : echo Linux'
-  stub brew "--prefix libyaml : echo '$brew_libdir'" false false
+  stub brew false "--prefix libyaml : echo '$brew_libdir'" false
   stub_make_install
 
-  install_fixture definitions/needs-yaml
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
   assert_success
 
   unstub uname

@@ -558,8 +558,21 @@ build_package_standard_build() {
   local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
 
   if [ "$package_var_name" = "RUBY" ]; then
-      use_homebrew_readline || use_freebsd_pkg ||true
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-readline-dir=* ]]; then
+      use_homebrew_readline || use_freebsd_readline || true
+    fi
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libyaml-dir=* ]]; then
+      use_homebrew_yaml || true
+    fi
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-gmp-dir=* ]]; then
       use_homebrew_gmp || true
+    fi
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-openssl-dir=* ]]; then
+      if [ "FreeBSD" = "$(uname -s)" ] && [ -f /usr/local/include/openssl/ssl.h ]; then
+        # use openssl installed from Ports Collection
+        package_option ruby configure --with-openssl-dir="/usr/local"
+      fi
+    fi
   fi
 
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
@@ -1037,18 +1050,10 @@ use_homebrew_gmp() {
   fi
 }
 
-use_freebsd_pkg() {
-  # check if FreeBSD
+use_freebsd_readline() {
   if [ "FreeBSD" = "$(uname -s)" ]; then
-    # use openssl if installed from Ports Collection
-    if [ -f /usr/local/include/openssl/ssl.h ]; then
-      package_option ruby configure --with-openssl-dir="/usr/local"
-    fi
-
-    # check if 11-R or later
-    release="$(uname -r)"
+    local release="$(uname -r)"
     if [ "${release%%.*}" -ge 11 ]; then
-      # prefers readline to compile most of ruby versions
       if pkg info -e readline > /dev/null; then
         # use readline from Ports Collection
         package_option ruby configure --with-readline-dir="/usr/local"
@@ -1062,14 +1067,12 @@ use_freebsd_pkg() {
 }
 
 use_homebrew_readline() {
-  if [[ "$RUBY_CONFIGURE_OPTS" != *--with-readline-dir=* ]]; then
-    local libdir="$(brew --prefix readline 2>/dev/null || true)"
-    if [ -d "$libdir" ]; then
-      echo "ruby-build: using readline from homebrew"
-      package_option ruby configure --with-readline-dir="$libdir"
-    else
-      return 1
-    fi
+  local libdir="$(brew --prefix readline 2>/dev/null || true)"
+  if [ -d "$libdir" ]; then
+    echo "ruby-build: using readline from homebrew"
+    package_option ruby configure --with-readline-dir="$libdir"
+  else
+    return 1
   fi
 }
 
