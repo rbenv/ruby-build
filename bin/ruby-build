@@ -794,10 +794,12 @@ remove_windows_files() {
 }
 
 clean_prefix_path_truffleruby() {
-  if [ -d "$PREFIX_PATH" ] && [ ! -e "$PREFIX_PATH/bin/truffleruby" ]; then
+  if [ -d "$PREFIX_PATH" ] &&
+     [ ! -e "$PREFIX_PATH/bin/truffleruby" ] &&
+     [ ! -z "$(ls -A $PREFIX_PATH)" ]; then
     echo
     echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix" >&2
-    echo "TruffleRuby only supports being installed to a not existing directory or replacing an existing TruffleRuby installation"
+    echo "TruffleRuby only supports being installed to a not existing directory, an empty directory, or replacing an existing TruffleRuby installation"
     echo "See https://github.com/oracle/truffleruby/issues/1389 for details" >&2
     return 1
   fi
