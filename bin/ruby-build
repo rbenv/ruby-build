@@ -603,7 +603,7 @@ build_package_standard_install() {
   local PACKAGE_MAKE_INSTALL_OPTS="${package_var_name}_MAKE_INSTALL_OPTS"
   local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
 
-  { "$MAKE" install "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}" $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS}
+  { "$MAKE" ${MAKE_INSTALL_TARGET:-install} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}" $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS}
   } >&4 2>&1
 }
 
@@ -1119,7 +1119,8 @@ build_package_mac_openssl() {
   # gives precedence to the last -j option, so we can override that.
   package_option openssl make -j 1
 
-  build_package_standard "$@"
+  # Use install_sw instead of install to skip building docs which is slow
+  MAKE_INSTALL_TARGET=install_sw build_package_standard "$@"
 
   # Extract root certs from the system keychain in .pem format and rehash.
   local pem_file="$OPENSSLDIR/cert.pem"
