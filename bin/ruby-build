@@ -1120,7 +1120,7 @@ build_package_mac_openssl() {
   package_option openssl make -j 1
 
   # Use install_sw instead of install to skip building docs which is slow
-  MAKE_INSTALL_TARGET=install_sw build_package_standard "$@"
+  MAKE_INSTALL_TARGET="install_sw install_ssldirs" build_package_standard "$@"
 
   # Extract root certs from the system keychain in .pem format and rehash.
   local pem_file="$OPENSSLDIR/cert.pem"
