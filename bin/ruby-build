@@ -1090,6 +1090,15 @@ has_broken_mac_openssl() {
   [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
 }
 
+needs_openssl() {
+  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]] &&
+  {
+    openssl version 2>/dev/null ||
+    printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null
+  } | grep -q "OpenSSL 3" ||
+  has_broken_mac_openssl
+}
+
 use_homebrew_openssl() {
   local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
@@ -1102,6 +1111,10 @@ use_homebrew_openssl() {
 }
 
 build_package_mac_openssl() {
+  build_package_openssl
+}
+
+build_package_openssl() {
   # Install to a subdirectory since we don't want shims for bin/openssl.
   OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
 
@@ -1136,10 +1149,33 @@ build_package_mac_openssl() {
     MAKE_INSTALL_TARGET="install_sw install_ssldirs" build_package_standard "$@"
   fi
 
-  # Extract root certs from the system keychain in .pem format and rehash.
   local pem_file="$OPENSSLDIR/cert.pem"
-  security find-certificate -a -p /Library/Keychains/System.keychain > "$pem_file"
-  security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> "$pem_file"
+  if is_mac; then
+    # Extract root certs from the system keychain in .pem format.
+    security find-certificate -a -p /Library/Keychains/System.keychain > "$pem_file"
+    security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> "$pem_file"
+  elif [ -e /etc/pki/tls/cert.pem ]; then # RedHat
+    # See https://github.com/rubygems/rubygems/issues/2415#issuecomment-509806259
+    rm -rf "$OPENSSLDIR/certs" "$pem_file"
+    ln -s /etc/pki/tls/certs "$OPENSSLDIR/certs"
+    ln -s /etc/pki/tls/cert.pem "$pem_file"
+  elif [ -e /etc/ssl/certs/ca-certificates.crt ]; then # Debian
+    # See https://github.com/rubygems/rubygems/issues/2415#issuecomment-509806259
+    rm -rf "$OPENSSLDIR/certs" "$pem_file"
+    ln -s /etc/ssl/certs "$OPENSSLDIR/certs"
+    ln -s /etc/ssl/certs/ca-certificates.crt "$pem_file"
+  elif type -p openssl >/dev/null; then
+    # symlink to the system openssl certs
+    local SYSTEM_OPENSSLDIR
+    SYSTEM_OPENSSLDIR=$(openssl version -d 2>/dev/null | cut -d'"' -f2)
+    if [ -n "$SYSTEM_OPENSSLDIR" ]; then
+      ln -sf "$SYSTEM_OPENSSLDIR/cert.pem" "$OPENSSLDIR/cert.pem"
+      ln -snf "$SYSTEM_OPENSSLDIR/certs" "$OPENSSLDIR/certs"
+    fi
+  else
+    echo "Could not find OpenSSL certificates" >&2
+    exit 1
+  fi
 }
 
 # Post-install check that the openssl extension was built.
