@@ -1119,8 +1119,13 @@ build_package_mac_openssl() {
   # gives precedence to the last -j option, so we can override that.
   package_option openssl make -j 1
 
-  # Use install_sw instead of install to skip building docs which is slow
-  MAKE_INSTALL_TARGET="install_sw install_ssldirs" build_package_standard "$@"
+  # Use install_sw install_ssldirs instead of install to skip building docs which is slow.
+  # OpenSSL 1.1+ also needs install_ssldirs, 1.0 does not have that target.
+  if [[ "$1" == openssl-1.0.* ]]; then
+    MAKE_INSTALL_TARGET="install_sw" build_package_standard "$@"
+  else
+    MAKE_INSTALL_TARGET="install_sw install_ssldirs" build_package_standard "$@"
+  fi
 
   # Extract root certs from the system keychain in .pem format and rehash.
   local pem_file="$OPENSSLDIR/cert.pem"
