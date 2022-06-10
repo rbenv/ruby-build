@@ -10,6 +10,10 @@ Darwin-x86_64)
   use_homebrew_openssl
   install_package "truffleruby+graalvm-dev" "https://github.com/graalvm/graalvm-ce-dev-builds/releases/latest/download/graalvm-ce-java11-darwin-amd64-dev.tar.gz" truffleruby_graalvm
   ;;
+Darwin-arm64)
+  use_homebrew_openssl
+  install_package "truffleruby+graalvm-dev" "https://github.com/graalvm/graalvm-ce-dev-builds/releases/latest/download/graalvm-ce-java11-darwin-aarch64-dev.tar.gz" truffleruby_graalvm
+  ;;
 *)
   colorize 1 "Unsupported platform: $platform"
   return 1
