@@ -688,6 +688,15 @@ build_package_mruby() {
   } >&4 2>&1
 }
 
+build_package_picoruby() {
+  { ./minirake
+    mkdir -p "$PREFIX_PATH"
+    cp -fR build/host/* include "$PREFIX_PATH"
+    ln -fs picoruby "$PREFIX_PATH/bin/ruby"
+    ln -fs picoirb "$PREFIX_PATH/bin/irb"
+  } >&4 2>&1
+}
+
 build_package_maglev() {
   build_package_copy
 
