@@ -18,6 +18,6 @@ url="https://cache.ruby-lang.org/pub/ruby/${major_minor_version}/${basename}"
 sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
 
 cat > "$file" <<EOS
-install_package "openssl-1.1.1l" "https://www.openssl.org/source/openssl-1.1.1q.tar.gz#d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca" mac_openssl --if has_broken_mac_openssl
+install_package "openssl-1.1.1q" "https://www.openssl.org/source/openssl-1.1.1q.tar.gz#d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca" mac_openssl --if has_broken_mac_openssl
 install_package "ruby-${version}" "${url}#${sha256}" ldflags_dirs enable_shared standard verify_openssl
 EOS
