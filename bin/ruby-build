@@ -1086,17 +1086,48 @@ use_homebrew_readline() {
 has_broken_mac_openssl() {
   is_mac || return 1
   local openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
-  [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]] &&
-  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
+  [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]]
 }
 
-needs_openssl() {
-  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]] &&
-  {
+system_openssl_version() {
+  local version_text=$(
     openssl version 2>/dev/null ||
-    printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null
-  } | grep -q "OpenSSL 3" ||
-  has_broken_mac_openssl
+    printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null | tail -n 1)
+  if [[ $version_text == *"OpenSSL "* ]]; then
+    local version=${version_text#*OpenSSL }
+    version=${version%% *}
+    echo $version | sed 's/[^0-9]//g' | sed 's/^0*//'
+  else
+    echo "No system openssl version was found" >&2
+    echo 000
+  fi
+}
+
+# openssl gem 1.1.1
+needs_openssl_096_102() {
+  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  has_broken_mac_openssl && return 0
+
+  local version=$(system_openssl_version)
+  (( $version < 96 || $version >= 110 ))
+}
+
+# openssl gem 2.2.1
+needs_openssl_101_111() {
+  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  has_broken_mac_openssl && return 0
+
+  local version=$(system_openssl_version)
+  (( $version < 101 || $version >= 300 ))
+}
+
+# openssl gem 3.0.0
+needs_openssl_102_300() {
+  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  has_broken_mac_openssl && return 0
+
+  local version=$(system_openssl_version)
+  (( $version < 102 || $version >= 400 ))
 }
 
 use_homebrew_openssl() {
