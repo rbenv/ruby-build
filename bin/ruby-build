@@ -1141,10 +1141,6 @@ use_homebrew_openssl() {
   fi
 }
 
-build_package_mac_openssl() {
-  build_package_openssl
-}
-
 build_package_openssl() {
   # Install to a subdirectory since we don't want shims for bin/openssl.
   OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
