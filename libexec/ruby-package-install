@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -e
+
+usage() {
+  echo "usage: ruby-package install [--fail-silently] PACKAGE DESTINATION" >&2
+  exit 1
+}
+
+cleanup_packages() {
+  if [ -n "$package_root" ]; then
+    rm -rf "${package_root%/*}"
+  fi
+
+  if [ -n "$package_file" ]; then
+    if [ "$package" != "$package_file" ]; then
+      rm -rf "$package_file"
+    fi
+  fi
+}
+
+fail_silently=""
+if [ "$1" = "--fail-silently" ]; then
+  fail_silently=1
+  shift
+fi
+
+package="$1"
+if [ -z "$package" ]; then
+  usage
+fi
+
+destination="$2"
+if [ -z "$destination" ]; then
+  usage
+fi
+
+if [ -f "$package" ]; then
+  package_file="$package"
+else
+  if [ -n "$fail_silently" ]; then
+    ruby-package fetch --check "$package" 2>/dev/null
+  fi
+
+  package_file="$(ruby-package fetch "$package")"
+fi
+
+trap cleanup_packages SIGINT SIGTERM EXIT
+
+package_root="$(ruby-package unpack "$package_file")"
+package_name="$(cat "${package_root}/metadata/package")"
+
+echo "Installing ${package_name}..." >&2
+"${package_root}/bin/ruby-package-install" "$destination"
+echo "Installed ${package_name} to ${destination}" >&2

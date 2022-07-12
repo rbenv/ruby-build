@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -e
+
+prefix="$1"
+if [ -z "$prefix" ]; then
+  echo "usage: ruby-package-install PREFIX" >&2
+  exit 1
+fi
+
+resolve_link() {
+  $(type -p greadlink readlink | head -1) $1
+}
+
+abs_dirname() {
+  local cwd="$(pwd)"
+  local path="$1"
+
+  while [ -n "$path" ]; do
+    cd "${path%/*}"
+    local name="${path##*/}"
+    path="$(resolve_link "$name" || true)"
+  done
+
+  pwd
+  cd "$cwd"
+}
+
+bin_root="$(abs_dirname "$0")"
+package_root="${bin_root}/.."
+package_prefix="$(cat "${package_root}/metadata/prefix")"
+package="$(cat "${package_root}/metadata/package")"
+
+mkdir -p "$prefix"
+cd "$prefix"
+prefix="$(pwd)"
+
+rewrite() {
+  kind="$1"
+  while read file; do
+    path="${prefix}/$file"
+    cp "$path" "${path}.orig"
+    "${bin_root}/ruby-package-rewrite-$kind" "$package_prefix" "$prefix" < "${path}.orig" > "$path"
+    rm "${path}.orig"
+  done < "${package_root}/metadata/${kind}-files"
+}
+
+tar xzf "${package_root}/package.tar"
+rewrite binary
+rewrite text

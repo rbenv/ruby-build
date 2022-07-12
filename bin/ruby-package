@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -e
+
+resolve_link() {
+  $(type -p greadlink readlink | head -1) $1
+}
+
+abs_dirname() {
+  local cwd="$(pwd)"
+  local path="$1"
+
+  while [ -n "$path" ]; do
+    cd "${path%/*}"
+    local name="${path##*/}"
+    path="$(resolve_link "$name" || true)"
+  done
+
+  pwd
+  cd "$cwd"
+}
+
+usage() {
+  echo "usage: ruby-package <command> [<args>]" >&2
+  exit 1
+}
+
+bin_dir="$(abs_dirname "$0")"
+export PATH="${bin_dir}/../libexec:${bin_dir}:$PATH"
+
+command="$1"
+command_path="$(command -v ruby-package-"$1" || true)"
+
+if [ -z "$TMPDIR" ]; then
+  export TMPDIR="/tmp"
+else
+  export TMPDIR="${TMPDIR%/}"
+fi
+
+if [ -z "$command" ]; then
+  usage
+elif [ -z "$command_path" ]; then
+  echo "ruby-package: ${command}: command not found" >&2
+  usage
+fi
+
+shift
+exec "$command_path" "$@"

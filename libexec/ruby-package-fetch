@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -e
+
+usage() {
+  echo "usage: ruby-package fetch [--check] PACKAGE" >&2
+  exit 1
+}
+
+check() {
+  local url="$1"
+
+  set +e
+  curl -ILfs "$url" >/dev/null
+  local result="$?"
+  set -e
+
+  if [ "$result" -ne 0 ]; then
+    return 1
+  fi
+}
+
+download() {
+  local url="$1"
+  local filename="$2"
+
+  set +e
+  curl -Lfs "$url" > "$filename"
+  local result="$?"
+  set -e
+
+  if [ "$result" -ne 0 ]; then
+    return 1
+  elif [ ! -f "$filename" ]; then
+    return 1
+  else
+    echo "$filename"
+  fi
+}
+
+check=""
+if [ "$1" = "--check" ]; then
+  check=1
+  shift
+fi
+
+package="$1"
+if [ -z "$package" ]; then
+  usage
+fi
+
+package_name="${package}.$(ruby-package platform).rubypackage"
+
+package_repo="${RUBY_PACKAGE_REPO%/}"
+if [ -z "$ruby_package_repo" ]; then
+  package_repo="https://github.com/downloads/sstephenson/ruby-packages"
+fi
+
+package_url="${package_repo}/${package_name}"
+
+if [ -n "$check" ]; then
+  check "$package_url" || {
+    echo "error: package \`$package' not found ($package_url)"
+    exit 1
+  } >&2
+else
+  package_filename="${TMPDIR}/${package_name}.$$"
+  echo "Downloading $package_url..." >&2
+  download "$package_url" "$package_filename" || {
+    echo "error: couldn't download package \`$package' ($package_url)"
+    exit 1
+  } >&2
+fi
