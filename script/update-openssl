@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+raise "Usage: #{$0} NEW_VERSION SHA" unless ARGV.size == 2
+new_version, sha = ARGV
+
+major_minor = new_version.split('.')[0..1].join('.')
+
+Dir.glob('share/ruby-build/*') do |file|
+  contents = File.read(file)
+
+  openssl_package = "\"openssl-#{major_minor}"
+
+  next unless contents.include? openssl_package
+
+  lines = contents.lines
+  line = lines.find { |line| line.include? openssl_package }
+  old_version = line[/"openssl-([\d.]+[a-z]?)"/, 1] or raise
+  line.gsub!(old_version, new_version)
+  line.sub!(/\.tar\.gz#(\h+)"/, ".tar.gz##{sha}\"")
+  File.write(file, lines.join)
+end

@@ -1,0 +1,1 @@
+install_package "picoruby-3.0.0" "https://github.com/picoruby/picoruby/archive/3.0.0.tar.gz#f25faf1ca6dbc21e167dd4ad42e29ed61e9426a106c4170601a294e046ede430" picoruby

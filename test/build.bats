@@ -586,7 +586,7 @@ require_java7
 install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
   assert_failure
-  assert_output_contains "ERROR: Java 7 required, but your Java version was:"
+  assert_output_contains "ERROR: Java >= 7 required, but your Java version was:"
 }
 
 @test "JRuby Java is outdated" {
@@ -599,7 +599,7 @@ require_java7
 install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
 DEF
   assert_failure
-  assert_output_contains "ERROR: Java 7 required, but your Java version was:"
+  assert_output_contains "ERROR: Java >= 7 required, but your Java version was:"
   assert_output_contains 'java version "1.6.0_21"'
 }
 
@@ -663,7 +663,32 @@ DEF
   assert_success
 }
 
+@test "JRuby Java 11 version string" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java "-version : echo 'openjdk version \"11.0.10\" 2021-01-19' >&2"
+
+  run_inline_definition <<DEF
+require_java 8
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_success
+}
+
+@test "JRuby Java 17 version string" {
+  cached_tarball "jruby-9000.dev" bin/jruby
+
+  stub java "-version : echo 'openjdk version \"17\" 2021-09-14' >&2"
+
+  run_inline_definition <<DEF
+require_java 8
+install_package "jruby-9000.dev" "http://ci.jruby.org/jruby-dist-9000.dev-bin.tar.gz" jruby
+DEF
+  assert_success
+}
+
 @test "TruffleRuby post-install hook" {
+  rmdir "$INSTALL_ROOT"
   executable "${RUBY_BUILD_CACHE_PATH}/truffleruby-test/lib/truffle/post_install_hook.sh" <<OUT
 echo Running post-install hook
 OUT

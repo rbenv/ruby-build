@@ -1,11 +1,24 @@
-name: test with macos
+name: Test
 
 on: [push, pull_request]
 
 jobs:
-  build:
-    runs-on: macos-latest
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
-    - run: git clone --depth 1 https://github.com/sstephenson/bats.git
-    - run: PATH="./bats/bin:$PATH" script/test
+      with:
+        fetch-depth: 0
+    - name: Install bats
+      run: git clone --depth 1 https://github.com/sstephenson/bats.git
+    - name: Run tests
+      run: PATH="./bats/bin:$PATH" script/test
+    - name: Verify download URL checksums
+      if: github.event_name == 'pull_request'
+      run: ./script/mirror verify "$COMMIT_RANGE"
+      env:
+        COMMIT_RANGE: ${{ github.event.pull_request.base.sha }}..

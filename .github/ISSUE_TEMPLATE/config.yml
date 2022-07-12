@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: BUILD FAILED
+    about: Check the Discussions section for reports of a failing Ruby build. Submit your experience (plus logs) if you cannot find reports similar to yours.
+    url: https://github.com/rbenv/ruby-build/discussions
+  - name: Suggested build environment
+    about: Review the instructions about the suggested build environment for your operating system.
+    url: https://github.com/rbenv/ruby-build/wiki

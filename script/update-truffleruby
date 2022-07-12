@@ -25,18 +25,23 @@ EOS
 }
 
 cat > "$file" <<EOS
-case \$(uname -s) in
-Linux)
+platform="\$(uname -s)-\$(uname -m)"
+case \$platform in
+Linux-x86_64)
 EOS
 add_platform "linux-amd64"
 cat >> "$file" <<EOS
-Darwin)
+Linux-aarch64)
+EOS
+add_platform "linux-aarch64"
+cat >> "$file" <<EOS
+Darwin-x86_64)
   use_homebrew_openssl
 EOS
 add_platform "macos-amd64"
 cat >> "$file" <<EOS
 *)
-  colorize 1 "Unsupported operating system: \$(uname -s)"
+  colorize 1 "Unsupported platform: \$platform"
   return 1
   ;;
 esac

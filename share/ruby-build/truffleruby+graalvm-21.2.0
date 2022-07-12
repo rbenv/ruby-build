@@ -1,0 +1,17 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby+graalvm-21.2.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.2.0/graalvm-ce-java11-linux-amd64-21.2.0.tar.gz#bbd3e03025168172a76c2a29e6a14c1c37e3476b30774259c3ef5952fb86f470" truffleruby_graalvm
+  ;;
+Linux-aarch64)
+  install_package "truffleruby+graalvm-21.2.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.2.0/graalvm-ce-java11-linux-aarch64-21.2.0.tar.gz#bbdf38d5e6871f7e3b2470ab9b9bb760667d4524ee2a20eadfaf13636a2d018c" truffleruby_graalvm
+  ;;
+Darwin-x86_64)
+  use_homebrew_openssl
+  install_package "truffleruby+graalvm-21.2.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.2.0/graalvm-ce-java11-darwin-amd64-21.2.0.tar.gz#f62cdc44a031731aa221426724a55eb09c79d6b2e9275ae3ca7003da5884ca36" truffleruby_graalvm
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
