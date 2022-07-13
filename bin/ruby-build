@@ -1256,6 +1256,29 @@ build_package_ldflags_dirs() {
   done
 }
 
+build_package_enable_yjit() {
+  local rustc_installed rustc_ver
+
+  rustc_installed=""
+  if type -p rustc &>/dev/null; then
+    rustc_ver=`rustc --version`
+    # Some kind of built-in bash comparison for dotted version strings would be awesome.
+    if [[ "${rustc_ver}" == *"rustc 1."[6789]* ]]; then
+      rustc_installed="1"
+    fi
+  fi
+
+  # If YJIT is explicitly specified, don't change anything
+  if [[ " ${RUBY_CONFIGURE_OPTS} " != *" --enable-yjit"* ]] && [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-yjit"* ]]; then
+    if [[ "${rustc_installed}" == "1" ]]; then
+      echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly"
+      package_option ruby configure --enable-yjit
+    else
+      echo "rustc 1.60+ is not installed, YJIT will not be built; if you want to use YJIT, install rustc 1.60+ and rerun this command."
+    fi
+  fi
+}
+
 build_package_enable_shared() {
   if [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-shared"* ]]; then
     package_option ruby configure --enable-shared
