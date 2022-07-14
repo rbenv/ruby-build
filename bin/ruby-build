@@ -1258,7 +1258,9 @@ build_package_ldflags_dirs() {
 
 build_package_enable_yjit() {
   # If YJIT is explicitly enabled or disabled, don't change the config
-  ([[ " ${RUBY_CONFIGURE_OPTS} " == *" --enable-yjit"* ]] || [[ " ${RUBY_CONFIGURE_OPTS} " == *" --disable-yjit"* ]]) && return 0;
+  if [[ " ${RUBY_CONFIGURE_OPTS} " == *" --enable-yjit"* || " ${RUBY_CONFIGURE_OPTS} " == *" --disable-yjit"* ]]; then
+    return 0
+  fi
 
   # If we aren't on x86_64, don't enable YJIT
   [[ "$(uname -m)" != "x86_64" ]] && return 0;
