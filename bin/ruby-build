@@ -1265,10 +1265,8 @@ build_package_enable_yjit() {
   # If we aren't on x86_64, don't enable YJIT
   [[ "$(uname -m)" != "x86_64" ]] && return 0;
 
-  local rustc_ver
-
-  (type -p rustc &>/dev/null) || return 0;
-  rustc_ver=`rustc --version`
+  local rustc_ver="$(rustc --version 2>/dev/null)"
+  [ -n "$rustc_ver" ] || return 0
   # Some kind of built-in bash comparison for dotted version strings would be awesome.
   if [[ "${rustc_ver})" == *"rustc 1."[6789]* ]]; then
     echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly" >&3
