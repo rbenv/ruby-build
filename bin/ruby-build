@@ -1263,7 +1263,7 @@ build_package_enable_yjit() {
   fi
 
   # If we aren't on x86_64, don't enable YJIT
-  [[ "$(uname -m)" != "x86_64" ]] && return 0;
+  [ "$(uname -m)" = "x86_64" ] || return 0
 
   local rustc_ver="$(rustc --version 2>/dev/null)"
   [ -n "$rustc_ver" ] || return 0
