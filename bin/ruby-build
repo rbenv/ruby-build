@@ -1257,7 +1257,7 @@ build_package_ldflags_dirs() {
 }
 
 build_package_enable_yjit() {
-  local rustc_installed rustc_ver
+  local rustc_installed x86_arch rustc_ver
 
   rustc_installed=""
   if type -p rustc &>/dev/null; then
@@ -1268,8 +1268,13 @@ build_package_enable_yjit() {
     fi
   fi
 
-  # If YJIT is explicitly specified, don't change anything
-  if [[ " ${RUBY_CONFIGURE_OPTS} " != *" --enable-yjit"* ]] && [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-yjit"* ]]; then
+  x86_arch=""
+  if [[ "$(uname -m)" == "x86_64" ]]; then
+    x86_arch="1"
+  fi
+
+  # If YJIT is explicitly specified or we're not on x86_64, don't change anything
+  if [[ "${x86_arch}" == "1" ]] && [[ " ${RUBY_CONFIGURE_OPTS} " != *" --enable-yjit"* ]] && [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-yjit"* ]]; then
     if [[ "${rustc_installed}" == "1" ]]; then
       echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly"
       package_option ruby configure --enable-yjit
