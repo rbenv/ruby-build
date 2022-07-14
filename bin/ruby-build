@@ -1257,30 +1257,22 @@ build_package_ldflags_dirs() {
 }
 
 build_package_enable_yjit() {
-  local rustc_installed x86_arch rustc_ver
+  # If YJIT is explicitly enabled or disabled, don't change the config
+  ([[ " ${RUBY_CONFIGURE_OPTS} " == *" --enable-yjit"* ]] || [[ " ${RUBY_CONFIGURE_OPTS} " == *" --disable-yjit"* ]]) && return 0;
 
-  rustc_installed=""
-  if type -p rustc &>/dev/null; then
-    rustc_ver=`rustc --version`
-    # Some kind of built-in bash comparison for dotted version strings would be awesome.
-    if [[ "${rustc_ver}" == *"rustc 1."[6789]* ]]; then
-      rustc_installed="1"
-    fi
-  fi
+  # If we aren't on x86_64, don't enable YJIT
+  [[ "$(uname -m)" != "x86_64" ]] && return 0;
 
-  x86_arch=""
-  if [[ "$(uname -m)" == "x86_64" ]]; then
-    x86_arch="1"
-  fi
+  local rustc_ver
 
-  # If YJIT is explicitly specified or we're not on x86_64, don't change anything
-  if [[ "${x86_arch}" == "1" ]] && [[ " ${RUBY_CONFIGURE_OPTS} " != *" --enable-yjit"* ]] && [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-yjit"* ]]; then
-    if [[ "${rustc_installed}" == "1" ]]; then
-      echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly"
-      package_option ruby configure --enable-yjit
-    else
-      echo "rustc 1.60+ is not installed, YJIT will not be built; if you want to use YJIT, install rustc 1.60+ and rerun this command."
-    fi
+  (type -p rustc &>/dev/null) || return 0;
+  rustc_ver=`rustc --version`
+  # Some kind of built-in bash comparison for dotted version strings would be awesome.
+  if [[ "${rustc_ver})" == *"rustc 1."[6789]* ]]; then
+    echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly"
+    package_option ruby configure --enable-yjit
+  else
+    echo "rustc 1.60+ is not installed, YJIT will not be built; if you want to use YJIT, install rustc 1.60+ and rerun this command."
   fi
 }
 
