@@ -1269,10 +1269,10 @@ build_package_enable_yjit() {
   rustc_ver=`rustc --version`
   # Some kind of built-in bash comparison for dotted version strings would be awesome.
   if [[ "${rustc_ver})" == *"rustc 1."[6789]* ]]; then
-    echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly"
+    echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly" >&3
     package_option ruby configure --enable-yjit
   else
-    echo "rustc 1.60+ is not installed, YJIT will not be built; if you want to use YJIT, install rustc 1.60+ and rerun this command."
+    echo "rustc 1.60+ is not installed, YJIT will not be built; if you want to use YJIT, install rustc 1.60+ and rerun this command." >&3
   fi
 }
 
