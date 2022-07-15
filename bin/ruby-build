@@ -1161,6 +1161,11 @@ build_package_openssl() {
   local nokerberos
   [[ "$1" != openssl-1.0.* ]] || nokerberos=1
 
+  if [[ "$1" == openssl-1.1.1q ]]; then
+    # https://github.com/rbenv/ruby-build/discussions/2009#discussioncomment-3146585
+    curl -s https://github.com/openssl/openssl/commit/f9e578e720bb35228948564192adbe3bc503d5fb.diff | patch -p1
+  fi
+
   # Compile a shared lib with zlib dynamically linked.
   package_option openssl configure --openssldir="$OPENSSLDIR" zlib-dynamic no-ssl3 shared ${nokerberos:+no-ssl2 no-krb5}
 
