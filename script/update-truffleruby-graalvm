@@ -40,6 +40,11 @@ Darwin-x86_64)
 EOS
 add_platform "darwin-amd64"
 cat >> "$file" <<EOS
+Darwin-arm64)
+  use_homebrew_openssl
+EOS
+add_platform "darwin-aarch64"
+cat >> "$file" <<EOS
 *)
   colorize 1 "Unsupported platform: \$platform"
   return 1
