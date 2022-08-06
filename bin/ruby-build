@@ -1570,6 +1570,10 @@ if [ -n "$VERBOSE" ]; then
   tail -f "$LOG_PATH" &
   TAIL_PID=$!
   trap "kill $TAIL_PID" SIGINT SIGTERM EXIT
+else
+  if [ -z "$RUBY_BUILD_TESTING" ]; then
+    echo "To follow progress, use 'tail -f $LOG_PATH' or pass --verbose" >&2
+  fi
 fi
 
 export LDFLAGS="-L${PREFIX_PATH}/lib ${LDFLAGS}"
