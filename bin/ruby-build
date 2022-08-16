@@ -14,7 +14,7 @@
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20220610"
+RUBY_BUILD_VERSION="20220726"
 
 OLDIFS="$IFS"
 
@@ -688,6 +688,15 @@ build_package_mruby() {
   } >&4 2>&1
 }
 
+build_package_picoruby() {
+  { ./minirake
+    mkdir -p "$PREFIX_PATH"
+    cp -fR build/host/* include "$PREFIX_PATH"
+    ln -fs picoruby "$PREFIX_PATH/bin/ruby"
+    ln -fs picoirb "$PREFIX_PATH/bin/irb"
+  } >&4 2>&1
+}
+
 build_package_maglev() {
   build_package_copy
 
@@ -1077,8 +1086,46 @@ use_homebrew_readline() {
 has_broken_mac_openssl() {
   is_mac || return 1
   local openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
-  [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]] &&
-  [[ "$RUBY_CONFIGURE_OPTS" != *--with-openssl-dir=* ]]
+  [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]]
+}
+
+system_openssl_version() {
+  local version_text=$(printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null | tail -n 1)
+  if [[ $version_text == *"OpenSSL "* ]]; then
+    local version=${version_text#*OpenSSL }
+    version=${version%% *}
+    echo $version | sed 's/[^0-9]//g' | sed 's/^0*//'
+  else
+    echo "No system openssl version was found, ensure openssl headers are installed (https://github.com/rbenv/ruby-build/wiki#suggested-build-environment)" >&2
+    echo 000
+  fi
+}
+
+# openssl gem 1.1.1
+needs_openssl_096_102() {
+  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  has_broken_mac_openssl && return 0
+
+  local version=$(system_openssl_version)
+  (( $version < 96 || $version >= 110 ))
+}
+
+# openssl gem 2.2.1
+needs_openssl_101_111() {
+  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  has_broken_mac_openssl && return 0
+
+  local version=$(system_openssl_version)
+  (( $version < 101 || $version >= 300 ))
+}
+
+# openssl gem 3.0.0
+needs_openssl_102_300() {
+  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  has_broken_mac_openssl && return 0
+
+  local version=$(system_openssl_version)
+  (( $version < 102 || $version >= 400 ))
 }
 
 use_homebrew_openssl() {
@@ -1092,7 +1139,7 @@ use_homebrew_openssl() {
   fi
 }
 
-build_package_mac_openssl() {
+build_package_openssl() {
   # Install to a subdirectory since we don't want shims for bin/openssl.
   OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
 
@@ -1112,6 +1159,25 @@ build_package_mac_openssl() {
   local nokerberos
   [[ "$1" != openssl-1.0.* ]] || nokerberos=1
 
+  if [[ "$1" == openssl-1.1.1q ]]; then
+    # https://github.com/rbenv/ruby-build/discussions/2009#discussioncomment-3146585
+    # https://github.com/openssl/openssl/commit/f9e578e720bb35228948564192adbe3bc503d5fb.diff
+    patch -p1 <<EOF
+diff --git a/test/v3ext.c b/test/v3ext.c
+index 926f3884b13..a8ab64b2714 100644
+--- a/test/v3ext.c
++++ b/test/v3ext.c
+@@ -8,6 +8,7 @@
+  */
+
+ #include <stdio.h>
++#include <string.h>
+ #include <openssl/x509.h>
+ #include <openssl/x509v3.h>
+ #include <openssl/pem.h>
+EOF
+  fi
+
   # Compile a shared lib with zlib dynamically linked.
   package_option openssl configure --openssldir="$OPENSSLDIR" zlib-dynamic no-ssl3 shared ${nokerberos:+no-ssl2 no-krb5}
 
@@ -1127,10 +1193,33 @@ build_package_mac_openssl() {
     MAKE_INSTALL_TARGET="install_sw install_ssldirs" build_package_standard "$@"
   fi
 
-  # Extract root certs from the system keychain in .pem format and rehash.
   local pem_file="$OPENSSLDIR/cert.pem"
-  security find-certificate -a -p /Library/Keychains/System.keychain > "$pem_file"
-  security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> "$pem_file"
+  if is_mac; then
+    # Extract root certs from the system keychain in .pem format.
+    security find-certificate -a -p /Library/Keychains/System.keychain > "$pem_file"
+    security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> "$pem_file"
+  elif [ -e /etc/pki/tls/cert.pem ]; then # RedHat
+    # See https://github.com/rubygems/rubygems/issues/2415#issuecomment-509806259
+    rm -rf "$OPENSSLDIR/certs" "$pem_file"
+    ln -s /etc/pki/tls/certs "$OPENSSLDIR/certs"
+    ln -s /etc/pki/tls/cert.pem "$pem_file"
+  elif [ -e /etc/ssl/certs/ca-certificates.crt ]; then # Debian
+    # See https://github.com/rubygems/rubygems/issues/2415#issuecomment-509806259
+    rm -rf "$OPENSSLDIR/certs" "$pem_file"
+    ln -s /etc/ssl/certs "$OPENSSLDIR/certs"
+    ln -s /etc/ssl/certs/ca-certificates.crt "$pem_file"
+  elif type -p openssl >/dev/null; then
+    # symlink to the system openssl certs
+    local SYSTEM_OPENSSLDIR
+    SYSTEM_OPENSSLDIR=$(openssl version -d 2>/dev/null | cut -d'"' -f2)
+    if [ -n "$SYSTEM_OPENSSLDIR" ]; then
+      ln -sf "$SYSTEM_OPENSSLDIR/cert.pem" "$OPENSSLDIR/cert.pem"
+      ln -snf "$SYSTEM_OPENSSLDIR/certs" "$OPENSSLDIR/certs"
+    fi
+  else
+    echo "Could not find OpenSSL certificates" >&2
+    exit 1
+  fi
 }
 
 # Post-install check that the openssl extension was built.
@@ -1182,6 +1271,26 @@ build_package_ldflags_dirs() {
     [ -z "$dir" ] || mkdir -p "$dir"
     shift 1
   done
+}
+
+build_package_enable_yjit() {
+  # If YJIT is explicitly enabled or disabled, don't change the config
+  if [[ " ${RUBY_CONFIGURE_OPTS} " == *" --enable-yjit"* || " ${RUBY_CONFIGURE_OPTS} " == *" --disable-yjit"* ]]; then
+    return 0
+  fi
+
+  # If we aren't on x86_64, don't enable YJIT
+  [ "$(uname -m)" = "x86_64" ] || return 0
+
+  local rustc_ver="$(rustc --version 2>/dev/null)"
+  [ -n "$rustc_ver" ] || return 0
+  # Some kind of built-in bash comparison for dotted version strings would be awesome.
+  if [[ "${rustc_ver}" == *"rustc 1."[6789]* ]]; then
+    echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly" >&3
+    package_option ruby configure --enable-yjit
+  else
+    echo "rustc 1.60+ is not installed, YJIT will not be built; if you want to use YJIT, install rustc 1.60+ and rerun this command." >&3
+  fi
 }
 
 build_package_enable_shared() {
@@ -1461,6 +1570,10 @@ if [ -n "$VERBOSE" ]; then
   tail -f "$LOG_PATH" &
   TAIL_PID=$!
   trap "kill $TAIL_PID" SIGINT SIGTERM EXIT
+else
+  if [ -z "$RUBY_BUILD_TESTING" ]; then
+    echo "To follow progress, use 'tail -f $LOG_PATH' or pass --verbose" >&2
+  fi
 fi
 
 export LDFLAGS="-L${PREFIX_PATH}/lib ${LDFLAGS}"

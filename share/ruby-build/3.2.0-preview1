@@ -1,2 +1,2 @@
-install_package "openssl-3.0.2" "https://www.openssl.org/source/openssl-3.0.2.tar.gz#98e91ccead4d4756ae3c9cde5e09191a8e586d9f4d50838e7ec09d6411dfdb63" mac_openssl --if has_broken_mac_openssl
+install_package "openssl-3.0.5" "https://www.openssl.org/source/openssl-3.0.5.tar.gz#aa7d8d9bef71ad6525c55ba11e5f4397889ce49c2c9349dcea6d3e4f0b024a7a" openssl --if needs_openssl_102_300
 install_package "ruby-3.2.0-preview1" "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.0-preview1.tar.gz#6946b966c561d5dfc2a662b88e8211be30bfffc7bb2f37ce3cc62d6c46a0b818" ldflags_dirs enable_shared standard verify_openssl
