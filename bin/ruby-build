@@ -1279,8 +1279,9 @@ build_package_enable_yjit() {
     return 0
   fi
 
-  # If we aren't on x86_64 and arm64, don't enable YJIT
-  [ "$(uname -m)" = "x86_64" -o "$(uname -m)" = "arm64" ] || return 0
+  # If we aren't on x86_64/aarch64/arm64, don't enable YJIT
+  local arch="$(uname -m)"
+  [ "$arch" = "x86_64" -o "$arch" = "arm64" -o "$arch" = "aarch64" ] || return 0
 
   local rustc_ver="$(rustc --version 2>/dev/null)"
   [ -n "$rustc_ver" ] || return 0
