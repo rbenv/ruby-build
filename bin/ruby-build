@@ -1285,8 +1285,8 @@ build_package_enable_yjit() {
 
   local rustc_ver="$(rustc --version 2>/dev/null)"
   [ -n "$rustc_ver" ] || return 0
-  # Some kind of built-in bash comparison for dotted version strings would be awesome.
-  if [[ "${rustc_ver}" == *"rustc 1."[6789]* ]]; then
+  # YJIT supports Rust 1.58.1 and later
+  if [[ "${rustc_ver}" =~ ^rustc\ 1\.(58\.1|59\.|[6789]\d\.) ]]; then
     echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly" >&3
     package_option ruby configure --enable-yjit
   else
