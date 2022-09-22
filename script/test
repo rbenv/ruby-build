@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-bats ${CI:+--tap} test
+bats ${CI:+--tap} test "$@"
