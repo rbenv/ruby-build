@@ -1101,7 +1101,7 @@ has_broken_mac_openssl() {
 }
 
 system_openssl_version() {
-  local version_text=$(printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null | tail -n 1)
+  local version_text=$(printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null)
   if [[ $version_text == *"OpenSSL "* ]]; then
     local version=${version_text#*OpenSSL }
     version=${version%% *}
