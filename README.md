@@ -1,34 +1,37 @@
 # ruby-build
 
-ruby-build is a command-line utility that makes it easy to install virtually any
-version of Ruby, from source.
+ruby-build is a command-line tool that simplifiest the installation of any Ruby version from source on Unix-like systems.
 
-It is available as a plugin for [rbenv][] that
-provides the `rbenv install` command, or as a standalone program.
+It is available as a plugin for [rbenv][] as the `rbenv install` command, or as a standalone program as the `ruby-build` command.
 
 ## Installation
 
+### Homebrew package manager
 ```sh
-# Using Homebrew on macOS
-$ brew install ruby-build
-
-# As an rbenv plugin
-$ mkdir -p "$(rbenv root)"/plugins
-$ git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
-
-# As a standalone program
-$ git clone https://github.com/rbenv/ruby-build.git
-$ PREFIX=/usr/local ./ruby-build/install.sh
+brew install ruby-build
 ```
 
-### Upgrading
-
+Upgrade with:
 ```sh
-# Via Homebrew
-$ brew update && brew upgrade ruby-build
+brew update && brew upgrade ruby-build
+```
 
-# As an rbenv plugin
-$ git -C "$(rbenv root)"/plugins/ruby-build pull
+### Clone as rbenv plugin using git
+```sh
+git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
+```
+
+Upgrade with:
+```sh
+git -C "$(rbenv root)"/plugins/ruby-build pull
+```
+
+### Install manually as a standalone program
+
+First, download a tarball from https://github.com/rbenv/ruby-build/releases/latest. Then:
+```sh
+tar -xzf ruby-build-*.tar.gz
+PREFIX=/usr/local ./ruby-build-*/install.sh
 ```
 
 ## Usage
@@ -45,9 +48,8 @@ $ ruby-build --definitions             # lists all available versions of Ruby
 $ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2.0
 ```
 
-ruby-build does not check for system dependencies before downloading and
-attempting to compile the Ruby source. Please ensure that [all requisite
-libraries][build-env] are available on your system.
+> **Warning**  
+> ruby-build mostly does not verify that system dependencies are present before downloading and attempting to compile Ruby from source. Please ensure that [all requisite libraries][build-env] such as build tools and development headers are already present on your system.
 
 ### Advanced Usage
 
@@ -90,9 +92,7 @@ The build process may be configured through the following environment variables:
 
 #### Applying Patches
 
-Both `rbenv install` and `ruby-build` support the `--patch` (`-p`) flag to apply
-a patch to the Ruby (/JRuby/Rubinius/TruffleRuby) source code before building.
-Patches are read from `STDIN`:
+Both `rbenv install` and `ruby-build` commands support the `-p/--patch` flag to apply a patch to the Ruby source code before building. Patches are read from standard input:
 
 ```sh
 # applying a single patch
@@ -107,12 +107,9 @@ $ cat fix1.patch fix2.patch | rbenv install --patch 1.9.3-p429
 
 #### Checksum Verification
 
-If you have the `shasum`, `openssl`, or `sha256sum` tool installed, ruby-build will
-automatically verify the SHA2 checksum of each downloaded package before
-installing it.
+All Ruby definition files bundled with ruby-build include checksums for packages, meaning that all externally downloaded packages are automatically checked for integrity after fetching.
 
-Checksums are optional and specified as anchors on the package URL in each
-definition. All definitions bundled with ruby-build include checksums.
+See the next section for more information on how to author checksums.
 
 #### Package Mirrors
 
@@ -161,7 +158,7 @@ If you can't find an answer on the wiki, open an issue on the [issue tracker][].
 Be sure to include the full build log for build failures.
 
 
-  [rbenv]: https://github.com/rbenv/rbenv
+  [rbenv]: https://github.com/rbenv/rbenv#readme
   [definitions]: https://github.com/rbenv/ruby-build/tree/master/share/ruby-build
   [wiki]: https://github.com/rbenv/ruby-build/wiki
   [build-env]: https://github.com/rbenv/ruby-build/wiki#suggested-build-environment
