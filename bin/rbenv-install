@@ -62,6 +62,22 @@ definitions() {
   ruby-build --definitions | $(type -p ggrep grep | head -1) -F "$query" || true
 }
 
+suggest_selecting_global() {
+  local version_file="$(rbenv-version-file)"
+  [[ "$version_file" != "$RBENV_ROOT"/version || -e "$version_file" ]] && return 0
+  echo 
+  colorize 1 "NOTE:"
+  echo -n " to activate this Ruby version as the new default, run: "
+  colorize 33 "rbenv global $VERSION_NAME"
+  echo
+}
+
+colorize() {
+  if [ -t 1 ]; then printf "\e[%sm%s\e[m" "$1" "$2"
+  else printf "%s" "$2"
+  fi
+}
+
 indent() {
   sed 's/^/  /'
 }
@@ -238,6 +254,7 @@ for hook in "${after_hooks[@]}"; do eval "$hook"; done
 # Run `rbenv-rehash` after a successful installation.
 if [ "$STATUS" == "0" ]; then
   rbenv-rehash
+  suggest_selecting_global
 else
   cleanup
 fi
