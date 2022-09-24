@@ -6,6 +6,9 @@ export RBENV_ROOT="${TMP}/rbenv"
 setup() {
   stub rbenv-hooks 'install : true'
   stub rbenv-rehash 'true'
+  stub rbenv-version-file 'echo $RBENV_ROOT/version'
+  mkdir -p "$RBENV_ROOT"
+  echo "system" > "$RBENV_ROOT/version"
 }
 
 stub_ruby_build() {
@@ -21,6 +24,20 @@ stub_ruby_build() {
   unstub ruby-build
   unstub rbenv-hooks
   unstub rbenv-rehash
+}
+
+@test "suggest running rbenv global after install" {
+  rm -rf "$RBENV_ROOT/version"
+  stub_ruby_build 'echo ruby-build "$@"'
+
+  run rbenv-install 2.1.2
+  assert_success <<OUT
+ruby-build 2.1.2 ${RBENV_ROOT}/versions/2.1.2
+
+NOTE: to activate this Ruby version as the new default, run: rbenv global 2.1.2
+OUT
+
+  unstub ruby-build
 }
 
 @test "install rbenv local version by default" {
