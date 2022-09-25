@@ -1,6 +1,6 @@
 # ruby-build
 
-ruby-build is a command-line tool that simplifiest the installation of any Ruby version from source on Unix-like systems.
+ruby-build is a command-line tool that simplifies installation of any Ruby version from source on Unix-like systems.
 
 It is available as a plugin for [rbenv][] as the `rbenv install` command, or as a standalone program as the `ruby-build` command.
 
@@ -51,16 +51,22 @@ $ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2
 > **Warning**  
 > ruby-build mostly does not verify that system dependencies are present before downloading and attempting to compile Ruby from source. Please ensure that [all requisite libraries][build-env] such as build tools and development headers are already present on your system.
 
+Basically, what ruby-build does when installing a Ruby version is this:
+- Downloads an official tarball of Ruby source code;
+- Extracts the archive into a temporary directory on your system;
+- Executes `./configure --prefix=/path/to/destination` in the source code;
+- Runs `make install` to compile Ruby;
+- Verifies that the installed Ruby is functional.
+
+Depending on the context, ruby-build does a little bit more than the above: for example, it will try to link Ruby to the appropriate OpenSSL version, even if that means downloading and compiling OpenSSL itself; it will discover and link to Homebrew-installed instances of some libraries like libyaml and readline, etc.
+
 ### Advanced Usage
 
 #### Custom Build Definitions
 
-If you wish to develop and install a version of Ruby that is not yet supported
-by ruby-build, you may specify the path to a custom “build definition file” in
-place of a Ruby version number.
+To install a version of Ruby that is not recognized by ruby-build, you can specify the path to a custom build definition file in place of a Ruby version number.
 
-Use the [default build definitions][definitions] as a template for your custom
-definitions.
+Check out [default build definitions][definitions] as examples on how to write definition files.
 
 #### Custom Build Configuration
 
