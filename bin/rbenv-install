@@ -63,6 +63,7 @@ definitions() {
 }
 
 suggest_selecting_global() {
+  # shellcheck disable=SC2155
   local version_file="$(rbenv-version-file)"
   [[ "$version_file" != "$RBENV_ROOT"/version || -e "$version_file" ]] && return 0
   echo 
@@ -206,6 +207,7 @@ fi
 # REE installer requires an existing Ruby installation to run. An
 # unsatisfied local .ruby-version file can cause the installer to
 # fail.)
+# shellcheck disable=SC2155
 export RBENV_VERSION="$(rbenv-global 2>/dev/null || true)"
 
 
