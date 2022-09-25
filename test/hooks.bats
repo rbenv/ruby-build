@@ -15,6 +15,7 @@ after_install 'echo after: \$STATUS'
 OUT
   stub rbenv-hooks "install : echo '$HOOK_PATH'/install.bash"
   stub rbenv-rehash "echo rehashed"
+  stub rbenv-version-file "echo .ruby-version"
 
   definition="${TMP}/2.0.0"
   cat > "$definition" <<<"echo ruby-build"
