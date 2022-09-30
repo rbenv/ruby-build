@@ -4,8 +4,9 @@
 # - checks out the master branch
 # - changes version in `bin/ruby-build` to current date
 # - commits and tags the change
-# - pushes master + tag to GitHub
-# - opens pull request to update the Homebrew formula
+# - pushes master & the new tag to GitHub
+# - creates a new Release on GitHub
+# - [automated] a GitHub Action will create a Homebrew PR for the new release
 #
 # TODO: handle making multiple releases on the same date
 
