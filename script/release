@@ -4,20 +4,17 @@
 # - checks out the master branch
 # - changes version in `bin/ruby-build` to current date
 # - commits and tags the change
-# - pushes master + tag to GitHub
-# - opens pull request to update the Homebrew formula
+# - pushes master & the new tag to GitHub
+# - creates a new Release on GitHub
+# - [automated] a GitHub Action will create a Homebrew PR for the new release
 #
 # TODO: handle making multiple releases on the same date
 
 set -e
 
-echo "Running hub to see if configured correctly"
-echo "This shows the latest release:"
-hub release -L1
-
 git fetch -q --tags origin master
 git checkout -q master
-git merge --ff-only @{upstream}
+git merge --ff-only '@{upstream}'
 
 existing="$(git tag --points-at HEAD)"
 if [ -n "$existing" ]; then
@@ -40,15 +37,7 @@ rm -f "${binfile}.bak"
 
 git commit -m "ruby-build ${new_version}" -- "$binfile"
 
-notes_file="$(mktemp)"
-{ echo "ruby-build $new_version"
-  echo
-  git log --no-merges --format='* %s%n%w(0,2,2)%+b' --reverse "${previous_tag}..HEAD^" -- bin share
-} >"$notes_file"
-trap "rm -f '$notes_file'" EXIT
-
-git tag "$version_tag" -F "$notes_file" --edit
+git tag "$version_tag"
 git push origin master "${version_tag}"
 
-git tag --list "$version_tag" --format='%(contents:subject)%0a%0a%(contents:body)' | \
-  hub release create -F- "$version_tag"
+gh release create "$version_tag" --title "ruby-build ${new_version}" --generate-notes
