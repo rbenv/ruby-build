@@ -97,7 +97,7 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "l" | "list" )
     ruby-build --list
-    [ -t 1 ] && {
+    [ ! -t 1 ] || {
       echo
       echo "Only latest stable releases for each Ruby implementation are shown."
       echo "Use 'rbenv install --list-all / -L' to show all local versions."
