@@ -51,6 +51,15 @@ OUT
   unstub rbenv-local
 }
 
+@test "list latest versions" {
+  stub_ruby_build "--list : echo 2.1.2"
+
+  run rbenv-install --list
+  assert_success "2.1.2"
+
+  unstub ruby-build
+}
+
 @test "list available versions" {
   stub_ruby_build \
     "--definitions : echo 1.8.7 1.9.3-p0 1.9.3-p194 2.1.2 | tr ' ' $'\\n'"
