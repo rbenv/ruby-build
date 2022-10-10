@@ -109,6 +109,9 @@ $ rbenv install --patch 1.9.3-p429 < <(curl -sSL http://git.io/ruby.patch)
 
 # applying multiple patches
 $ cat fix1.patch fix2.patch | rbenv install --patch 1.9.3-p429
+
+# applying multiple patches from HTTP
+$ rbenv install --patch 1.9.3-p429 < <({ curl -sSL http://git.io/fix1.patch; curl -sSL http://git.io/fix2.patch; })
 ```
 
 #### Checksum Verification
