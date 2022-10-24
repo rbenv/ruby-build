@@ -1,0 +1,2 @@
+require_java 8
+install_package "jruby-9.3.9.0" "https://repo1.maven.org/maven2/org/jruby/jruby-dist/9.3.9.0/jruby-dist-9.3.9.0-bin.tar.gz#251e6dd8d1d2f82922c8c778d7857e1bef82fe5ca2cf77bc09356421d0b05ab8" jruby
