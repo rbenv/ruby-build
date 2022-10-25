@@ -1,0 +1,21 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby+graalvm-22.3.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java11-linux-amd64-22.3.0.tar.gz#d4200bcc43e5ad4e6949c1b1edc1e59f63066e3a2280d5bd82d0c9b1d67c3f2c" truffleruby_graalvm
+  ;;
+Linux-aarch64)
+  install_package "truffleruby+graalvm-22.3.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java11-linux-aarch64-22.3.0.tar.gz#c6646149dad486a0b02c5fc10649786240f275efda65aa14a25d01d2f5bafe15" truffleruby_graalvm
+  ;;
+Darwin-x86_64)
+  use_homebrew_openssl
+  install_package "truffleruby+graalvm-22.3.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java11-darwin-amd64-22.3.0.tar.gz#b8b39d6a3e3a9ed6348c2776ff071fc64ca90f98999ee846e6ca7e5fdc746a8b" truffleruby_graalvm
+  ;;
+Darwin-arm64)
+  use_homebrew_openssl
+  install_package "truffleruby+graalvm-22.3.0" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java11-darwin-aarch64-22.3.0.tar.gz#c9657e902c2ba674931c3cf233a38c4de3d5186ae5d70452f9df75ac0c4cacff" truffleruby_graalvm
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
