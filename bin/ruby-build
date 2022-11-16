@@ -1284,27 +1284,6 @@ build_package_ldflags_dirs() {
   done
 }
 
-build_package_enable_yjit() {
-  # If YJIT is explicitly enabled or disabled, don't change the config
-  if [[ " ${RUBY_CONFIGURE_OPTS} " == *" --enable-yjit"* || " ${RUBY_CONFIGURE_OPTS} " == *" --disable-yjit"* ]]; then
-    return 0
-  fi
-
-  # If we aren't on x86_64/aarch64/arm64, don't enable YJIT
-  local arch="$(uname -m)"
-  [ "$arch" = "x86_64" -o "$arch" = "arm64" -o "$arch" = "aarch64" ] || return 0
-
-  local rustc_ver="$(rustc --version 2>/dev/null)"
-  [ -n "$rustc_ver" ] || return 0
-  # YJIT supports Rust 1.58.1 and later
-  if [[ "${rustc_ver}" =~ ^rustc\ 1\.(58\.1|59\.|[6789][0-9]\.) ]]; then
-    echo "Building with YJIT by default because ${rustc_ver} is installed; add RUBY_CONFIGURE_OPTS='--disable-yjit' to disable explicitly" >&3
-    package_option ruby configure --enable-yjit
-  else
-    echo "rustc 1.58.1+ is not installed, YJIT will not be built; if you want to use YJIT, install rustc 1.58.1+ and rerun this command." >&3
-  fi
-}
-
 build_package_enable_shared() {
   if [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-shared"* ]]; then
     package_option ruby configure --enable-shared
