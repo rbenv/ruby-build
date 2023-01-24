@@ -14,7 +14,7 @@
 #   --version        Show version of ruby-build
 #
 
-RUBY_BUILD_VERSION="20221225"
+RUBY_BUILD_VERSION="20230124"
 
 OLDIFS="$IFS"
 
