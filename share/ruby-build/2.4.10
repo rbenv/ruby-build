@@ -1,2 +1,2 @@
-install_package "openssl-1.1.1s" "https://www.openssl.org/source/openssl-1.1.1s.tar.gz#c5ac01e760ee6ff0dab61d6b2bbd30146724d063eb322180c6f18a6f74e4b6aa" openssl --if needs_openssl_101_111
+install_package "openssl-1.1.1t" "https://www.openssl.org/source/openssl-1.1.1t.tar.gz#8dee9b24bdb1dcbf0c3d1e9b02fb8f6bf22165e807f45adeb7c9677536859d3b" openssl --if needs_openssl_101_111
 install_package "ruby-2.4.10" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.10.tar.bz2#6ea3ce7fd0064524ae06dbdcd99741c990901dfc9c66d8139a02f907d30b95a8" warn_eol ldflags_dirs enable_shared standard verify_openssl
