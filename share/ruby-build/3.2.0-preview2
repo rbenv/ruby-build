@@ -1,2 +1,2 @@
-install_package "openssl-3.0.7" "https://www.openssl.org/source/openssl-3.0.7.tar.gz#83049d042a260e696f62406ac5c08bf706fd84383f945cf21bd61e9ed95c396e" openssl --if needs_openssl_102_300
+install_package "openssl-3.0.8" "https://www.openssl.org/source/openssl-3.0.8.tar.gz#6c13d2bf38fdf31eac3ce2a347073673f5d63263398f1f69d0df4a41253e4b3e" openssl --if needs_openssl_102_300
 install_package "ruby-3.2.0-preview2" "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.0-preview2.tar.gz#8a78fd7a221b86032f96f25c1d852954c94d193b9d21388a9b434e160b7ed891" ldflags_dirs enable_shared standard verify_openssl
