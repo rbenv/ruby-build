@@ -7,8 +7,6 @@
 # - pushes master & the new tag to GitHub
 # - creates a new Release on GitHub
 # - [automated] a GitHub Action will create a Homebrew PR for the new release
-#
-# TODO: handle making multiple releases on the same date
 
 set -e
 
@@ -24,6 +22,13 @@ fi
 
 binfile="bin/ruby-build"
 new_version="$(date '+%Y%m%d')"
+
+version_suffix=""
+while git show-ref --verify --quiet -- "refs/tags/v${new_version}${version_suffix}"; do
+  version_suffix=".$(( ${version_suffix#.} + 1 ))"
+done
+
+new_version="${new_version}${version_suffix}"
 version_tag="v${new_version}"
 previous_tag="$(git describe --tags HEAD --abbrev=0)"
 
