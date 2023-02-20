@@ -48,7 +48,7 @@ $ ruby-build --definitions             # lists all available versions of Ruby
 $ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2.0
 ```
 
-> **Warning**
+> **Warning**  
 > ruby-build mostly does not verify that system dependencies are present before downloading and attempting to compile Ruby from source. Please ensure that [all requisite libraries][build-env] such as build tools and development headers are already present on your system.
 
 Basically, what ruby-build does when installing a Ruby version is this:
