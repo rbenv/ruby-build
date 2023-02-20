@@ -240,7 +240,7 @@ if [ "$STATUS" == "2" ]; then
     echo -n "If the version you need is missing, try upgrading ruby-build"
     if [ "$here" != "${here#$(brew --prefix 2>/dev/null)}" ]; then
       printf ":\n\n"
-      echo "  brew update && brew upgrade ruby-build"
+      echo "  brew upgrade ruby-build"
     elif [ -d "${here}/.git" ]; then
       printf ":\n\n"
       echo "  git -C ${here} pull"

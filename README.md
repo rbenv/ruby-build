@@ -13,7 +13,7 @@ brew install ruby-build
 
 Upgrade with:
 ```sh
-brew update && brew upgrade ruby-build
+brew upgrade ruby-build
 ```
 
 ### Clone as rbenv plugin using git

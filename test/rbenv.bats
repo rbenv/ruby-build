@@ -114,7 +114,7 @@ See all available versions with \`rbenv install --list'.
 
 If the version you need is missing, try upgrading ruby-build:
 
-  brew update && brew upgrade ruby-build
+  brew upgrade ruby-build
 OUT
 
   unstub brew
