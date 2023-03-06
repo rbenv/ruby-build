@@ -50,6 +50,13 @@ stub() {
   for arg in "$@"; do printf "%s\n" "$arg" >> "${TMP}/${program}-stub-plan"; done
 }
 
+stub_repeated() {
+  local program="$1"
+  local prefix="$(echo "$program" | tr a-z- A-Z_)"
+  export "${prefix}_STUB_NOINDEX"=1
+  stub "$@"
+}
+
 unstub() {
   local program="$1"
   local prefix="$(echo "$program" | tr a-z- A-Z_)"
