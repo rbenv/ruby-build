@@ -36,6 +36,7 @@ teardown() {
 
 stub() {
   local program="$1"
+  # shellcheck disable=SC2155
   local prefix="$(echo "$program" | tr a-z- A-Z_)"
   shift
 
@@ -50,8 +51,17 @@ stub() {
   for arg in "$@"; do printf "%s\n" "$arg" >> "${TMP}/${program}-stub-plan"; done
 }
 
+stub_repeated() {
+  local program="$1"
+  # shellcheck disable=SC2155
+  local prefix="$(echo "$program" | tr a-z- A-Z_)"
+  export "${prefix}_STUB_NOINDEX"=1
+  stub "$@"
+}
+
 unstub() {
   local program="$1"
+  # shellcheck disable=SC2155
   local prefix="$(echo "$program" | tr a-z- A-Z_)"
   local path="${TMP}/bin/${program}"
 

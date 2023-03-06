@@ -8,9 +8,9 @@ export -n CC
 export -n RUBY_CONFIGURE_OPTS
 
 @test "require_gcc on OS X 10.9" {
-  stub uname '-s : echo Darwin'
+  stub_repeated uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.9.5'
-  stub gcc '--version : echo 4.2.1' '--version : echo 4.2.1'
+  stub_repeated gcc '--version : echo 4.2.1'
 
   run_inline_definition <<DEF
 require_gcc
@@ -22,12 +22,16 @@ DEF
 CC=${TMP}/bin/gcc
 MACOSX_DEPLOYMENT_TARGET=no
 OUT
+
+  unstub uname
+  unstub sw_vers
+  unstub gcc
 }
 
 @test "require_gcc on OS X 10.10" {
-  stub uname '-s : echo Darwin'
+  stub_repeated uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.10'
-  stub gcc '--version : echo 4.2.1' '--version : echo 4.2.1'
+  stub_repeated gcc '--version : echo 4.2.1'
 
   run_inline_definition <<DEF
 require_gcc
@@ -39,6 +43,10 @@ DEF
 CC=${TMP}/bin/gcc
 MACOSX_DEPLOYMENT_TARGET=10.9
 OUT
+
+  unstub uname
+  unstub sw_vers
+  unstub gcc
 }
 
 @test "require_gcc silences warnings" {
@@ -55,13 +63,10 @@ DEF
   mkdir -p "$INSTALL_ROOT"
   cd "$INSTALL_ROOT"
 
-  stub uname '-s : echo Darwin' '-s : echo Darwin'
+  stub_repeated uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.10'
-  stub cc 'false'
-  stub brew 'false'
-  stub make \
-    'echo make $@' \
-    'echo make $@'
+  stub_repeated brew 'false'
+  stub_repeated make 'echo make $@'
 
   cat > ./configure <<CON
 #!${BASH}
@@ -83,4 +88,9 @@ CFLAGS=no
 make -j 2
 make install
 OUT
+
+  unstub uname
+  unstub sw_vers
+  unstub brew
+  unstub make
 }

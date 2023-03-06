@@ -61,8 +61,8 @@ assert_build_log() {
   cached_tarball "yaml-0.1.6"
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Linux'
-  stub brew false
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
   stub_make_install
   stub_make_install
 
@@ -70,6 +70,7 @@ assert_build_log() {
   assert_success
 
   unstub uname
+  unstub brew
   unstub make
 
   assert_build_log <<OUT
@@ -86,8 +87,8 @@ OUT
   cached_tarball "yaml-0.1.6"
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Linux'
-  stub brew false
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
   stub_make_install
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
@@ -100,6 +101,7 @@ PATCH
   assert_success
 
   unstub uname
+  unstub brew
   unstub make
   unstub patch
 
@@ -118,8 +120,8 @@ OUT
   cached_tarball "yaml-0.1.6"
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Linux'
-  stub brew false
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
   stub_make_install
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
@@ -132,6 +134,7 @@ PATCH
   assert_success
 
   unstub uname
+  unstub brew
   unstub make
   unstub patch
 
@@ -150,8 +153,8 @@ OUT
   cached_tarball "yaml-0.1.6"
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Linux'
-  stub brew false
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
   stub_make_install
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
@@ -165,6 +168,7 @@ PATCH
   assert_success
 
   unstub uname
+  unstub brew
   unstub make
   unstub patch
 
@@ -185,11 +189,13 @@ OUT
   brew_libdir="$TMP/homebrew-yaml"
   mkdir -p "$brew_libdir"
 
-  stub uname '-s : echo Linux'
-  stub brew "--prefix libyaml : echo '$brew_libdir'" false false
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew "--prefix libyaml : echo '$brew_libdir'"
   stub_make_install
 
-  install_fixture definitions/needs-yaml
+  run_inline_definition <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
   assert_success
 
   unstub uname
@@ -209,7 +215,7 @@ OUT
   gmp_libdir="$TMP/homebrew-gmp"
   mkdir -p "$gmp_libdir"
 
-  stub brew false "--prefix gmp : echo '$gmp_libdir'"
+  stub_repeated brew "--prefix gmp : echo '$gmp_libdir'"
   stub_make_install
 
   run_inline_definition <<DEF
@@ -233,7 +239,7 @@ OUT
   readline_libdir="$TMP/homebrew-readline"
   mkdir -p "$readline_libdir"
 
-  stub brew "--prefix readline : echo '$readline_libdir'" false
+  stub_repeated brew "--prefix readline : echo '$readline_libdir'"
   stub_make_install
 
   run_inline_definition <<DEF
@@ -254,7 +260,7 @@ OUT
 @test "readline is not linked from Homebrew when explicitly defined" {
   cached_tarball "ruby-2.0.0"
 
-  stub brew false
+  stub_repeated brew false
   stub_make_install
 
   export RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom'
@@ -276,7 +282,7 @@ OUT
 @test "number of CPU cores defaults to 2" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Darwin' false
+  stub_repeated uname '-s : echo Darwin'
   stub sysctl false
   stub_make_install
 
@@ -299,7 +305,7 @@ OUT
 @test "number of CPU cores is detected on Mac" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Darwin' false
+  stub_repeated uname '-s : echo Darwin'
   stub sysctl '-n hw.ncpu : echo 4'
   stub_make_install
 
@@ -323,7 +329,7 @@ OUT
 @test "number of CPU cores is detected on FreeBSD" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo FreeBSD' false
+  stub_repeated uname '-s : echo FreeBSD'
   stub sysctl '-n hw.ncpu : echo 1'
   stub_make_install
 
@@ -347,7 +353,7 @@ OUT
 @test "setting RUBY_MAKE_INSTALL_OPTS to a multi-word string" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Linux'
+  stub_repeated uname '-s : echo Linux'
   stub_make_install
 
   export RUBY_MAKE_INSTALL_OPTS="DOGE=\"such wow\""
@@ -369,7 +375,7 @@ OUT
 @test "setting MAKE_INSTALL_OPTS to a multi-word string" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname '-s : echo Linux'
+  stub_repeated uname '-s : echo Linux'
   stub_make_install
 
   export MAKE_INSTALL_OPTS="DOGE=\"such wow\""
@@ -400,7 +406,7 @@ OUT
 @test "make on FreeBSD defaults to gmake" {
   cached_tarball "ruby-2.0.0"
 
-  stub uname "-s : echo FreeBSD" false
+  stub_repeated uname "-s : echo FreeBSD"
   MAKE=gmake stub_make_install
 
   MAKE= install_fixture definitions/vanilla-ruby
@@ -419,7 +425,7 @@ apply -p1 -i /my/patch.diff
 exec ./configure "\$@"
 CONF
 
-  stub uname '-s : echo Linux'
+  stub_repeated uname '-s : echo Linux'
   stub apply 'echo apply "$@" >> build.log'
   stub_make_install
 

@@ -77,7 +77,7 @@ OUT
 }
 
 @test "nonexistent version" {
-  stub brew false
+  stub_repeated brew false
   stub_ruby_build 'echo ERROR >&2 && exit 2' \
     "--definitions : echo 1.8.7 1.9.3-p0 1.9.3-p194 2.1.2 | tr ' ' $'\\n'"
 
@@ -97,6 +97,7 @@ If the version you need is missing, try upgrading ruby-build:
   git -C ${BATS_TEST_DIRNAME}/.. pull
 OUT
 
+  unstub brew
   unstub ruby-build
 }
 
