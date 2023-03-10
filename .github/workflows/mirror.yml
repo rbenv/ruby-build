@@ -24,7 +24,7 @@ jobs:
       run: script/mirror update "${BEFORE_REF}.."
       env:
         BEFORE_REF: ${{ github.event.before }}${{ github.event.inputs.beforeRef }}
-        AMAZON_S3_BUCKET: ruby-build-mirror
-        AWS_ACCESS_KEY_ID: AKIAJKAUQVHU6X4CODDQ
+        AMAZON_S3_BUCKET: ${{ vars.AWS_S3_BUCKET }}
+        AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.MIRROR_UPLOAD_SECRET }}
         AWS_REGION: us-east-1
