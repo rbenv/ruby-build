@@ -15,7 +15,14 @@ file="share/ruby-build/${version}"
 basename="ruby-${version}.tar.gz"
 major_minor_version=$(echo ${version} | cut -d '.' -f 1,2)
 url="https://cache.ruby-lang.org/pub/ruby/${major_minor_version}/${basename}"
-sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
+if command -v sha256sum >/dev/null; then
+  sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
+elif command -v shasum >/dev/null; then
+  sha256=$(shasum -a 256 "$release_directory/$basename" | cut -d ' ' -f 1)
+else
+  echo "$0 requires sha256sum or shasum to be installed on the system."
+  exit 1
+fi
 
 cat > "$file" <<EOS
 !TODO! copy openssl line from other release with the same major.minor version
