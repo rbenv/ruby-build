@@ -1,2 +1,2 @@
 install_package "openssl-1.1.1t" "https://www.openssl.org/source/openssl-1.1.1t.tar.gz#8dee9b24bdb1dcbf0c3d1e9b02fb8f6bf22165e807f45adeb7c9677536859d3b" openssl --if needs_openssl_101_111
-install_package "ruby-2.6.0-preview1" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.0-preview1.tar.bz2#8bd6c373df6ee009441270a8b4f86413d101b8f88e8051c55ef62abffadce462" ldflags_dirs standard verify_openssl
+install_package "ruby-2.6.0-preview1" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.0-preview1.tar.bz2#8bd6c373df6ee009441270a8b4f86413d101b8f88e8051c55ef62abffadce462" warn_eol ldflags_dirs standard verify_openssl
