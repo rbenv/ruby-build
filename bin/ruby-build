@@ -1055,12 +1055,10 @@ use_freebsd_readline() {
     local release="$(uname -r)"
     if [ "${release%%.*}" -ge 11 ]; then
       if pkg info -e readline > /dev/null; then
-        # use readline from Ports Collection
-        package_option ruby configure --with-readline-dir="/usr/local"
+        package_option ruby configure --with-readline-dir="$(pkg info --prefix readline | cut -wf2)"
       elif pkg info -e libedit > /dev/null; then
-        # use libedit from Ports Collection
         package_option ruby configure --enable-libedit
-        package_option ruby configure --with-libedit-dir="/usr/local"
+        package_option ruby configure --with-libedit-dir="$(pkg info --prefix libedit | cut -wf2)"
       fi
     fi
   fi
