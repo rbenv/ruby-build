@@ -561,8 +561,11 @@ build_package_standard_build() {
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-readline-dir=* ]]; then
       use_homebrew_readline || use_freebsd_readline || true
     fi
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libffi-dir=* ]]; then
+      use_freebsd_libffi || true
+    fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libyaml-dir=* ]]; then
-      use_homebrew_yaml || true
+      use_homebrew_yaml || use_freebsd_yaml || true
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-gmp-dir=* ]]; then
       use_homebrew_gmp || true
@@ -1040,6 +1043,18 @@ use_homebrew_yaml() {
   fi
 }
 
+use_freebsd_yaml() {
+  if [ "FreeBSD" = "$(uname -s)" ]; then
+    local release="$(uname -r)"
+    if [ "${release%%.*}" -ge 11 ]; then
+      if pkg info -e libyaml > /dev/null; then
+        package_option ruby configure --with-libyaml-dir="$(pkg info --prefix libyaml | cut -wf2)"
+      fi
+    fi
+  fi
+}
+
+
 use_homebrew_gmp() {
   local libdir="$(brew --prefix gmp 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
@@ -1071,6 +1086,17 @@ use_homebrew_readline() {
     package_option ruby configure --with-readline-dir="$libdir"
   else
     return 1
+  fi
+}
+
+use_freebsd_libffi() {
+  if [ "FreeBSD" = "$(uname -s)" ]; then
+    local release="$(uname -r)"
+    if [ "${release%%.*}" -ge 11 ]; then
+      if pkg info -e libffi > /dev/null; then
+        package_option ruby configure --with-libffi-dir="$(pkg info --prefix libffi | cut -wf2)"
+      fi
+    fi
   fi
 }
 
