@@ -110,6 +110,11 @@ is_freebsd() {
   [ "$(uname -s)" = "FreeBSD" ]
 }
 
+freebsd_package_prefix() {
+  local package="$1"
+  echo "$(pkg info --prefix "$package" 2>/dev/null | cut -wf2)"
+}
+
 #  9.1  -> 901
 # 10.9  -> 1009
 # 10.10 -> 1010
@@ -1049,12 +1054,12 @@ use_homebrew_yaml() {
 
 use_freebsd_yaml() {
   if is_freebsd; then
-    if pkg info -e libyaml > /dev/null; then
-      package_option ruby configure --with-libyaml-dir="$(pkg info --prefix libyaml | cut -wf2)"
+    local libyaml_prefix="$(freebsd_package_prefix libyaml)"
+    if [ "$libyaml_prefix" ]; then
+      package_option ruby configure --with-libyaml-dir="$libyaml_prefix"
     fi
   fi
 }
-
 
 use_homebrew_gmp() {
   local libdir="$(brew --prefix gmp 2>/dev/null || true)"
@@ -1068,11 +1073,13 @@ use_homebrew_gmp() {
 
 use_freebsd_readline() {
   if is_freebsd; then
-    if pkg info -e readline > /dev/null; then
-      package_option ruby configure --with-readline-dir="$(pkg info --prefix readline | cut -wf2)"
-    elif pkg info -e libedit > /dev/null; then
+    local readline_prefix="$(freebsd_package_prefix readline)"
+    local libedit_prefix="$(freebsd_package_prefix libedit)"
+    if [ "$readline_prefix" ]; then
+      package_option ruby configure --with-readline-dir="$readline_prefix"
+    elif [ "$libedit_prefix" ]; then
       package_option ruby configure --enable-libedit
-      package_option ruby configure --with-libedit-dir="$(pkg info --prefix libedit | cut -wf2)"
+      package_option ruby configure --with-libedit-dir="$libedit_prefix"
     fi
   fi
 }
@@ -1089,8 +1096,9 @@ use_homebrew_readline() {
 
 use_freebsd_libffi() {
   if is_freebsd; then
-    if pkg info -e libffi > /dev/null; then
-      package_option ruby configure --with-libffi-dir="$(pkg info --prefix libffi | cut -wf2)"
+    local libffi_prefix="$(freebsd_package_prefix libffi)"
+    if [ "$libffi_prefix" ]; then
+      package_option ruby configure --with-libffi-dir="$libffi_prefix"
     fi
   fi
 }
