@@ -1045,11 +1045,8 @@ use_homebrew_yaml() {
 
 use_freebsd_yaml() {
   if [ "FreeBSD" = "$(uname -s)" ]; then
-    local release="$(uname -r)"
-    if [ "${release%%.*}" -ge 11 ]; then
-      if pkg info -e libyaml > /dev/null; then
-        package_option ruby configure --with-libyaml-dir="$(pkg info --prefix libyaml | cut -wf2)"
-      fi
+    if pkg info -e libyaml > /dev/null; then
+      package_option ruby configure --with-libyaml-dir="$(pkg info --prefix libyaml | cut -wf2)"
     fi
   fi
 }
@@ -1067,14 +1064,11 @@ use_homebrew_gmp() {
 
 use_freebsd_readline() {
   if [ "FreeBSD" = "$(uname -s)" ]; then
-    local release="$(uname -r)"
-    if [ "${release%%.*}" -ge 11 ]; then
-      if pkg info -e readline > /dev/null; then
-        package_option ruby configure --with-readline-dir="$(pkg info --prefix readline | cut -wf2)"
-      elif pkg info -e libedit > /dev/null; then
-        package_option ruby configure --enable-libedit
-        package_option ruby configure --with-libedit-dir="$(pkg info --prefix libedit | cut -wf2)"
-      fi
+    if pkg info -e readline > /dev/null; then
+      package_option ruby configure --with-readline-dir="$(pkg info --prefix readline | cut -wf2)"
+    elif pkg info -e libedit > /dev/null; then
+      package_option ruby configure --enable-libedit
+      package_option ruby configure --with-libedit-dir="$(pkg info --prefix libedit | cut -wf2)"
     fi
   fi
 }
@@ -1091,11 +1085,8 @@ use_homebrew_readline() {
 
 use_freebsd_libffi() {
   if [ "FreeBSD" = "$(uname -s)" ]; then
-    local release="$(uname -r)"
-    if [ "${release%%.*}" -ge 11 ]; then
-      if pkg info -e libffi > /dev/null; then
-        package_option ruby configure --with-libffi-dir="$(pkg info --prefix libffi | cut -wf2)"
-      fi
+    if pkg info -e libffi > /dev/null; then
+      package_option ruby configure --with-libffi-dir="$(pkg info --prefix libffi | cut -wf2)"
     fi
   fi
 }
