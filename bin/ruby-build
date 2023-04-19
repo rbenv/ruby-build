@@ -106,6 +106,10 @@ is_mac() {
   [ $# -eq 0 ] || [ "$(osx_version)" "$@" ]
 }
 
+is_freebsd() {
+  [ "$(uname -s)" = "FreeBSD" ]
+}
+
 #  9.1  -> 901
 # 10.9  -> 1009
 # 10.10 -> 1010
@@ -571,7 +575,7 @@ build_package_standard_build() {
       use_homebrew_gmp || true
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-openssl-dir=* ]]; then
-      if [ "FreeBSD" = "$(uname -s)" ] && [ -f /usr/local/include/openssl/ssl.h ]; then
+      if is_freebsd && [ -f /usr/local/include/openssl/ssl.h ]; then
         # use openssl installed from Ports Collection
         package_option ruby configure --with-openssl-dir="/usr/local"
       fi
@@ -1044,7 +1048,7 @@ use_homebrew_yaml() {
 }
 
 use_freebsd_yaml() {
-  if [ "FreeBSD" = "$(uname -s)" ]; then
+  if is_freebsd; then
     if pkg info -e libyaml > /dev/null; then
       package_option ruby configure --with-libyaml-dir="$(pkg info --prefix libyaml | cut -wf2)"
     fi
@@ -1063,7 +1067,7 @@ use_homebrew_gmp() {
 }
 
 use_freebsd_readline() {
-  if [ "FreeBSD" = "$(uname -s)" ]; then
+  if is_freebsd; then
     if pkg info -e readline > /dev/null; then
       package_option ruby configure --with-readline-dir="$(pkg info --prefix readline | cut -wf2)"
     elif pkg info -e libedit > /dev/null; then
@@ -1084,7 +1088,7 @@ use_homebrew_readline() {
 }
 
 use_freebsd_libffi() {
-  if [ "FreeBSD" = "$(uname -s)" ]; then
+  if is_freebsd; then
     if pkg info -e libffi > /dev/null; then
       package_option ruby configure --with-libffi-dir="$(pkg info --prefix libffi | cut -wf2)"
     fi
@@ -1489,7 +1493,7 @@ if [ -z "$(locate_gcc)" ]; then
 fi
 
 if [ -z "$MAKE" ]; then
-  if [ "FreeBSD" = "$(uname -s)" ]; then
+  if is_freebsd; then
     # Workaround for Ruby bug 16331: https://bugs.ruby-lang.org/issues/16331
     # Due to this bug, build will fail with FreeBSD's make after #1368
     # The bug is already fixed in upstream but GNU make is still required
