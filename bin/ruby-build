@@ -112,7 +112,7 @@ is_freebsd() {
 
 freebsd_package_prefix() {
   local package="$1"
-  echo "$(pkg info --prefix "$package" 2>/dev/null | cut -wf2)"
+  pkg info --prefix "$package" 2>/dev/null | cut -wf2
 }
 
 #  9.1  -> 901
