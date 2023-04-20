@@ -1055,7 +1055,7 @@ use_homebrew_yaml() {
 use_freebsd_yaml() {
   if is_freebsd; then
     local libyaml_prefix="$(freebsd_package_prefix libyaml)"
-    if [ "$libyaml_prefix" ]; then
+    if [ -n "$libyaml_prefix" ]; then
       package_option ruby configure --with-libyaml-dir="$libyaml_prefix"
     fi
   fi
@@ -1075,9 +1075,9 @@ use_freebsd_readline() {
   if is_freebsd; then
     local readline_prefix="$(freebsd_package_prefix readline)"
     local libedit_prefix="$(freebsd_package_prefix libedit)"
-    if [ "$readline_prefix" ]; then
+    if [ -n "$readline_prefix" ]; then
       package_option ruby configure --with-readline-dir="$readline_prefix"
-    elif [ "$libedit_prefix" ]; then
+    elif [ -n "$libedit_prefix" ]; then
       package_option ruby configure --enable-libedit
       package_option ruby configure --with-libedit-dir="$libedit_prefix"
     fi
@@ -1097,7 +1097,7 @@ use_homebrew_readline() {
 use_freebsd_libffi() {
   if is_freebsd; then
     local libffi_prefix="$(freebsd_package_prefix libffi)"
-    if [ "$libffi_prefix" ]; then
+    if [ -n "$libffi_prefix" ]; then
       package_option ruby configure --with-libffi-dir="$libffi_prefix"
     fi
   fi
