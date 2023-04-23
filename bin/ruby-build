@@ -106,6 +106,15 @@ is_mac() {
   [ $# -eq 0 ] || [ "$(osx_version)" "$@" ]
 }
 
+is_freebsd() {
+  [ "$(uname -s)" = "FreeBSD" ]
+}
+
+freebsd_package_prefix() {
+  local package="$1"
+  pkg info --prefix "$package" 2>/dev/null | cut -wf2
+}
+
 #  9.1  -> 901
 # 10.9  -> 1009
 # 10.10 -> 1010
@@ -561,14 +570,17 @@ build_package_standard_build() {
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-readline-dir=* ]]; then
       use_homebrew_readline || use_freebsd_readline || true
     fi
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libffi-dir=* ]]; then
+      use_freebsd_libffi || true
+    fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libyaml-dir=* ]]; then
-      use_homebrew_yaml || true
+      use_homebrew_yaml || use_freebsd_yaml || true
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-gmp-dir=* ]]; then
       use_homebrew_gmp || true
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-openssl-dir=* ]]; then
-      if [ "FreeBSD" = "$(uname -s)" ] && [ -f /usr/local/include/openssl/ssl.h ]; then
+      if is_freebsd && [ -f /usr/local/include/openssl/ssl.h ]; then
         # use openssl installed from Ports Collection
         package_option ruby configure --with-openssl-dir="/usr/local"
       fi
@@ -1040,6 +1052,15 @@ use_homebrew_yaml() {
   fi
 }
 
+use_freebsd_yaml() {
+  if is_freebsd; then
+    local libyaml_prefix="$(freebsd_package_prefix libyaml)"
+    if [ -n "$libyaml_prefix" ]; then
+      package_option ruby configure --with-libyaml-dir="$libyaml_prefix"
+    fi
+  fi
+}
+
 use_homebrew_gmp() {
   local libdir="$(brew --prefix gmp 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
@@ -1051,17 +1072,14 @@ use_homebrew_gmp() {
 }
 
 use_freebsd_readline() {
-  if [ "FreeBSD" = "$(uname -s)" ]; then
-    local release="$(uname -r)"
-    if [ "${release%%.*}" -ge 11 ]; then
-      if pkg info -e readline > /dev/null; then
-        # use readline from Ports Collection
-        package_option ruby configure --with-readline-dir="/usr/local"
-      elif pkg info -e libedit > /dev/null; then
-        # use libedit from Ports Collection
-        package_option ruby configure --enable-libedit
-        package_option ruby configure --with-libedit-dir="/usr/local"
-      fi
+  if is_freebsd; then
+    local readline_prefix="$(freebsd_package_prefix readline)"
+    local libedit_prefix="$(freebsd_package_prefix libedit)"
+    if [ -n "$readline_prefix" ]; then
+      package_option ruby configure --with-readline-dir="$readline_prefix"
+    elif [ -n "$libedit_prefix" ]; then
+      package_option ruby configure --enable-libedit
+      package_option ruby configure --with-libedit-dir="$libedit_prefix"
     fi
   fi
 }
@@ -1073,6 +1091,15 @@ use_homebrew_readline() {
     package_option ruby configure --with-readline-dir="$libdir"
   else
     return 1
+  fi
+}
+
+use_freebsd_libffi() {
+  if is_freebsd; then
+    local libffi_prefix="$(freebsd_package_prefix libffi)"
+    if [ -n "$libffi_prefix" ]; then
+      package_option ruby configure --with-libffi-dir="$libffi_prefix"
+    fi
   fi
 }
 
@@ -1474,7 +1501,7 @@ if [ -z "$(locate_gcc)" ]; then
 fi
 
 if [ -z "$MAKE" ]; then
-  if [ "FreeBSD" = "$(uname -s)" ]; then
+  if is_freebsd; then
     # Workaround for Ruby bug 16331: https://bugs.ruby-lang.org/issues/16331
     # Due to this bug, build will fail with FreeBSD's make after #1368
     # The bug is already fixed in upstream but GNU make is still required
