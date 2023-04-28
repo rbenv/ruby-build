@@ -777,7 +777,9 @@ build_package_truffleruby_graalvm() {
     cd Contents/Home || return $?
   fi
 
-  bin/gu install ruby || return $?
+  if [ -e bin/gu ]; then
+    bin/gu install ruby || return $?
+  fi
 
   local ruby_home
   ruby_home=$(bin/ruby -e 'print RbConfig::CONFIG["prefix"]')

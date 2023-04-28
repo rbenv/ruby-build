@@ -14,8 +14,13 @@ file="share/ruby-build/truffleruby+graalvm-${version}"
 
 add_platform() {
   platform="$1"
-  basename="graalvm-ce-java17-${platform}-${version}.tar.gz"
-  url="https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-${version}/${basename}"
+  if [[ "$version" = *preview* ]]; then
+    basename="graalvm-ruby-community-${version}-jdk17-${platform}.tar.gz"
+    url="https://github.com/oracle/truffleruby/releases/download/vm-${version}/${basename}"
+  else
+    basename="graalvm-ce-java17-${platform}-${version}.tar.gz"
+    url="https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-${version}/${basename}"
+  fi
   sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
 
   cat >> "$file" <<EOS
