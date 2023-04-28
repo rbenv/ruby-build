@@ -1,0 +1,21 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/truffleruby-23.0.0-preview1-linux-amd64.tar.gz#7cd7bb7b3dee201efe2ae35b05aee44a56e444bc43684ca43a7c66aab36a1a36" truffleruby
+  ;;
+Linux-aarch64)
+  install_package "truffleruby-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/truffleruby-23.0.0-preview1-linux-aarch64.tar.gz#05f326cc1d97ab93a0b88e5b3ea9f039b160f4f514f2e9c05585df76894c9e30" truffleruby
+  ;;
+Darwin-x86_64)
+  use_homebrew_openssl
+  install_package "truffleruby-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/truffleruby-23.0.0-preview1-macos-amd64.tar.gz#012b2802dc66b2f99ab60134d6f0afd5a20f3d8e380daa4db39ce84253be07cd" truffleruby
+  ;;
+Darwin-arm64)
+  use_homebrew_openssl
+  install_package "truffleruby-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/truffleruby-23.0.0-preview1-macos-aarch64.tar.gz#e99ab643dbe6e45b58a548b2ba4a0264c409f32f5711503b8a5da61d12072b03" truffleruby
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
