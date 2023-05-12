@@ -1,0 +1,2 @@
+!TODO! copy openssl line from other release with the same major.minor version
+install_package "ruby-3.3.0-preview1" "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.0-preview1.tar.gz#c3454a911779b8d747ab0ea87041030d002d533edacb2485fe558b7084da25ed" ldflags_dirs enable_shared standard verify_openssl
