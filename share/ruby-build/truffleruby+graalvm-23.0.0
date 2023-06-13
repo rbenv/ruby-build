@@ -1,0 +1,21 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby+graalvm-23.0.0" "https://download.oracle.com/graalvm/17/archive/graalvm-jdk-17.0.7_linux-x64_bin.tar.gz#93db5fd373fc8eb5a5578387f7646cfd414b82e8cfaf9dbcd0145ceae0137398" truffleruby_graalvm
+  ;;
+Linux-aarch64)
+  install_package "truffleruby+graalvm-23.0.0" "https://download.oracle.com/graalvm/17/archive/graalvm-jdk-17.0.7_linux-aarch64_bin.tar.gz#73256df1af0507f8cb230bafe506e4dcaba2b3e6d8bb1324bf5a02198890ef97" truffleruby_graalvm
+  ;;
+Darwin-x86_64)
+  use_homebrew_openssl
+  install_package "truffleruby+graalvm-23.0.0" "https://download.oracle.com/graalvm/17/archive/graalvm-jdk-17.0.7_macos-x64_bin.tar.gz#905255762546c69e3bb8d815a5d20e2e3cfa5332b868ab90af7aa0afe21e74ea" truffleruby_graalvm
+  ;;
+Darwin-arm64)
+  use_homebrew_openssl
+  install_package "truffleruby+graalvm-23.0.0" "https://download.oracle.com/graalvm/17/archive/graalvm-jdk-17.0.7_macos-aarch64_bin.tar.gz#cb45f6585ef02134a6a6ffb6de20db96197486ffef8821ad97b11fe2fc0c23b8" truffleruby_graalvm
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
