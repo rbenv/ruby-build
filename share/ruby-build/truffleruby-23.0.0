@@ -1,0 +1,21 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby-23.0.0" "https://gds.oracle.com/api/20220101/artifacts/FD4AB182EA4CEDFDE0531518000AF13E/content#57f770e7ba754327c8c160571978c7da0e10a086f8b5dc542e5c8ff5b2c83190" truffleruby
+  ;;
+Linux-aarch64)
+  install_package "truffleruby-23.0.0" "https://gds.oracle.com/api/20220101/artifacts/FD40BA2367C226B6E0531518000AE71A/content#b75b6ddab76bda5d9cbff2fb53f5c5559fa6c5e11b845986b02c3cd4d3b98b3a" truffleruby
+  ;;
+Darwin-x86_64)
+  use_homebrew_openssl
+  install_package "truffleruby-23.0.0" "https://gds.oracle.com/api/20220101/artifacts/FD4AB182EA51EDFDE0531518000AF13E/content#793afdc8c2bd35e6c229e833da0105f34e48e5dc872eb3e8d03d81f516e16191" truffleruby
+  ;;
+Darwin-arm64)
+  use_homebrew_openssl
+  install_package "truffleruby-23.0.0" "https://gds.oracle.com/api/20220101/artifacts/FD40BBF6750C366CE0531518000ABEAF/content#3e6fa0d4a76d9d7d701fe1ea1b75a5d3eab29e77d21bf9454a67b0aa31c63bb6" truffleruby
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
