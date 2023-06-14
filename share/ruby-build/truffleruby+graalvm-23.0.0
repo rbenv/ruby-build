@@ -1,3 +1,6 @@
+colorize 1 "TruffleRuby+GraalVM 23.0 and later installed by ruby-build use the faster Oracle GraalVM distribution" && echo
+colorize 1 "Oracle GraalVM uses the GFTC license, which is free for development and production use, see https://medium.com/graalvm/161527df3d76" && echo
+
 platform="$(uname -s)-$(uname -m)"
 case $platform in
 Linux-x86_64)
