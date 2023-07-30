@@ -1242,8 +1242,8 @@ build_package_verify_openssl() {
     failed = %w[openssl readline zlib yaml].reject do |lib|
       begin
         require lib
-      rescue LoadError
-        $stderr.puts "The Ruby #{lib} extension was not compiled."
+      rescue LoadError => e
+        $stderr.puts "The Ruby #{lib} extension was not compiled.  (#{e})"
       end
     end
 
