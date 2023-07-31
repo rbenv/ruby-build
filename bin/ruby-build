@@ -1153,7 +1153,7 @@ needs_openssl_102_300() {
 use_homebrew_openssl() {
   local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
-    echo "ruby-build: using openssl from homebrew"
+    echo "ruby-build: using openssl@1.1 from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
     colorize 1 "ERROR openssl@1.1 from Homebrew is required, run 'brew install openssl@1.1'"
