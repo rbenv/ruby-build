@@ -1,2 +1,2 @@
-install_package "openssl-1.1.1u" "https://www.openssl.org/source/openssl-1.1.1u.tar.gz#e2f8d84b523eecd06c7be7626830370300fbcc15386bf5142d72758f6963ebc6" openssl --if needs_openssl_101_111
+install_package "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz#d6697e2871e77238460402e9362d47d18382b15ef9f246aba6c7bd780d38a6b0" openssl --if needs_openssl_101_111
 install_package "ruby-2.5.0" "https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.0.tar.bz2#d87eb3021f71d4f62e5a5329628ac9a6665902173296e551667edd94362325cc" warn_eol ldflags_dirs enable_shared standard verify_openssl
