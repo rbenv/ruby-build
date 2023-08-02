@@ -334,6 +334,7 @@ OUT
   stub_make_install
 
   export -n MAKE_OPTS
+  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=/test"
   run_inline_definition <<DEF
 install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
@@ -344,7 +345,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: --prefix=$INSTALL_ROOT --with-openssl-dir=/test
 make -j 1
 make install
 OUT
