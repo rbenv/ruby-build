@@ -1243,7 +1243,7 @@ build_package_verify_openssl() {
       begin
         require lib
       rescue LoadError => e
-        $stderr.puts "There was a problem loading the Ruby #{lib} extension; make sure it compiled successfully.  (#{e})"
+        $stderr.puts "Loading the Ruby #{lib} extension failed (#{e})"
       end
     end
 
