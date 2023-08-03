@@ -886,110 +886,14 @@ require_java() {
   return 1
 }
 
-# keep for backwards compatibility
+# Kept for backward compatibility with JRuby <= 9.1.17 definitions.
 require_java7() {
   require_java 7
 }
 
+# Kept for backward compatibility with 3rd-party Ruby definitions.
 require_gcc() {
-  local gcc="$(locate_gcc || true)"
-
-  if [ -z "$gcc" ]; then
-    { echo
-      colorize 1 "ERROR"
-      echo ": This package must be compiled with GCC, but ruby-build couldn't"
-      echo "find a suitable \`gcc\` executable on your system. Please install GCC"
-      echo "and try again."
-      echo
-
-      if is_mac; then
-        colorize 1 "DETAILS"
-        echo ": Apple no longer includes the official GCC compiler with Xcode"
-        echo "as of version 4.2. Instead, the \`gcc\` executable is a symlink to"
-        echo "\`llvm-gcc\`, a modified version of GCC which outputs LLVM bytecode."
-        echo
-        echo "For most programs the \`llvm-gcc\` compiler works fine. However,"
-        echo "versions of Ruby older than 1.9.3-p125 are incompatible with"
-        echo "\`llvm-gcc\`. To build older versions of Ruby you must have the official"
-        echo "GCC compiler installed on your system."
-        echo
-
-        colorize 1 "TO FIX THE PROBLEM"
-        if type brew &>/dev/null; then
-          echo ": Install Homebrew's GCC package with this"
-          echo -n "command: "
-          colorize 4 "brew install gcc@4.9"
-        else
-          echo ": Install the official GCC compiler using these"
-          echo -n "packages: "
-          colorize 4 "https://github.com/kennethreitz/osx-gcc-installer/downloads"
-        fi
-
-        echo
-        echo
-        echo "You will need to install the official GCC compiler to build older"
-        echo "versions of Ruby even if you have installed Apple's Command Line Tools"
-        echo "for Xcode package. The Command Line Tools for Xcode package only"
-        echo "includes \`llvm-gcc\`."
-      fi
-    } >&3
-    return 1
-  fi
-
-  export CC="$gcc"
-  if is_mac -ge 1010; then
-    export MACOSX_DEPLOYMENT_TARGET=10.9
-  fi
-}
-
-locate_gcc() {
-  local gcc gccs
-  IFS=: gccs=($(gccs_in_path))
-  IFS="$OLDIFS"
-
-  verify_gcc "$CC" ||
-  verify_gcc "$(command -v gcc || true)" || {
-    for gcc in "${gccs[@]}"; do
-      verify_gcc "$gcc" && break || true
-    done
-  }
-
-  return 1
-}
-
-gccs_in_path() {
-  local gcc path paths
-  local gccs=()
-  IFS=: paths=($PATH)
-  IFS="$OLDIFS"
-
-  shopt -s nullglob
-  for path in "${paths[@]}"; do
-    for gcc in "$path"/gcc-*; do
-      gccs["${#gccs[@]}"]="$gcc"
-    done
-  done
-  shopt -u nullglob
-
-  printf :%s "${gccs[@]}"
-}
-
-verify_gcc() {
-  local gcc="$1"
-  if [ -z "$gcc" ]; then
-    return 1
-  fi
-
-  local version="$("$gcc" --version 2>/dev/null || true)"
-  if [ -z "$version" ]; then
-    return 1
-  fi
-
-  if echo "$version" | grep LLVM >/dev/null; then
-    return 1
-  fi
-
-  echo "$gcc"
+  local stub=1
 }
 
 require_llvm() {
@@ -1487,19 +1391,6 @@ rm -f "$tmp_executable"
 if [ -n "$noexec" ]; then
   echo "ruby-build: TMPDIR=$TMP cannot hold executables (partition possibly mounted with \`noexec\`)" >&2
   exit 1
-fi
-
-# Apply following work around, if gcc is not installed.
-if [ -z "$(locate_gcc)" ]; then
-  # Work around warnings building Ruby 2.0 on Clang 2.x:
-  # pass -Wno-error=shorten-64-to-32 if the compiler accepts it.
-  #
-  # When we set CFLAGS, Ruby won't apply its default flags, though. Since clang
-  # builds 1.9.x and 2.x only, where -O3 is default, we can safely set that flag.
-  # Ensure it's the first flag since later flags take precedence.
-  if "${CC:-cc}" -x c /dev/null -E -Wno-error=shorten-64-to-32 &>/dev/null; then
-    RUBY_CFLAGS="-O3 -Wno-error=shorten-64-to-32 $RUBY_CFLAGS"
-  fi
 fi
 
 if [ -z "$MAKE" ]; then

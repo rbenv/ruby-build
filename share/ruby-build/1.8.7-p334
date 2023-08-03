@@ -1,3 +1,2 @@
-require_gcc
 install_package "ruby-1.8.7-p334" "https://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p334.tar.bz2#3e7f1a15fb2c205ac9eb0da804983b83bf8c0ffeb2f146d1eb9e0579ea2507da" warn_eol auto_tcltk standard
 install_package "rubygems-1.6.2" "https://rubygems.org/rubygems/rubygems-1.6.2.tgz#cb5261818b931b5ea2cb54bc1d583c47823543fcf9682f0d6298849091c1cea7" ruby
