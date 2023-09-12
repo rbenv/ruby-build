@@ -740,26 +740,18 @@ build_package_jruby() {
   cd "${PREFIX_PATH}/bin"
   ln -fs jruby ruby
   chmod +x ruby
-  conditionally_update_rubygems
   install_jruby_launcher
   remove_windows_files
   fix_jruby_shebangs
 }
 
-# workaround for https://github.com/jruby/jruby/issues/7799
-# updates rubygems only for JRuby 9.2.x
-conditionally_update_rubygems() {
-  cd "${PREFIX_PATH}/bin"
-  version="$(./ruby -e 'puts JRUBY_VERSION')"
-  if [[ $version == 9\.2* ]];
-  then
-    { ./ruby gem update -q --silent --system 3.3.26 --no-document --no-post-install-message
-    } &>/dev/null
-  fi
-}
-
 install_jruby_launcher() {
   cd "${PREFIX_PATH}/bin"
+  # workaround for https://github.com/jruby/jruby/issues/7799
+  local jruby_version
+  jruby_version="$(./ruby -e 'puts JRUBY_VERSION' 2>/dev/null)"
+  [[ $jruby_version != "9.2."* ]] ||
+    ./ruby gem update -q --silent --system 3.3.26 --no-document --no-post-install-message >&4 2>&1
   { ./ruby gem install jruby-launcher
   } >&4 2>&1
 }
