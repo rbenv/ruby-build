@@ -589,6 +589,7 @@ DEF
   assert_success
 
   assert_build_log <<OUT
+jruby -e puts JRUBY_VERSION
 jruby gem install jruby-launcher
 OUT
 
