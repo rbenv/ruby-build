@@ -14,18 +14,12 @@ file="share/ruby-build/truffleruby+graalvm-${version}"
 
 add_platform() {
   platform="$1"
-  if [[ "$version" = *preview* ]]; then
-    basename="graalvm-ruby-community-${version}-jdk17-${platform}.tar.gz"
-    url="https://github.com/oracle/truffleruby/releases/download/vm-${version}/${basename}"
-  else
-    jdk_version="17.0.7"
-    basename="graalvm-jdk-${jdk_version}_${platform}_bin.tar.gz"
-    url="https://download.oracle.com/graalvm/17/archive/${basename}"
-  fi
+  basename="truffleruby-jvm-${version}-${platform}.tar.gz"
+  url="https://github.com/oracle/truffleruby/releases/download/graal-${version}/${basename}"
   sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
 
   cat >> "$file" <<EOS
-  install_package "truffleruby+graalvm-${version}" "${url}#${sha256}" truffleruby_graalvm
+  install_package "truffleruby+graalvm-${version}" "${url}#${sha256}" truffleruby
   ;;
 EOS
 }
@@ -35,7 +29,7 @@ platform="\$(uname -s)-\$(uname -m)"
 case \$platform in
 Linux-x86_64)
 EOS
-add_platform "linux-x64"
+add_platform "linux-amd64"
 cat >> "$file" <<EOS
 Linux-aarch64)
 EOS
@@ -44,7 +38,7 @@ cat >> "$file" <<EOS
 Darwin-x86_64)
   use_homebrew_openssl
 EOS
-add_platform "macos-x64"
+add_platform "macos-amd64"
 cat >> "$file" <<EOS
 Darwin-arm64)
   use_homebrew_openssl

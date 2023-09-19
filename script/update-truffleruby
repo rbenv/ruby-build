@@ -15,7 +15,7 @@ file="share/ruby-build/truffleruby-${version}"
 add_platform() {
   platform="$1"
   basename="truffleruby-${version}-${platform}.tar.gz"
-  url="https://github.com/oracle/truffleruby/releases/download/vm-${version}/${basename}"
+  url="https://github.com/oracle/truffleruby/releases/download/graal-${version}/${basename}"
   sha256=$(sha256sum "$release_directory/$basename" | cut -d ' ' -f 1)
 
   cat >> "$file" <<EOS
