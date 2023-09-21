@@ -381,6 +381,10 @@ fetch_tarball() {
   local checksum
   local extracted_dir
 
+  if is_ruby_package "$1" && [ -n "$RUBY_BUILD_TARBALL_OVERRIDE" ]; then
+    package_url="$RUBY_BUILD_TARBALL_OVERRIDE"
+  fi
+
   if [ "$package_url" != "${package_url/\#}" ]; then
     checksum="${package_url#*#}"
     package_url="${package_url%%#*}"
@@ -1257,14 +1261,23 @@ isolated_gem_install() {
 
 apply_ruby_patch() {
   local patchfile
-  case "$1" in
-  ruby-* | jruby-* | rubinius-* | truffleruby-* )
+  if is_ruby_package "$1"; then
     patchfile="$(mktemp "${TMP}/ruby-patch.XXXXXX")"
     cat "${2:--}" >"$patchfile"
 
     local striplevel=0
     grep -q '^--- a/' "$patchfile" && striplevel=1
     patch -p$striplevel --force -i "$patchfile"
+  fi
+}
+
+is_ruby_package() {
+  case "$1" in
+  ruby-* | jruby-* | rubinius-* | truffleruby[+-]* | mruby-* | picoruby-* )
+    return 0
+    ;;
+  *)
+    return 1
     ;;
   esac
 }
