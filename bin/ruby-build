@@ -1357,12 +1357,8 @@ if [ -n "$noexec" ]; then
 fi
 
 if [ -z "$MAKE" ]; then
-  if is_freebsd; then
-    # Workaround for Ruby bug 16331: https://bugs.ruby-lang.org/issues/16331
-    # Due to this bug, build will fail with FreeBSD's make after #1368
-    # The bug is already fixed in upstream but GNU make is still required
-    # when building older releases of Ruby. Use GNU make rather than switching
-    # depending of Ruby version.
+  if is_freebsd && echo "$1" | grep -q "^jruby-"; then
+    # jruby-launcher requires gmake
     export MAKE="gmake"
   else
     export MAKE="make"
