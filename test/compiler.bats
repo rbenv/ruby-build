@@ -14,7 +14,7 @@ export -n RUBY_CONFIGURE_OPTS
   stub_repeated uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.10'
   stub_repeated brew 'false'
-  stub_repeated make 'echo make $@'
+  stub_repeated make 'echo "make $(inspect_args "$@")"'
 
   cat > ./configure <<CON
 #!${BASH}

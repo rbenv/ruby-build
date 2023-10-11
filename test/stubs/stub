@@ -27,6 +27,21 @@ eval "${_STUB_INDEX}"=1
 eval "${_STUB_RESULT}"=0
 [ ! -e "${!_STUB_RUN}" ] || source "${!_STUB_RUN}"
 
+# Expose this for stub scripts.
+inspect_args() {
+  local arg
+  local sep=''
+  for arg; do
+    if [[ $arg == *' '* ]]; then
+      printf '%s"%s"' "$sep" "${arg//\"/\\\"}"
+    elif [[ $arg == *'"'* ]]; then
+      printf "%s'%s'" "$sep" "$arg"
+    else
+      printf '%s%s' "$sep" "$arg"
+    fi
+    sep=" "
+  done
+}
 
 # Loop over each line in the plan.
 index=0

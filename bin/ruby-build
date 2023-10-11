@@ -26,10 +26,15 @@ lib() {
   parse_options() {
     OPTIONS=()
     ARGUMENTS=()
+    EXTRA_ARGUMENTS=()
     local arg option index
 
-    for arg in "$@"; do
-      if [ "${arg:0:1}" = "-" ]; then
+    while [ $# -gt 0 ]; do
+      arg="$1"
+      if [ "$arg" == "--" ]; then
+        shift 1
+        break
+      elif [ "${arg:0:1}" = "-" ]; then
         if [ "${arg:1:1}" = "-" ]; then
           OPTIONS[${#OPTIONS[*]}]="${arg:2}"
         else
@@ -40,10 +45,14 @@ lib() {
             index=$(($index+1))
           done
         fi
+        shift 1
       else
         ARGUMENTS[${#ARGUMENTS[*]}]="$arg"
+        shift 1
       fi
     done
+
+    EXTRA_ARGUMENTS=("$@")
   }
 
   if [ "$1" == "--$FUNCNAME" ]; then
@@ -520,6 +529,7 @@ build_package() {
 package_option() {
   local package_name="$1"
   local command_name="$2"
+  # e.g. RUBY_CONFIGURE_OPTS_ARRAY, OPENSSL_MAKE_OPTS_ARRAY
   local variable="$(capitalize "${package_name}_${command_name}")_OPTS_ARRAY"
   local array="$variable[@]"
   shift 2
@@ -641,18 +651,18 @@ build_package_ruby() {
 build_package_ree_installer() {
   build_package_auto_tcltk
 
-  local options=""
-  is_mac && options="--no-tcmalloc"
+  local options=()
+  is_mac && options+=(--no-tcmalloc)
 
   local option
-  for option in ${RUBY_CONFIGURE_OPTS_ARRAY[@]} $RUBY_CONFIGURE_OPTS; do
-    options="$options -c $option"
+  for option in "${RUBY_CONFIGURE_OPTS_ARRAY[@]}" $RUBY_CONFIGURE_OPTS; do
+    options+=(-c "$option")
   done
 
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
-  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems $options $CONFIGURE_OPTS
+  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems "${options[@]}" $CONFIGURE_OPTS
   } >&4 2>&1
 }
 
@@ -1259,6 +1269,7 @@ unset KEEP_BUILD_PATH
 unset HAS_PATCH
 unset IPV4
 unset IPV6
+unset EARLY_EXIT
 
 RUBY_BUILD_INSTALL_PREFIX="$(abs_dirname "$0")/.."
 
@@ -1270,17 +1281,13 @@ parse_options "$@"
 for option in "${OPTIONS[@]}"; do
   case "$option" in
   "h" | "help" )
-    version
-    echo
-    usage 0
+    EARLY_EXIT=help
     ;;
   "definitions" )
-    list_definitions
-    exit 0
+    EARLY_EXIT=list_definitions
     ;;
   "l" | "list")
-    list_maintained_versions
-    exit 0
+    EARLY_EXIT=list_maintained_versions
     ;;
   "k" | "keep" )
     KEEP_BUILD_PATH=true
@@ -1298,18 +1305,61 @@ for option in "${OPTIONS[@]}"; do
     IPV6=true
     ;;
   "version" )
-    version
-    exit 0
+    EARLY_EXIT=version
+    ;;
+  * )
+    printf "ruby-build: invalid flag '%s'\n" "$option" >&2
+    EARLY_EXIT=usage_error
     ;;
   esac
 done
 
-[ "${#ARGUMENTS[@]}" -eq 2 ] || usage 1 >&2
-
 DEFINITION_PATH="${ARGUMENTS[0]}"
-if [ -z "$DEFINITION_PATH" ]; then
+PREFIX_PATH="${ARGUMENTS[1]}"
+
+if [ -z "$EARLY_EXIT" ] && [ -z "$DEFINITION_PATH" ]; then
+  echo "ruby-build: missing definition argument" >&2
+  EARLY_EXIT=usage_error
+fi
+
+if [ -z "$EARLY_EXIT" ] && [ -z "$PREFIX_PATH" ]; then
+  echo "ruby-build: missing prefix argument" >&2
+  EARLY_EXIT=usage_error
+fi
+
+if [ "${#ARGUMENTS[@]}" -gt 2 ]; then
+  echo "ruby-build: expected at most 2 arguments, got [${ARGUMENTS[*]}]" >&2
+  EARLY_EXIT=usage_error
+fi
+
+if [ "${#EXTRA_ARGUMENTS[@]}" -gt 0 ]; then
+  RUBY_CONFIGURE_OPTS_ARRAY=("${EXTRA_ARGUMENTS[@]}")
+fi
+
+case "$EARLY_EXIT" in
+help )
+  version
+  echo
+  usage 0
+  ;;
+version | list_definitions | list_maintained_versions )
+  "$EARLY_EXIT"
+  exit 0
+  ;;
+usage_error )
+  echo >&2
   usage 1 >&2
-elif [ ! -f "$DEFINITION_PATH" ]; then
+  ;;
+'' )
+  ;;
+* )
+  echo "unimplemented EARLY_EXIT: $EARLY_EXIT" >&2
+  exit 1
+  ;;
+esac
+
+# expand the <definition> argument to full path of the definition file
+if [ ! -f "$DEFINITION_PATH" ]; then
   for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
     if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
       DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
@@ -1323,10 +1373,8 @@ elif [ ! -f "$DEFINITION_PATH" ]; then
   fi
 fi
 
-PREFIX_PATH="${ARGUMENTS[1]}"
-if [ -z "$PREFIX_PATH" ]; then
-  usage 1 >&2
-elif [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
+# normalize the <prefix> argument
+if [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
   PREFIX_PATH="${PWD}/${PREFIX_PATH}"
 fi
 
@@ -1357,7 +1405,7 @@ if [ -n "$noexec" ]; then
 fi
 
 if [ -z "$MAKE" ]; then
-  if is_freebsd && [[ $1 == jruby-* ]]; then
+  if is_freebsd && [[ ${ARGUMENTS[0]} == jruby-* ]]; then
     # jruby-launcher requires gmake: https://github.com/ruby/ruby/pull/8591
     export MAKE="gmake"
   else

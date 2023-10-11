@@ -26,6 +26,17 @@ stub_ruby_build() {
   unstub rbenv-rehash
 }
 
+@test "install with flags" {
+  stub_ruby_build 'echo "ruby-build $(inspect_args "$@")"'
+
+  run rbenv-install -kpv 2.1.2 -- --with-configure-opt="hello world"
+  assert_success "ruby-build --keep --verbose --patch 2.1.2 ${RBENV_ROOT}/versions/2.1.2 -- \"--with-configure-opt=hello world\""
+
+  unstub ruby-build
+  unstub rbenv-hooks
+  unstub rbenv-rehash
+}
+
 @test "suggest running rbenv global after install" {
   rm -rf "$RBENV_ROOT/version"
   stub_ruby_build 'echo ruby-build "$@"'
