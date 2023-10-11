@@ -1331,6 +1331,10 @@ if [ "${#ARGUMENTS[@]}" -gt 2 ]; then
   EARLY_EXIT=usage_error
 fi
 
+if [ "${#EXTRA_ARGUMENTS[@]}" -gt 0 ]; then
+  RUBY_CONFIGURE_OPTS_ARRAY=("${EXTRA_ARGUMENTS[@]}")
+fi
+
 case "$EARLY_EXIT" in
 help )
   version

@@ -221,9 +221,12 @@ cleanup() {
 
 trap cleanup SIGINT
 
+build_args=(${KEEP:+--keep} ${VERBOSE:+--verbose} ${HAS_PATCH:+--patch} "$DEFINITION" "$PREFIX")
+[ ${#EXTRA_ARGUMENTS[@]} -eq 0 ] || build_args+=(-- "${EXTRA_ARGUMENTS[@]}")
+
 # Invoke `ruby-build` and record the exit status in $STATUS.
 STATUS=0
-ruby-build $KEEP $VERBOSE $HAS_PATCH "$DEFINITION" "$PREFIX" || STATUS="$?"
+ruby-build "${build_args[@]}" || STATUS="$?"
 
 # Display a more helpful message if the definition wasn't found.
 if [ "$STATUS" == "2" ]; then
