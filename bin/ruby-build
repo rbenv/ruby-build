@@ -26,10 +26,15 @@ lib() {
   parse_options() {
     OPTIONS=()
     ARGUMENTS=()
+    EXTRA_ARGUMENTS=()
     local arg option index
 
-    for arg in "$@"; do
-      if [ "${arg:0:1}" = "-" ]; then
+    while [ $# -gt 0 ]; do
+      arg="$1"
+      if [ "$arg" == "--" ]; then
+        shift 1
+        break
+      elif [ "${arg:0:1}" = "-" ]; then
         if [ "${arg:1:1}" = "-" ]; then
           OPTIONS[${#OPTIONS[*]}]="${arg:2}"
         else
@@ -40,10 +45,14 @@ lib() {
             index=$(($index+1))
           done
         fi
+        shift 1
       else
         ARGUMENTS[${#ARGUMENTS[*]}]="$arg"
+        shift 1
       fi
     done
+
+    EXTRA_ARGUMENTS=("$@")
   }
 
   if [ "$1" == "--$FUNCNAME" ]; then
