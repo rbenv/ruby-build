@@ -261,7 +261,10 @@ OUT
 @test "readline is not linked from Homebrew when explicitly defined" {
   cached_tarball "ruby-2.0.0"
 
-  stub_repeated brew false
+  readline_libdir="$TMP/homebrew-readline"
+  mkdir -p "$readline_libdir"
+
+  stub_repeated brew "--prefix readline : echo '$readline_libdir'" ' : false'
   stub_make_install
 
   export RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom'
@@ -275,6 +278,29 @@ DEF
 
   assert_build_log <<OUT
 ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=/custom]
+make -j 2
+make install
+OUT
+}
+
+@test "forward extra command-line arguments as configure flags" {
+  cached_tarball "ruby-2.0.0"
+
+  stub_repeated brew false
+  stub_make_install
+
+  cat > "$TMP/build-definition" <<DEF
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+
+  RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom' run ruby-build "$TMP/build-definition" "$INSTALL_ROOT" -- cppflags="-DYJIT_FORCE_ENABLE -DRUBY_PATCHLEVEL_NAME=test" --with-openssl-dir=/path/to/openssl
+  assert_success
+
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,cppflags=-DYJIT_FORCE_ENABLE -DRUBY_PATCHLEVEL_NAME=test,--with-openssl-dir=/path/to/openssl,--with-readline-dir=/custom]
 make -j 2
 make install
 OUT
