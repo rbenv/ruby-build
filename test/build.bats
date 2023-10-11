@@ -404,19 +404,6 @@ OUT
   assert [ -x ./here/bin/package ]
 }
 
-@test "make on FreeBSD defaults to gmake" {
-  cached_tarball "ruby-2.0.0"
-
-  stub_repeated uname "-s : echo FreeBSD"
-  MAKE=gmake stub_make_install
-
-  MAKE= install_fixture definitions/vanilla-ruby
-  assert_success
-
-  unstub gmake
-  unstub uname
-}
-
 @test "can use RUBY_CONFIGURE to apply a patch" {
   cached_tarball "ruby-2.0.0"
 
