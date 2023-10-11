@@ -278,7 +278,11 @@ has_checksum_support() {
   local has_checksum_var="HAS_CHECKSUM_SUPPORT_${checksum_command}"
 
   if [ -z "${!has_checksum_var+defined}" ]; then
-    printf -v "$has_checksum_var" "$(echo test | "$checksum_command" >/dev/null; echo $?)"
+    if "$checksum_command" <<<"test" >/dev/null; then
+      printf -v "$has_checksum_var" 0 # success
+    else
+      printf -v "$has_checksum_var" 1 # error
+    fi
   fi
   return "${!has_checksum_var}"
 }
@@ -624,7 +628,7 @@ build_package_standard_build() {
     if [ -z "$CC" ] && is_mac 1010; then
       export CC=clang
     fi
-    # shellcheck disable=SC2086
+    # shellcheck disable=SC2086,SC2153
     ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
       "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} || return 1
   ) >&4 2>&1
@@ -740,8 +744,10 @@ build_package_picoruby() {
 build_package_maglev() {
   build_package_copy
 
-  { cd "${PREFIX_PATH}"
+  { # shellcheck disable=SC2164
+    cd "${PREFIX_PATH}"
     ./install.sh
+    # shellcheck disable=SC2164
     cd "${PREFIX_PATH}/bin"
     echo "Creating symlink for ruby*"
     ln -fs maglev-ruby ruby
@@ -754,7 +760,8 @@ build_package_maglev() {
 
 build_package_topaz() {
   build_package_copy
-  { cd "${PREFIX_PATH}/bin"
+  { # shellcheck disable=SC2164
+    cd "${PREFIX_PATH}/bin"
     echo "Creating symlink for ruby*"
     ln -fs topaz ruby
   } >&4 2>&1
@@ -772,6 +779,7 @@ topaz_architecture() {
 
 build_package_jruby() {
   build_package_copy
+  # shellcheck disable=SC2164
   cd "${PREFIX_PATH}/bin"
   ln -fs jruby ruby
   chmod +x ruby
@@ -781,6 +789,7 @@ build_package_jruby() {
 }
 
 install_jruby_launcher() {
+  # shellcheck disable=SC2164
   cd "${PREFIX_PATH}/bin"
   # workaround for https://github.com/jruby/jruby/issues/7799
   local jruby_version
@@ -804,6 +813,7 @@ build_package_truffleruby() {
   clean_prefix_path_truffleruby || return $?
   build_package_copy
 
+  # shellcheck disable=SC2164
   cd "${PREFIX_PATH}"
   "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
 }
@@ -812,6 +822,7 @@ build_package_truffleruby_graalvm() {
   clean_prefix_path_truffleruby || return $?
   build_package_copy_to "${PREFIX_PATH}/graalvm"
 
+  # shellcheck disable=SC2164
   cd "${PREFIX_PATH}/graalvm"
   if is_mac; then
     cd Contents/Home || return $?
@@ -827,6 +838,7 @@ build_package_truffleruby_graalvm() {
   # Make gu available in PATH (useful to install other languages)
   ln -s "$PWD/bin/gu" "$ruby_home/bin/gu"
 
+  # shellcheck disable=SC2164
   cd "${PREFIX_PATH}"
   ln -s "${ruby_home#"$PREFIX_PATH/"}/bin" . || return $?
 
@@ -837,6 +849,7 @@ build_package_artichoke() {
   build_package_copy
 
   mkdir -p "$PREFIX_PATH/bin"
+  # shellcheck disable=SC2164
   cd "${PREFIX_PATH}/bin"
   ln -fs ../artichoke ruby
   ln -fs ../airb irb
@@ -845,6 +858,7 @@ build_package_artichoke() {
 }
 
 remove_windows_files() {
+  # shellcheck disable=SC2164
   cd "$PREFIX_PATH"
   rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
 }
@@ -852,7 +866,7 @@ remove_windows_files() {
 clean_prefix_path_truffleruby() {
   if [ -d "$PREFIX_PATH" ] &&
      [ ! -e "$PREFIX_PATH/bin/truffleruby" ] &&
-     [ ! -z "$(ls -A $PREFIX_PATH)" ]; then
+     [ -n "$(ls -A "$PREFIX_PATH")" ]; then
     echo
     echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix" >&2
     echo "TruffleRuby only supports being installed to a not existing directory, an empty directory, or replacing an existing TruffleRuby installation"
