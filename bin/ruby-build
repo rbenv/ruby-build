@@ -1357,8 +1357,8 @@ if [ -n "$noexec" ]; then
 fi
 
 if [ -z "$MAKE" ]; then
-  if is_freebsd && echo "$1" | grep -q "^jruby-"; then
-    # jruby-launcher requires gmake
+  if is_freebsd && [[ $1 == jruby-* ]]; then
+    # jruby-launcher requires gmake: https://github.com/ruby/ruby/pull/8591
     export MAKE="gmake"
   else
     export MAKE="make"
