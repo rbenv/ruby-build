@@ -149,11 +149,13 @@ DEFINITION="${ARGUMENTS[0]}"
 # after the installation process.
 declare -a before_hooks after_hooks
 
+# shellcheck disable=SC2317
 before_install() {
   local hook="$1"
   before_hooks["${#before_hooks[@]}"]="$hook"
 }
 
+# shellcheck disable=SC2317
 after_install() {
   local hook="$1"
   after_hooks["${#after_hooks[@]}"]="$hook"
@@ -162,6 +164,7 @@ after_install() {
 OLDIFS="$IFS"
 IFS=$'\n' scripts=(`rbenv-hooks install`)
 IFS="$OLDIFS"
+# shellcheck disable=SC1090
 for script in "${scripts[@]}"; do source "$script"; done
 
 
