@@ -1268,6 +1268,7 @@ unset KEEP_BUILD_PATH
 unset HAS_PATCH
 unset IPV4
 unset IPV6
+unset EARLY_EXIT
 
 RUBY_BUILD_INSTALL_PREFIX="$(abs_dirname "$0")/.."
 
@@ -1279,17 +1280,13 @@ parse_options "$@"
 for option in "${OPTIONS[@]}"; do
   case "$option" in
   "h" | "help" )
-    version
-    echo
-    usage 0
+    EARLY_EXIT=help
     ;;
   "definitions" )
-    list_definitions
-    exit 0
+    EARLY_EXIT=list_definitions
     ;;
   "l" | "list")
-    list_maintained_versions
-    exit 0
+    EARLY_EXIT=list_maintained_versions
     ;;
   "k" | "keep" )
     KEEP_BUILD_PATH=true
@@ -1307,18 +1304,57 @@ for option in "${OPTIONS[@]}"; do
     IPV6=true
     ;;
   "version" )
-    version
-    exit 0
+    EARLY_EXIT=version
+    ;;
+  * )
+    printf "ruby-build: invalid flag '%s'\n" "$option" >&2
+    EARLY_EXIT=usage_error
     ;;
   esac
 done
 
-[ "${#ARGUMENTS[@]}" -eq 2 ] || usage 1 >&2
-
 DEFINITION_PATH="${ARGUMENTS[0]}"
-if [ -z "$DEFINITION_PATH" ]; then
+PREFIX_PATH="${ARGUMENTS[1]}"
+
+if [ -z "$EARLY_EXIT" ] && [ -z "$DEFINITION_PATH" ]; then
+  echo "ruby-build: missing definition argument" >&2
+  EARLY_EXIT=usage_error
+fi
+
+if [ -z "$EARLY_EXIT" ] && [ -z "$PREFIX_PATH" ]; then
+  echo "ruby-build: missing prefix argument" >&2
+  EARLY_EXIT=usage_error
+fi
+
+if [ "${#ARGUMENTS[@]}" -gt 2 ]; then
+  echo "ruby-build: expected at most 2 arguments, got [${ARGUMENTS[*]}]" >&2
+  EARLY_EXIT=usage_error
+fi
+
+case "$EARLY_EXIT" in
+help )
+  version
+  echo
+  usage 0
+  ;;
+version | list_definitions | list_maintained_versions )
+  "$EARLY_EXIT"
+  exit 0
+  ;;
+usage_error )
+  echo >&2
   usage 1 >&2
-elif [ ! -f "$DEFINITION_PATH" ]; then
+  ;;
+'' )
+  ;;
+* )
+  echo "unimplemented EARLY_EXIT: $EARLY_EXIT" >&2
+  exit 1
+  ;;
+esac
+
+# expand the <definition> argument to full path of the definition file
+if [ ! -f "$DEFINITION_PATH" ]; then
   for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
     if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
       DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
@@ -1332,10 +1368,8 @@ elif [ ! -f "$DEFINITION_PATH" ]; then
   fi
 fi
 
-PREFIX_PATH="${ARGUMENTS[1]}"
-if [ -z "$PREFIX_PATH" ]; then
-  usage 1 >&2
-elif [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
+# normalize the <prefix> argument
+if [ "${PREFIX_PATH#/}" = "$PREFIX_PATH" ]; then
   PREFIX_PATH="${PWD}/${PREFIX_PATH}"
 fi
 
@@ -1366,7 +1400,7 @@ if [ -n "$noexec" ]; then
 fi
 
 if [ -z "$MAKE" ]; then
-  if is_freebsd && [[ $1 == jruby-* ]]; then
+  if is_freebsd && [[ ${ARGUMENTS[0]} == jruby-* ]]; then
     # jruby-launcher requires gmake: https://github.com/ruby/ruby/pull/8591
     export MAKE="gmake"
   else
