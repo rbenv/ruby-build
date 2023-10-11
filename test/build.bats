@@ -35,7 +35,8 @@ tarball() {
 
   executable "$configure" <<OUT
 #!$BASH
-echo "$name: \$@" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} >> build.log
+IFS=,
+echo "$name: [\$*]" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} >> build.log
 OUT
 
   for file; do
@@ -48,8 +49,8 @@ OUT
 
 stub_make_install() {
   stub "$MAKE" \
-    " : echo \"$MAKE \$@\" >> build.log" \
-    "install : echo \"$MAKE \$@\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
+    " : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log" \
+    "install : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
 }
 
 assert_build_log() {
@@ -74,10 +75,10 @@ assert_build_log() {
   unstub make
 
   assert_build_log <<OUT
-yaml-0.1.6: --prefix=$INSTALL_ROOT
+yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 OUT
@@ -106,11 +107,11 @@ PATCH
   unstub patch
 
   assert_build_log <<OUT
-yaml-0.1.6: --prefix=$INSTALL_ROOT
+yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p0 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 OUT
@@ -139,11 +140,11 @@ PATCH
   unstub patch
 
   assert_build_log <<OUT
-yaml-0.1.6: --prefix=$INSTALL_ROOT
+yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p1 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 OUT
@@ -173,11 +174,11 @@ PATCH
   unstub patch
 
   assert_build_log <<OUT
-yaml-0.1.6: --prefix=$INSTALL_ROOT
+yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p1 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 OUT
@@ -203,7 +204,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT --with-libyaml-dir=$brew_libdir
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-libyaml-dir=$brew_libdir]
 make -j 2
 make install
 OUT
@@ -227,7 +228,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT --with-gmp-dir=$gmp_libdir
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-gmp-dir=$gmp_libdir]
 make -j 2
 make install
 OUT
@@ -251,7 +252,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT --with-readline-dir=$readline_libdir
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=$readline_libdir]
 make -j 2
 make install
 OUT
@@ -273,7 +274,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT --with-readline-dir=/custom
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=/custom]
 make -j 2
 make install
 OUT
@@ -296,7 +297,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 OUT
@@ -320,7 +321,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 4
 make install
 OUT
@@ -345,19 +346,20 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT --with-openssl-dir=/test
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=/test]
 make -j 1
 make install
 OUT
 }
 
-@test "setting RUBY_MAKE_INSTALL_OPTS to a multi-word string" {
+@test "using MAKE_INSTALL_OPTS" {
   cached_tarball "ruby-2.0.0"
 
   stub_repeated uname '-s : echo Linux'
   stub_make_install
 
-  export RUBY_MAKE_INSTALL_OPTS="DOGE=\"such wow\""
+  export MAKE_INSTALL_OPTS="--globalmake"
+  export RUBY_MAKE_INSTALL_OPTS="RUBYMAKE=true with spaces"
   run_inline_definition <<DEF
 install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
@@ -367,31 +369,9 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 2
-make install DOGE="such wow"
-OUT
-}
-
-@test "setting MAKE_INSTALL_OPTS to a multi-word string" {
-  cached_tarball "ruby-2.0.0"
-
-  stub_repeated uname '-s : echo Linux'
-  stub_make_install
-
-  export MAKE_INSTALL_OPTS="DOGE=\"such wow\""
-  run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
-DEF
-  assert_success
-
-  unstub uname
-  unstub make
-
-  assert_build_log <<OUT
-ruby-2.0.0: --prefix=$INSTALL_ROOT
-make -j 2
-make install DOGE="such wow"
+make install --globalmake RUBYMAKE=true with spaces
 OUT
 }
 
@@ -429,7 +409,7 @@ DEF
 
   assert_build_log <<OUT
 apply -p1 -i /my/patch.diff
-ruby-2.0.0: --prefix=$INSTALL_ROOT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 OUT
@@ -454,7 +434,8 @@ OUT
   executable "$package/minirake" <<OUT
 #!$BASH
 set -e
-echo \$0 "\$@" >> '$INSTALL_ROOT'/build.log
+IFS=,
+echo "\$0 [\$*]" >> '$INSTALL_ROOT'/build.log
 mkdir -p build/host/bin
 touch build/host/bin/{mruby,mirb}
 chmod +x build/host/bin/{mruby,mirb}
@@ -477,7 +458,7 @@ install_package "mruby-1.0" "http://ruby-lang.org/pub/mruby-1.0.tar.gz" mruby
 DEF
   assert_success
   assert_build_log <<OUT
-./minirake
+./minirake []
 OUT
 
   assert [ -w "$INSTALL_ROOT/bin/mruby" ]
@@ -506,7 +487,7 @@ DEF
 
   assert_build_log <<OUT
 bundle --path=vendor/bundle
-rubinius-2.0.0: --prefix=$INSTALL_ROOT RUBYOPT=-rrubygems
+rubinius-2.0.0: [--prefix=$INSTALL_ROOT] RUBYOPT=-rrubygems 
 bundle exec rake install
 OUT
 }
@@ -562,7 +543,8 @@ OUT
 @test "JRuby build" {
   executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/jruby" <<OUT
 #!${BASH}
-echo jruby "\$@" >> ../build.log
+IFS=,
+echo "jruby [\$*]" >> ../build.log
 OUT
   executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/gem" <<OUT
 #!/usr/bin/env jruby
@@ -576,8 +558,8 @@ DEF
   assert_success
 
   assert_build_log <<OUT
-jruby -e puts JRUBY_VERSION
-jruby gem install jruby-launcher
+jruby [-e,puts JRUBY_VERSION]
+jruby [gem,install,jruby-launcher]
 OUT
 
   run ls "${INSTALL_ROOT}/bin"
