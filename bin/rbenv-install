@@ -161,9 +161,7 @@ after_install() {
   after_hooks["${#after_hooks[@]}"]="$hook"
 }
 
-OLDIFS="$IFS"
-IFS=$'\n' scripts=(`rbenv-hooks install`)
-IFS="$OLDIFS"
+IFS=$'\n' read -d '' -r -a scripts <<<"$(rbenv-hooks install)" || true
 # shellcheck disable=SC1090
 for script in "${scripts[@]}"; do source "$script"; done
 
@@ -180,7 +178,7 @@ PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 if [ -d "${PREFIX}/bin" ]; then
   if [ -z "$FORCE" ] && [ -z "$SKIP_EXISTING" ]; then
     echo "rbenv: $PREFIX already exists" >&2
-    read -p "continue with installation? (y/N) "
+    read -rp "continue with installation? (y/N) "
 
     case "$REPLY" in
     y* | Y* ) ;;
@@ -244,7 +242,7 @@ if [ "$STATUS" == "2" ]; then
     echo "See all available versions with \`rbenv install --list'."
     echo
     echo -n "If the version you need is missing, try upgrading ruby-build"
-    if [ "$here" != "${here#$(brew --prefix 2>/dev/null)}" ]; then
+    if [ "$here" != "${here#"$(brew --prefix 2>/dev/null)"}" ]; then
       printf ":\n\n"
       echo "  brew upgrade ruby-build"
     elif [ -d "${here}/.git" ]; then

@@ -42,7 +42,7 @@ lib() {
           while option="${arg:$index:1}"; do
             [ -n "$option" ] || break
             OPTIONS[${#OPTIONS[*]}]="$option"
-            index=$(($index+1))
+            index=$((index+1))
           done
         fi
         shift 1
@@ -84,7 +84,7 @@ abs_dirname() {
 }
 
 capitalize() {
-  printf "%s" "$1" | tr a-z A-Z
+  printf "%s" "$1" | tr '[:lower:]' '[:upper:]'
 }
 
 sanitize() {
@@ -206,7 +206,7 @@ install_package_using() {
   local make_args=( "$package_name" )
   local arg last_arg
 
-  for arg in "${@:$(( $package_type_nargs + 1 ))}"; do
+  for arg in "${@:$(( package_type_nargs + 1 ))}"; do
     if [ "$last_arg" = "--if" ]; then
       "$arg" || return 0
     elif [ "$arg" != "--if" ]; then
@@ -351,11 +351,13 @@ detect_http_client() {
 }
 
 http_head_aria2c() {
+  # shellcheck disable=SC2086
   aria2c --dry-run --no-conf=true ${ARIA2_OPTS} "$1" >&4 2>&1
 }
 
 http_get_aria2c() {
   local out="${2:-$(mktemp "out.XXXXXX")}"
+  # shellcheck disable=SC2086
   if aria2c --allow-overwrite=true --no-conf=true -o "${out}" ${ARIA2_OPTS} "$1" >&4; then
     [ -n "$2" ] || cat "${out}"
   else
@@ -364,18 +366,22 @@ http_get_aria2c() {
 }
 
 http_head_curl() {
+  # shellcheck disable=SC2086
   curl -qsILf ${CURL_OPTS} "$1" >&4 2>&1
 }
 
 http_get_curl() {
+  # shellcheck disable=SC2086
   curl -q -o "${2:--}" -sSLf ${CURL_OPTS} "$1"
 }
 
 http_head_wget() {
+  # shellcheck disable=SC2086
   wget -q --spider ${WGET_OPTS} "$1" >&4 2>&1
 }
 
 http_get_wget() {
+  # shellcheck disable=SC2086
   wget -nv ${WGET_OPTS} -O "${2:--}" "$1"
 }
 
@@ -420,7 +426,7 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   fi
 
-  { if tar $tar_args "$package_filename"; then
+  { if tar "$tar_args" "$package_filename"; then
       if [ ! -d "$package_name" ]; then
         extracted_dir="$(find_extracted_directory)"
         mv "$extracted_dir" "$package_name"
@@ -691,6 +697,7 @@ build_package_ree_installer() {
   # Work around install_useful_libraries crash with --dont-install-useful-gems
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
+  # shellcheck disable=SC2086
   { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems "${options[@]}" $CONFIGURE_OPTS
   } >&4 2>&1
 }
@@ -716,6 +723,7 @@ build_package_rbx() {
       fi
     done
 
+    # shellcheck disable=SC2086
     RUBYOPT="-rrubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" "${configure_opts[@]}" $RUBY_CONFIGURE_OPTS
     rake install
     fix_rbx_gem_binstubs "$PREFIX_PATH"
@@ -964,7 +972,8 @@ needs_yaml() {
 }
 
 use_homebrew_yaml() {
-  local libdir="$(brew --prefix libyaml 2>/dev/null || true)"
+  local libdir
+  libdir="$(brew --prefix libyaml 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
     echo "ruby-build: using libyaml from homebrew"
     package_option ruby configure --with-libyaml-dir="$libdir"
@@ -975,7 +984,8 @@ use_homebrew_yaml() {
 
 use_freebsd_yaml() {
   if is_freebsd; then
-    local libyaml_prefix="$(freebsd_package_prefix libyaml)"
+    local libyaml_prefix
+    libyaml_prefix="$(freebsd_package_prefix libyaml)"
     if [ -n "$libyaml_prefix" ]; then
       package_option ruby configure --with-libyaml-dir="$libyaml_prefix"
     fi
@@ -983,7 +993,8 @@ use_freebsd_yaml() {
 }
 
 use_homebrew_gmp() {
-  local libdir="$(brew --prefix gmp 2>/dev/null || true)"
+  local libdir
+  libdir="$(brew --prefix gmp 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
     echo "ruby-build: using gmp from homebrew"
     package_option ruby configure --with-gmp-dir="$libdir"
@@ -994,8 +1005,9 @@ use_homebrew_gmp() {
 
 use_freebsd_readline() {
   if is_freebsd; then
-    local readline_prefix="$(freebsd_package_prefix readline)"
-    local libedit_prefix="$(freebsd_package_prefix libedit)"
+    local readline_prefix libedit_prefix
+    readline_prefix="$(freebsd_package_prefix readline)"
+    libedit_prefix="$(freebsd_package_prefix libedit)"
     if [ -n "$readline_prefix" ]; then
       package_option ruby configure --with-readline-dir="$readline_prefix"
     elif [ -n "$libedit_prefix" ]; then
@@ -1006,7 +1018,8 @@ use_freebsd_readline() {
 }
 
 use_homebrew_readline() {
-  local libdir="$(brew --prefix readline 2>/dev/null || true)"
+  local libdir
+  libdir="$(brew --prefix readline 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
     echo "ruby-build: using readline from homebrew"
     package_option ruby configure --with-readline-dir="$libdir"
@@ -1017,7 +1030,8 @@ use_homebrew_readline() {
 
 use_freebsd_libffi() {
   if is_freebsd; then
-    local libffi_prefix="$(freebsd_package_prefix libffi)"
+    local libffi_prefix
+    libffi_prefix="$(freebsd_package_prefix libffi)"
     if [ -n "$libffi_prefix" ]; then
       package_option ruby configure --with-libffi-dir="$libffi_prefix"
     fi
@@ -1026,16 +1040,18 @@ use_freebsd_libffi() {
 
 has_broken_mac_openssl() {
   is_mac || return 1
-  local openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
+  local openssl_version
+  openssl_version="$(/usr/bin/openssl version 2>/dev/null || true)"
   [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]]
 }
 
 system_openssl_version() {
-  local version_text=$(printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null)
+  local version_text
+  version_text=$(printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null || true)
   if [[ $version_text == *"OpenSSL "* ]]; then
     local version=${version_text#*OpenSSL }
-    version=${version%% *}
-    echo $version | sed 's/[^0-9]//g' | sed 's/^0*//'
+    # shellcheck disable=SC2001
+    sed 's/[^0-9]//g' <<<"${version%% *}" | sed 's/^0*//'
   else
     echo "No system openssl version was found, ensure openssl headers are installed (https://github.com/rbenv/ruby-build/wiki#suggested-build-environment)" >&2
     echo 000
@@ -1047,8 +1063,9 @@ needs_openssl_096_102() {
   [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
   has_broken_mac_openssl && return 0
 
-  local version=$(system_openssl_version)
-  (( $version < 96 || $version >= 110 ))
+  local version
+  version="$(system_openssl_version)"
+  (( version < 96 || version >= 110 ))
 }
 
 # openssl gem 2.2.1
@@ -1056,8 +1073,9 @@ needs_openssl_101_111() {
   [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
   has_broken_mac_openssl && return 0
 
-  local version=$(system_openssl_version)
-  (( $version < 101 || $version >= 300 ))
+  local version
+  version="$(system_openssl_version)"
+  (( version < 101 || version >= 300 ))
 }
 
 # openssl gem 3.0.0
@@ -1065,12 +1083,14 @@ needs_openssl_102_300() {
   [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
   has_broken_mac_openssl && return 0
 
-  local version=$(system_openssl_version)
-  (( $version < 102 || $version >= 400 ))
+  local version
+  version="$(system_openssl_version)"
+  (( version < 102 || version >= 400 ))
 }
 
 use_homebrew_openssl() {
-  local ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
+  local ssldir
+  ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
     echo "ruby-build: using openssl@1.1 from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
@@ -1146,6 +1166,7 @@ build_package_openssl() {
 
 # Post-install check that the openssl extension was built.
 build_package_verify_openssl() {
+  # shellcheck disable=SC2016
   "$RUBY_BIN" -e '
     manager = ARGV[0]
     packages = {
@@ -1182,16 +1203,18 @@ build_package_verify_openssl() {
 
 # Ensure that directories listed in LDFLAGS exist
 build_package_ldflags_dirs() {
-  local arg dir
-  set - $LDFLAGS
-  while [ $# -gt 0 ]; do
+  local ldflags
+  read -d '' -r -a ldflags <<<"$LDFLAGS" || true
+  local index=0
+  local dir
+  while [ "$index" -lt "${#ldflags[@]}" ]; do
     dir=""
-    case "$1" in
-    -L  ) dir="$2" ;;
-    -L* ) dir="${1#-L}" ;;
+    case "${ldflags[index]}" in
+    -L  ) dir="${ldflags[index+1]}" ;;
+    -L* ) dir="${ldflags[index]#-L}" ;;
     esac
     [ -z "$dir" ] || mkdir -p "$dir"
-    shift 1
+    index=$((index+1))
   done
 }
 
