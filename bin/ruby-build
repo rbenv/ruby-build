@@ -314,7 +314,7 @@ verify_checksum() {
 
   # If the computed checksum is empty, return failure
   local computed_checksum
-  computed_checksum="$("$checksum_command" < "$filename" | tr '[:upper]' '[:lower:]')"
+  computed_checksum="$("$checksum_command" < "$filename" | tr '[:upper:]' '[:lower:]')"
   [ -n "$computed_checksum" ] || return 1
 
   if [ "$expected_checksum" != "$computed_checksum" ]; then
