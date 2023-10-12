@@ -84,7 +84,8 @@ abs_dirname() {
 }
 
 capitalize() {
-  printf "%s" "$1" | tr '[:lower:]' '[:upper:]'
+  # shellcheck disable=SC2018,SC2019
+  printf "%s" "$1" | tr 'a-z' 'A-Z'
 }
 
 sanitize() {
@@ -291,7 +292,7 @@ verify_checksum() {
   local checksum_command
   local filename="$1"
   local expected_checksum
-  expected_checksum="$(tr '[:upper]' '[:lower:]' <<<"$2" || true)"
+  expected_checksum="$(tr 'A-F' 'a-f' <<<"$2")"
 
   # If the specified filename doesn't exist, return success
   [ -e "$filename" ] || return 0
@@ -314,7 +315,7 @@ verify_checksum() {
 
   # If the computed checksum is empty, return failure
   local computed_checksum
-  computed_checksum="$("$checksum_command" < "$filename" | tr '[:upper:]' '[:lower:]')"
+  computed_checksum="$("$checksum_command" < "$filename" | tr 'A-F' 'a-f')"
   [ -n "$computed_checksum" ] || return 1
 
   if [ "$expected_checksum" != "$computed_checksum" ]; then
