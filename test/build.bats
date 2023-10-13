@@ -748,7 +748,7 @@ DEF
   assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
 }
 
-@test "initializes LDFLAGS directories" {
+@test "does not initialize LDFLAGS directories" {
   cached_tarball "ruby-2.0.0"
 
   export LDFLAGS="-L ${BATS_TEST_DIRNAME}/what/evs"
@@ -757,6 +757,6 @@ install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz" l
 DEF
   assert_success
 
-  assert [ -d "${INSTALL_ROOT}/lib" ]
-  assert [ -d "${BATS_TEST_DIRNAME}/what/evs" ]
+  assert [ ! -d "${INSTALL_ROOT}/lib" ]
+  assert [ ! -d "${BATS_TEST_DIRNAME}/what/evs" ]
 }

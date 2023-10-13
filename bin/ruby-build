@@ -1190,21 +1190,9 @@ build_package_verify_openssl() {
   ' "$(basename "$(type -p yum apt-get | head -1)")" >&4 2>&1
 }
 
-# Ensure that directories listed in LDFLAGS exist
+# Kept for backward compatibility with 3rd-party definitions.
 build_package_ldflags_dirs() {
-  local ldflags
-  read -d '' -r -a ldflags <<<"$LDFLAGS" || true
-  local index=0
-  local dir
-  while [ "$index" -lt "${#ldflags[@]}" ]; do
-    dir=""
-    case "${ldflags[index]}" in
-    -L  ) dir="${ldflags[index+1]}" ;;
-    -L* ) dir="${ldflags[index]#-L}" ;;
-    esac
-    [ -z "$dir" ] || mkdir -p "$dir"
-    index=$((index+1))
-  done
+  true
 }
 
 build_package_enable_shared() {
@@ -1510,9 +1498,6 @@ else
     echo "To follow progress, use 'tail -f $LOG_PATH' or pass --verbose" >&2
   fi
 fi
-
-export LDFLAGS="-L${PREFIX_PATH}/lib ${LDFLAGS}"
-export CPPFLAGS="-I${PREFIX_PATH}/include ${CPPFLAGS}"
 
 unset RUBYOPT
 unset RUBYLIB
