@@ -316,6 +316,33 @@ make install
 OUT
 }
 
+@test "use system OpenSSL" {
+  cached_tarball "ruby-2.0.0" configure
+
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
+  # shellcheck disable=SC2016
+  stub cc '-xc -E - : [[ "$(cat)" == *OPENSSL_VERSION_TEXT* ]] && printf "# <unrelated> 4.0.2\nOpenSSL 1.0.3a  1 Aug 202\n0 errors.\n"'
+  stub_make_install
+
+  mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
+  run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+make -j 2
+make install
+OUT
+}
+
 @test "install bundled OpenSSL" {
   cached_tarball "openssl-1.1.1w" config
   cached_tarball "ruby-2.0.0" configure
@@ -339,6 +366,8 @@ DEF
 
   unstub uname
   unstub brew
+  unstub cc
+  # unstub openssl
   unstub make
 
   assert_build_log <<OUT
@@ -370,6 +399,56 @@ DEF
 
   assert_build_log <<OUT
 ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=/path/to/openssl]
+make -j 2
+make install
+OUT
+}
+
+@test "link to Homebrew OpenSSL" {
+  cached_tarball "ruby-2.0.0" configure
+
+  local homebrew_prefix="${TMP}/homebrew"
+  executable "${homebrew_prefix}/opt/openssl@3/bin/openssl" <<EXE
+#!/$BASH
+[ "\$1" = "version" ] || exit 1
+echo 'OpenSSL 3.2.1  20 Dec 2019'
+EXE
+  executable "${homebrew_prefix}/opt/openssl@3.1/bin/openssl" <<EXE
+#!/$BASH
+[ "\$1" = "version" ] || exit 1
+echo 'OpenSSL 3.1.22  20 Dec 2019'
+EXE
+  executable "${homebrew_prefix}/opt/openssl@3.0/bin/openssl" <<EXE
+#!/$BASH
+[ "\$1" = "version" ] || exit 1
+echo 'OpenSSL 3.0.2  20 Dec 2019'
+EXE
+  executable "${homebrew_prefix}/opt/openssl@1.1/bin/openssl" <<EXE
+#!/$BASH
+[ "\$1" = "version" ] || exit 1
+echo 'OpenSSL 1.1.1v  20 Dec 2019'
+EXE
+
+  stub_repeated uname '-s : echo Linux'
+  stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"'
+  stub_repeated brew \
+    'list : printf "git\nopenssl@3\nopenssl-utils\nopenssl@1.1\nopenssl@3.0\nwget\nopenssl@3.1"' \
+    "--prefix : echo '$homebrew_prefix'/opt/\$2 "
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl:1.1.0-3.0.x
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub cc
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$TMP/homebrew/opt/openssl@3.0]
 make -j 2
 make install
 OUT

@@ -44,8 +44,9 @@ inspect_args() {
 }
 
 # Loop over each line in the plan.
+IFS=$'\n' read -d '' -r -a lines < "${!_STUB_PLAN}" || true
 index=0
-while IFS= read -r line; do
+for line in "${lines[@]}"; do
   index=$(($index + 1))
 
   if [[ -z "${!_STUB_END}" && -n "${!_STUB_NOINDEX}" || $index -eq "${!_STUB_INDEX}" ]]; then
@@ -93,7 +94,7 @@ while IFS= read -r line; do
       eval "${_STUB_RESULT}"=1
     fi
   fi
-done < "${!_STUB_PLAN}"
+done
 
 
 if [ -n "${!_STUB_END}" ]; then
