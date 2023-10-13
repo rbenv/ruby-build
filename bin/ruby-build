@@ -821,12 +821,14 @@ build_package_truffleruby() {
 
 build_package_truffleruby_graalvm() {
   clean_prefix_path_truffleruby || return $?
-  build_package_copy_to "${PREFIX_PATH}/graalvm"
+  PREFIX_PATH="${PREFIX_PATH}/graalvm" build_package_copy
 
-  # shellcheck disable=SC2164
-  cd "${PREFIX_PATH}/graalvm"
   if is_mac; then
-    cd Contents/Home || return $?
+    # shellcheck disable=SC2164
+    cd "${PREFIX_PATH}/graalvm/Contents/Home"
+  else
+    # shellcheck disable=SC2164
+    cd "${PREFIX_PATH}/graalvm"
   fi
 
   if [ -e bin/gu ]; then
@@ -879,14 +881,9 @@ clean_prefix_path_truffleruby() {
   rm -rf "$PREFIX_PATH"
 }
 
-build_package_copy_to() {
-  to="$1"
-  mkdir -p "$to"
-  cp -fR . "$to"
-}
-
 build_package_copy() {
-  build_package_copy_to "$PREFIX_PATH"
+  mkdir -p "$PREFIX_PATH"
+  cp -fR . "$PREFIX_PATH"
 }
 
 before_install_package() {
