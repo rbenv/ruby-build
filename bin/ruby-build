@@ -197,7 +197,12 @@ install_package_using() {
 
   for arg in "${@:$(( package_type_nargs + 1 ))}"; do
     if [ "$last_arg" = "--if" ]; then
-      "$arg" || return 0
+      if [[ $arg == *:* ]]; then
+        # Support colon-separated sub-argument, e.g. `needs_openssl:1.1`
+        "${arg%:*}" "$package_name" "${arg#*:}" || return 0
+      else
+        "$arg" "$package_name" || return 0
+      fi
     elif [ "$arg" != "--if" ]; then
       make_args["${#make_args[@]}"]="$arg"
     fi
