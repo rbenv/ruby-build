@@ -957,7 +957,7 @@ require_llvm() {
 }
 
 needs_yaml() {
-  [[ "$RUBY_CONFIGURE_OPTS" != *--with-libyaml-dir=* ]] &&
+  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libyaml-dir=* ]] &&
   ! use_homebrew_yaml
 }
 
@@ -1050,7 +1050,7 @@ system_openssl_version() {
 
 # openssl gem 1.1.1
 needs_openssl_096_102() {
-  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" == *--with-openssl-dir=* ]] && return 1
   has_broken_mac_openssl && return 0
 
   local version
@@ -1060,7 +1060,7 @@ needs_openssl_096_102() {
 
 # openssl gem 2.2.1
 needs_openssl_101_111() {
-  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" == *--with-openssl-dir=* ]] && return 1
   has_broken_mac_openssl && return 0
 
   local version
@@ -1070,7 +1070,7 @@ needs_openssl_101_111() {
 
 # openssl gem 3.0.0
 needs_openssl_102_300() {
-  [[ "$RUBY_CONFIGURE_OPTS" == *--with-openssl-dir=* ]] && return 1
+  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" == *--with-openssl-dir=* ]] && return 1
   has_broken_mac_openssl && return 0
 
   local version
@@ -1209,7 +1209,7 @@ build_package_ldflags_dirs() {
 }
 
 build_package_enable_shared() {
-  if [[ " ${RUBY_CONFIGURE_OPTS} " != *" --disable-shared"* ]]; then
+  if [[ " ${RUBY_CONFIGURE_OPTS} ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *" --disable-shared"* ]]; then
     package_option ruby configure --enable-shared
   fi
 }
