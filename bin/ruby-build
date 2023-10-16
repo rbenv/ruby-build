@@ -1092,7 +1092,7 @@ use_homebrew_openssl() {
 
 build_package_openssl() {
   # Install to a subdirectory since we don't want shims for bin/openssl.
-  OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
+  local OPENSSL_PREFIX_PATH="${PREFIX_PATH}/openssl"
 
   # Put openssl.conf, certs, etc in ~/.rbenv/versions/*/openssl/ssl
   OPENSSLDIR="${OPENSSLDIR:-$OPENSSL_PREFIX_PATH/ssl}"
@@ -1103,27 +1103,17 @@ build_package_openssl() {
   # Make sure pkg-config finds our build first.
   export PKG_CONFIG_PATH="${OPENSSL_PREFIX_PATH}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
-  # Hint OpenSSL that we prefer a 64-bit build.
-  export KERNEL_BITS="64"
-  OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}"
-
   local nokerberos
   [[ "$1" != openssl-1.0.* ]] || nokerberos=1
 
   # Compile a shared lib with zlib dynamically linked.
   package_option openssl configure --openssldir="$OPENSSLDIR" zlib-dynamic no-ssl3 shared ${nokerberos:+no-ssl2 no-krb5}
 
-  # Default MAKE_OPTS are -j 2 which can confuse the build. Thankfully, make
-  # gives precedence to the last -j option, so we can override that.
-  package_option openssl make -j 1
+  # Skip building OpenSSL docs, which is slow.
+  local make_target="install_sw install_ssldirs"
+  [[ "$1" != openssl-1.0.* ]] || make_target="install_sw" # OpenSSL 1.0 does not have `install_ssldirs`
 
-  # Use install_sw install_ssldirs instead of install to skip building docs which is slow.
-  # OpenSSL 1.1+ also needs install_ssldirs, 1.0 does not have that target.
-  if [[ "$1" == openssl-1.0.* ]]; then
-    MAKE_INSTALL_TARGET="install_sw" build_package_standard "$@"
-  else
-    MAKE_INSTALL_TARGET="install_sw install_ssldirs" build_package_standard "$@"
-  fi
+  OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}" MAKE_INSTALL_TARGET="$make_target" build_package_standard "$@"
 
   local pem_file="$OPENSSLDIR/cert.pem"
   if is_mac; then
