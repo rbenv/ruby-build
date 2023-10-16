@@ -21,30 +21,63 @@ executable() {
 }
 
 cached_tarball() {
-  mkdir -p "$RUBY_BUILD_CACHE_PATH"
-  pushd "$RUBY_BUILD_CACHE_PATH" >/dev/null
-  tarball "$@"
-  popd >/dev/null
+  local save_to_fixtures
+  case "$*" in
+  "ruby-2.0.0 configure" | "yaml-0.1.6 configure" | "jruby-9000.dev bin/jruby" )
+    save_to_fixtures=1
+    ;;
+  esac
+
+  local tarball="${1}.tar.gz"
+  local fixture_tarball="${FIXTURE_ROOT}/${tarball}"
+  local cached_tarball="${RUBY_BUILD_CACHE_PATH}/${tarball}"
+  shift 1
+  
+  if [ -n "$save_to_fixtures" ] && [ -e "$fixture_tarball" ]; then
+    mkdir -p "$(dirname "$cached_tarball")"
+    cp "$fixture_tarball" "$cached_tarball"
+    return 0
+  fi
+
+  generate_tarball "$cached_tarball" "$@"
+  [ -z "$save_to_fixtures" ] || cp "$cached_tarball" "$fixture_tarball"
 }
 
-tarball() {
-  local name="$1"
-  local path="$PWD/$name"
-  local configure="$path/configure"
+generate_tarball() {
+  local tarfile="$1"
   shift 1
+  local name path
+  name="$(basename "${tarfile%.tar.gz}")"
+  path="$(mktemp -d "$TMP/tarball.XXXXX")/${name}"
 
-  executable "$configure" <<OUT
+  local file target
+  for file; do
+    case "$file" in
+    config | configure )
+      mkdir -p "$(dirname "${path}/${file}")"
+      cat > "${path}/${file}" <<OUT
 #!$BASH
 IFS=,
 echo "$name: [\$*]" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} >> build.log
 OUT
-
-  for file; do
-    mkdir -p "$(dirname "${path}/${file}")"
-    touch "${path}/${file}"
+      chmod +x "${path}/${file}"
+      ;;
+    *:* )
+      target="${file#*:}"
+      file="${file%:*}"
+      mkdir -p "$(dirname "${path}/${file}")"
+      cp "$target" "${path}/${file}"
+      ;;
+    * )
+      mkdir -p "$(dirname "${path}/${file}")"
+      touch "${path}/${file}"
+      ;;
+    esac
   done
 
-  tar czf "${path}.tar.gz" -C "${path%/*}" "$name"
+  mkdir -p "$(dirname "$tarfile")"
+  tar czf "$tarfile" -C "${path%/*}" "$name"
+  rm -rf "$path"
 }
 
 stub_make_install() {
@@ -59,8 +92,8 @@ assert_build_log() {
 }
 
 @test "yaml is installed for ruby" {
-  cached_tarball "yaml-0.1.6"
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "yaml-0.1.6" configure
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -85,8 +118,8 @@ OUT
 }
 
 @test "apply ruby patch before building" {
-  cached_tarball "yaml-0.1.6"
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "yaml-0.1.6" configure
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -118,8 +151,8 @@ OUT
 }
 
 @test "striplevel ruby patch before building" {
-  cached_tarball "yaml-0.1.6"
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "yaml-0.1.6" configure
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -151,8 +184,8 @@ OUT
 }
 
 @test "apply ruby patch from git diff before building" {
-  cached_tarball "yaml-0.1.6"
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "yaml-0.1.6" configure
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -185,7 +218,7 @@ OUT
 }
 
 @test "yaml is linked from Homebrew" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   brew_libdir="$TMP/homebrew-yaml"
   mkdir -p "$brew_libdir"
@@ -211,7 +244,7 @@ OUT
 }
 
 @test "gmp is linked from Homebrew" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   gmp_libdir="$TMP/homebrew-gmp"
   mkdir -p "$gmp_libdir"
@@ -235,7 +268,7 @@ OUT
 }
 
 @test "readline is linked from Homebrew" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   readline_libdir="$TMP/homebrew-readline"
   mkdir -p "$readline_libdir"
@@ -259,7 +292,7 @@ OUT
 }
 
 @test "readline is not linked from Homebrew when explicitly defined" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   readline_libdir="$TMP/homebrew-readline"
   mkdir -p "$readline_libdir"
@@ -284,7 +317,7 @@ OUT
 }
 
 @test "forward extra command-line arguments as configure flags" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated brew false
   stub_make_install
@@ -307,7 +340,7 @@ OUT
 }
 
 @test "number of CPU cores defaults to 2" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo Darwin'
   stub sysctl false
@@ -330,7 +363,7 @@ OUT
 }
 
 @test "number of CPU cores is detected on Mac" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo Darwin'
   stub sysctl '-n hw.ncpu : echo 4'
@@ -354,7 +387,7 @@ OUT
 }
 
 @test "number of CPU cores is detected on FreeBSD" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo FreeBSD'
   stub sysctl '-n hw.ncpu : echo 1'
@@ -379,7 +412,7 @@ OUT
 }
 
 @test "using MAKE_INSTALL_OPTS" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_make_install
@@ -411,7 +444,7 @@ OUT
 }
 
 @test "can use RUBY_CONFIGURE to apply a patch" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   executable "${TMP}/custom-configure" <<CONF
 #!$BASH
@@ -456,8 +489,7 @@ OUT
 }
 
 @test "mruby strategy" {
-  package="$TMP/mruby-1.0"
-  executable "$package/minirake" <<OUT
+  executable "$TMP/minirake" <<OUT
 #!$BASH
 set -e
 IFS=,
@@ -466,11 +498,7 @@ mkdir -p build/host/bin
 touch build/host/bin/{mruby,mirb}
 chmod +x build/host/bin/{mruby,mirb}
 OUT
-  mkdir -p "$package/include"
-  touch "$package/include/mruby.h"
-  mkdir -p "$RUBY_BUILD_CACHE_PATH"
-  tar czf "$RUBY_BUILD_CACHE_PATH/${package##*/}.tar.gz" -C "${package%/*}" "${package##*/}"
-  rm -rf "$package"
+  cached_tarball "mruby-1.0" "minirake:$TMP/minirake" include/mruby.h
 
   stub gem false
   stub rake false
@@ -494,7 +522,7 @@ OUT
 }
 
 @test "rbx uses bundle then rake" {
-  cached_tarball "rubinius-2.0.0" "Gemfile"
+  cached_tarball "rubinius-2.0.0" Gemfile configure
 
   stub gem false
   stub rake false
@@ -519,15 +547,17 @@ OUT
 }
 
 @test "fixes rbx binstubs" {
-  executable "${RUBY_BUILD_CACHE_PATH}/rubinius-2.0.0/gems/bin/rake" <<OUT
+  executable "${TMP}/rbx-rake" <<OUT
 #!rbx
 puts 'rake'
 OUT
-  executable "${RUBY_BUILD_CACHE_PATH}/rubinius-2.0.0/gems/bin/irb" <<OUT
+  executable "${TMP}/rbx-irb" <<OUT
 #!rbx
 print '>>'
 OUT
-  cached_tarball "rubinius-2.0.0" bin/ruby
+  cached_tarball "rubinius-2.0.0" configure bin/ruby \
+    gems/bin/rake:"$TMP"/rbx-rake \
+    gems/bin/irb:"$TMP"/rbx-irb
 
   stub bundle false
   stub rake \
@@ -567,16 +597,18 @@ OUT
 }
 
 @test "JRuby build" {
-  executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/jruby" <<OUT
+  executable "${TMP}/jruby-bin" <<OUT
 #!${BASH}
 IFS=,
 echo "jruby [\$*]" >> ../build.log
 OUT
-  executable "${RUBY_BUILD_CACHE_PATH}/jruby-1.7.9/bin/gem" <<OUT
+  executable "${TMP}/jruby-gem" <<OUT
 #!/usr/bin/env jruby
 nice gem things
 OUT
-  cached_tarball "jruby-1.7.9" bin/foo.exe bin/bar.dll bin/baz.bat
+  cached_tarball "jruby-1.7.9" bin/foo.exe bin/bar.dll bin/baz.bat \
+    bin/jruby:"$TMP"/jruby-bin \
+    bin/gem:"$TMP"/jruby-gem
 
   run_inline_definition <<DEF
 install_package "jruby-1.7.9" "http://jruby.org/downloads/jruby-bin-1.7.9.tar.gz" jruby
@@ -715,17 +747,17 @@ DEF
 }
 
 @test "TruffleRuby post-install hook" {
-  rmdir "$INSTALL_ROOT"
-  executable "${RUBY_BUILD_CACHE_PATH}/truffleruby-test/lib/truffle/post_install_hook.sh" <<OUT
-echo Running post-install hook
+  executable "${TMP}/hook.sh" <<OUT
+echo Running post-install hook >> build.log
 OUT
-  cached_tarball "truffleruby-test" bin/truffleruby
+  cached_tarball "truffleruby-test" bin/truffleruby lib/truffle/post_install_hook.sh:"$TMP"/hook.sh
 
   run_inline_definition <<DEF
 install_package "truffleruby-test" "URL" truffleruby
 DEF
   assert_success
-  assert_output_contains "Running post-install hook"
+  run cat "$INSTALL_ROOT"/build.log
+  assert_success "Running post-install hook"
 }
 
 @test "non-writable TMPDIR aborts build" {
@@ -749,7 +781,7 @@ DEF
 }
 
 @test "does not initialize LDFLAGS directories" {
-  cached_tarball "ruby-2.0.0"
+  cached_tarball "ruby-2.0.0" configure
 
   export LDFLAGS="-L ${BATS_TEST_DIRNAME}/what/evs"
   run_inline_definition <<DEF
