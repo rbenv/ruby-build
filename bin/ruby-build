@@ -494,37 +494,27 @@ fetch_git() {
 
   echo "Cloning ${git_url}..." >&2
 
-  if type git &>/dev/null; then
-    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
-      # shellcheck disable=SC2164
-      pushd "$RUBY_BUILD_CACHE_PATH" >&4
-      local clone_name
-      clone_name="$(sanitize "$git_url")"
-      if [ -e "$clone_name" ]; then
-        { # shellcheck disable=SC2164
-          cd "$clone_name"
-          git fetch --force "$git_url" "+${git_ref}:${git_ref}"
-        } >&4 2>&1
-      else
-        git clone --bare --branch "$git_ref" "$git_url" "${clone_name}" >&4 2>&1
-      fi
-      git_url="$RUBY_BUILD_CACHE_PATH/${clone_name}"
-      # shellcheck disable=SC2164
-      popd >&4
-    fi
-
-    if [ -e "${package_name}" ]; then
-      ( # shellcheck disable=SC2164
-        cd "${package_name}"
-        git fetch --depth 1 origin "+${git_ref}"
-        git checkout -q -B "$git_ref" "origin/${git_ref}"
-      ) >&4 2>&1
-    else
-      git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
-    fi
-  else
+  if ! type git &>/dev/null; then
     echo "error: please install \`git\` and try again" >&2
     exit 1
+  fi
+
+  if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+    local cache_dir
+    cache_dir="$RUBY_BUILD_CACHE_PATH/$(sanitize "$git_url")"
+    if [ -e "$cache_dir" ]; then
+      git -C "$cache_dir" fetch --force "$git_url" "+${git_ref}:${git_ref}" >&4 2>&1
+    else
+      git clone --bare --branch "$git_ref" "$git_url" "$cache_dir" >&4 2>&1
+    fi
+    git_url="$cache_dir"
+  fi
+
+  if [ -e "${package_name}" ]; then
+    git -C "$package_name" fetch --depth 1 origin "+${git_ref}" >&4 2>&1
+    git -C "$package_name" checkout -q -B "$git_ref" "origin/${git_ref}" >&4 2>&1
+  else
+    git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
   fi
 }
 

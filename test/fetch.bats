@@ -61,8 +61,8 @@ OUT
 @test "updating existing git repository" {
   mkdir -p "${RUBY_BUILD_BUILD_PATH}/package-dev"
   stub git \
-    "fetch --depth 1 origin +master : true" \
-    "checkout -q -B master origin/master : true"
+    "-C package-dev fetch --depth 1 origin +master : true" \
+    "-C package-dev checkout -q -B master origin/master : true"
 
   run_inline_definition <<DEF
 install_git "package-dev" "http://example.com/packages/package.git" master copy
