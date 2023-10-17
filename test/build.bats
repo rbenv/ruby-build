@@ -83,7 +83,7 @@ OUT
 stub_make_install() {
   stub "$MAKE" \
     " : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log" \
-    "install : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
+    "install* : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
 }
 
 assert_build_log() {
@@ -311,6 +311,65 @@ DEF
 
   assert_build_log <<OUT
 ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=/custom]
+make -j 2
+make install
+OUT
+}
+
+@test "install bundled OpenSSL" {
+  cached_tarball "openssl-1.1.1w" config
+  cached_tarball "ruby-2.0.0" configure
+
+  mkdir -p "${TMP}/ssl/certs"
+  touch "${TMP}/ssl/cert.pem"
+
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
+  stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"'
+  stub openssl "version -d : echo 'OPENSSLDIR: \"${TMP}/ssl\"'"
+  stub_make_install
+  stub_make_install
+
+  mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
+  run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,zlib-dynamic,no-ssl3,shared]
+make -j 2
+make install_sw install_ssldirs
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl]
+make -j 2
+make install
+OUT
+}
+
+@test "skip bundling OpenSSL if custom openssl dir was specified" {
+  cached_tarball "ruby-2.0.0" configure
+
+  stub_repeated uname '-s : echo Darwin'
+  stub_repeated brew false
+  stub_make_install
+
+  RUBY_CONFIGURE_OPTS="--with-openssl-dir=/path/to/openssl" run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
+install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=/path/to/openssl]
 make -j 2
 make install
 OUT
