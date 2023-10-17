@@ -1,4 +1,4 @@
-export TMP="$BATS_TEST_DIRNAME/tmp"
+export TMP="$BATS_TMPDIR"/ruby-build-test
 export RUBY_BUILD_CURL_OPTS=
 export RUBY_BUILD_HTTP_CLIENT="curl"
 export RUBY_BUILD_TESTING=true
@@ -31,7 +31,7 @@ remove_commands_from_path() {
 }
 
 teardown() {
-  rm -fr "${TMP:?}"/*
+  rm -fr "${TMP:?}"
 }
 
 stub() {
