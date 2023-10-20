@@ -36,12 +36,10 @@ EOS
 add_platform "linux-aarch64"
 cat >> "$file" <<EOS
 Darwin-x86_64)
-  use_homebrew_openssl
 EOS
 add_platform "macos-amd64"
 cat >> "$file" <<EOS
 Darwin-arm64)
-  use_homebrew_openssl
 EOS
 add_platform "macos-aarch64"
 cat >> "$file" <<EOS

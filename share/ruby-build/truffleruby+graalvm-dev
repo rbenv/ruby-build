@@ -7,11 +7,9 @@ Linux-aarch64)
   install_package "truffleruby+graalvm-dev" "https://github.com/graalvm/graalvm-ce-dev-builds/releases/latest/download/truffleruby-community-jvm-dev-linux-aarch64.tar.gz" truffleruby
   ;;
 Darwin-x86_64)
-  use_homebrew_openssl
   install_package "truffleruby+graalvm-dev" "https://github.com/graalvm/graalvm-ce-dev-builds/releases/latest/download/truffleruby-community-jvm-dev-macos-amd64.tar.gz" truffleruby
   ;;
 Darwin-arm64)
-  use_homebrew_openssl
   install_package "truffleruby+graalvm-dev" "https://github.com/graalvm/graalvm-ce-dev-builds/releases/latest/download/truffleruby-community-jvm-dev-macos-aarch64.tar.gz" truffleruby
   ;;
 *)
