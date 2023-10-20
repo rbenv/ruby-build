@@ -7,7 +7,6 @@ Linux-aarch64)
   install_package "truffleruby-22.1.0" "https://github.com/oracle/truffleruby/releases/download/vm-22.1.0/truffleruby-22.1.0-linux-aarch64.tar.gz#d2bd5875aa0359039b09f0772ad775f82988bebc757269c25729d38029ec0a63" truffleruby
   ;;
 Darwin-x86_64)
-  use_homebrew_openssl
   install_package "truffleruby-22.1.0" "https://github.com/oracle/truffleruby/releases/download/vm-22.1.0/truffleruby-22.1.0-macos-amd64.tar.gz#622815636210432c754be3b5f33d2a30ebf0ee1a1835f3a0df5f0ac7506ba7c0" truffleruby
   ;;
 *)

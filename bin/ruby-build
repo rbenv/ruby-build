@@ -1068,6 +1068,7 @@ needs_openssl_102_300() {
   (( version < 102 || version >= 400 ))
 }
 
+# Kept for backward compatibility with 3rd-party Ruby definitions.
 use_homebrew_openssl() {
   local ssldir
   ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
