@@ -676,7 +676,7 @@ DEF
 
   assert_build_log <<OUT
 jruby [-e,puts JRUBY_VERSION]
-jruby [gem,install,jruby-launcher]
+jruby [gem,install,jruby-launcher,--no-document]
 OUT
 
   run ls "${INSTALL_ROOT}/bin"
