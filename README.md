@@ -39,13 +39,12 @@ PREFIX=/usr/local ./ruby-build-*/install.sh
 ### Basic Usage
 
 ```sh
-# As an rbenv plugin
-$ rbenv install --list                 # lists all available versions of Ruby
-$ rbenv install 2.2.0                  # installs Ruby 2.2.0 to ~/.rbenv/versions
-
 # As a standalone program
-$ ruby-build --definitions             # lists all available versions of Ruby
-$ ruby-build 2.2.0 ~/local/ruby-2.2.0  # installs Ruby 2.2.0 to ~/local/ruby-2.2.0
+$ ruby-build --list                        # lists available versions of Ruby
+$ ruby-build 3.2.2 /opt/rubies/ruby-3.2.2  # installs Ruby 3.2.2
+
+# As an rbenv plugin
+$ rbenv install 3.2.2  # installs Ruby 3.2.2 to ~/.rbenv/versions/3.2.2
 ```
 
 > **Warning**  
