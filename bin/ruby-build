@@ -197,7 +197,12 @@ install_package_using() {
 
   for arg in "${@:$(( package_type_nargs + 1 ))}"; do
     if [ "$last_arg" = "--if" ]; then
-      "$arg" || return 0
+      if [[ $arg == *:* ]]; then
+        # Support colon-separated sub-argument, e.g. `needs_openssl:1.1`
+        "${arg%:*}" "$package_name" "${arg#*:}" || return 0
+      else
+        "$arg" "$package_name" || return 0
+      fi
     elif [ "$arg" != "--if" ]; then
       make_args["${#make_args[@]}"]="$arg"
     fi
@@ -1018,6 +1023,8 @@ use_freebsd_libffi() {
   fi
 }
 
+# macOS prevents linking to its system OpenSSL/LibreSSL installation, so
+# it's basically useless for Ruby purposes.
 has_broken_mac_openssl() {
   is_mac || return 1
   local openssl_version
@@ -1025,47 +1032,103 @@ has_broken_mac_openssl() {
   [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]]
 }
 
+# Detect the OpenSSL version that a compiler can reasonably link to.
 system_openssl_version() {
-  local version_text
-  version_text=$(printf '#include <openssl/opensslv.h>\nOPENSSL_VERSION_TEXT\n' | cc -xc -E - 2>/dev/null || true)
-  if [[ $version_text == *"OpenSSL "* ]]; then
-    local version=${version_text#*OpenSSL }
-    # shellcheck disable=SC2001
-    sed 's/[^0-9]//g' <<<"${version%% *}" | sed 's/^0*//'
-  else
-    echo "No system openssl version was found, ensure openssl headers are installed (https://github.com/rbenv/ruby-build/wiki#suggested-build-environment)" >&2
-    echo 000
+  cc -xc -E - <<EOF 2>/dev/null | sed -n 's/OpenSSL \([0-9][0-9.]*\).*/\1/p'
+#include <openssl/opensslv.h>
+OPENSSL_VERSION_TEXT
+EOF
+}
+
+# List all Homebrew-installed OpenSSL versions and their filesystem prefixes.
+homebrew_openssl_versions() {
+  local formula version prefix
+  # https://github.com/orgs/Homebrew/discussions/4845
+  brew list 2>/dev/null | grep '^openssl@' | while read -r formula; do
+    prefix="$(brew --prefix "$formula" 2>/dev/null || true)"
+    [ -n "$prefix" ] || continue
+    version="$("$prefix"/bin/openssl version 2>/dev/null | sed -n 's/OpenSSL \([0-9][0-9.]*\).*/\1/p')"
+    [ -z "$version" ] || printf '%s %s %s\n' "$formula" "$version" "$prefix"
+  done
+}
+
+# Normalizes "X.Y.Z" into a comparable numeric value. Does not support prereleases.
+# See also osx_version, require_java
+normalize_semver() {
+  local ver
+  IFS=. read -d "" -r -a ver <<<"$1" || true
+  IFS="$OLDIFS"
+  # 3.1.23 -> 300_123
+  echo $(( ver[0]*100000 + ver[1]*100 + ver[2] ))
+}
+
+# Checks if system OpenSSL does NOT satisfy the version requirement
+# between lower and upper bounds. This is used by build definitions to
+# conditionally install per-ruby OpenSSL.
+#
+# If a compatible Homebrew-installed OpenSSL version is found during
+# checking, Ruby will be linked to it and the check will return false.
+needs_openssl() {
+  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-openssl-dir=* ]] || return 1
+
+  local system_version
+  if ! has_broken_mac_openssl; then
+    system_version="$(system_openssl_version)"
   fi
+
+  # With no arguments, any system OpenSSL satisfies the check.
+  if [ $# -lt 2 ]; then
+    [ -z "$system_version" ] || return 1
+    return 0
+  fi
+
+  local lower_bound upper_bound
+  lower_bound="$(normalize_semver "${2%-*}")"
+  upper_bound="${2#*-}"
+  upper_bound="$(normalize_semver "${upper_bound//.x/.99}")"
+  system_version="$(normalize_semver "$system_version")"
+
+  # Return early if system openssl satisfies the requirement.
+  (( system_version < lower_bound || system_version >= upper_bound )) || return 1
+
+  # Look for the latest Homebrew-installed OpenSSL that satisfies the requirement
+  local brew_installs
+  brew_installs="$(homebrew_openssl_versions)"
+  [ -n "$brew_installs" ] || return 0
+
+  # Link to the highest-matching Homebrew OpenSSL
+  local versions homebrew_version formula version prefix
+  # shellcheck disable=SC2207
+  versions=( $(awk '{print $2}' <<<"$brew_installs" | sort_versions) )
+  local index="${#versions[@]}"
+  while [ $((index--)) -ge 0 ]; do
+    homebrew_version="$(normalize_semver "${versions[index]}")"
+    (( homebrew_version >= lower_bound && homebrew_version < upper_bound )) || continue
+    while read -r formula version prefix; do
+      [ "$version" = "${versions[index]}" ] || continue
+      echo "ruby-build: using $formula from homebrew"
+      package_option ruby configure --with-openssl-dir="$prefix"
+      return 1
+    done <<<"$brew_installs"
+  done
 }
 
-# openssl gem 1.1.1
+# Kept for backward compatibility with 3rd-party Ruby definitions.
 needs_openssl_096_102() {
-  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" == *--with-openssl-dir=* ]] && return 1
-  has_broken_mac_openssl && return 0
-
-  local version
-  version="$(system_openssl_version)"
-  (( version < 96 || version >= 110 ))
+  # openssl gem 1.1.1
+  needs_openssl "$1" "0.9.6-1.0.x"
 }
 
-# openssl gem 2.2.1
+# Kept for backward compatibility with 3rd-party Ruby definitions.
 needs_openssl_101_111() {
-  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" == *--with-openssl-dir=* ]] && return 1
-  has_broken_mac_openssl && return 0
-
-  local version
-  version="$(system_openssl_version)"
-  (( version < 101 || version >= 300 ))
+  # openssl gem 2.2.1
+  needs_openssl "$1" "1.0.1-1.x.x"
 }
 
-# openssl gem 3.0.0
+# Kept for backward compatibility with 3rd-party Ruby definitions.
 needs_openssl_102_300() {
-  [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" == *--with-openssl-dir=* ]] && return 1
-  has_broken_mac_openssl && return 0
-
-  local version
-  version="$(system_openssl_version)"
-  (( version < 102 || version >= 400 ))
+  # openssl gem 3.0.0
+  needs_openssl "$1" "1.0.2-3.x.x"
 }
 
 # Kept for backward compatibility with 3rd-party Ruby definitions.

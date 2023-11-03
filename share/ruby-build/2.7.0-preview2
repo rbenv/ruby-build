@@ -1,2 +1,2 @@
-install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz#cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8" openssl --if needs_openssl_101_111
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz#cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8" openssl --if needs_openssl:1.0.1-1.x.x
 install_package "ruby-2.7.0-preview2" "https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.0-preview2.tar.bz2#417c84346ba84d664a13833c94c6d9f888c89bb9bee9adf469580441eaede30b" warn_eol enable_shared standard verify_openssl
