@@ -1034,7 +1034,7 @@ has_broken_mac_openssl() {
 
 # Detect the OpenSSL version that a compiler can reasonably link to.
 system_openssl_version() {
-  cc -xc -E - <<EOF 2>/dev/null | sed -n 's/OpenSSL \([0-9][0-9.]*\).*/\1/p'
+  cc -xc -E - <<EOF 2>/dev/null | sed -n 's/"\{0,1\}OpenSSL \([0-9][0-9.]*\).*/\1/p'
 #include <openssl/opensslv.h>
 OPENSSL_VERSION_TEXT
 EOF
