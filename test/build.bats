@@ -322,7 +322,7 @@ OUT
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
   # shellcheck disable=SC2016
-  stub cc '-xc -E - : [[ "$(cat)" == *OPENSSL_VERSION_TEXT* ]] && printf "# <unrelated> 4.0.2\nOpenSSL 1.0.3a  1 Aug 202\n0 errors.\n"'
+  stub cc '-xc -E - : [[ "$(cat)" == *OPENSSL_VERSION_TEXT* ]] && printf "# <unrelated> 4.0.2\n\"OpenSSL 1.0.3a  1 Aug 202\"\n0 errors.\n"'
   stub_make_install
 
   mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
