@@ -737,23 +737,6 @@ build_package_picoruby() {
   } >&4 2>&1
 }
 
-build_package_maglev() {
-  build_package_copy
-
-  { # shellcheck disable=SC2164
-    cd "${PREFIX_PATH}"
-    ./install.sh
-    # shellcheck disable=SC2164
-    cd "${PREFIX_PATH}/bin"
-    echo "Creating symlink for ruby*"
-    ln -fs maglev-ruby ruby
-    echo "Creating symlink for irb*"
-    ln -fs maglev-irb irb
-  } >&4 2>&1
-  echo
-  echo "Run 'maglev start' to start up the stone before using 'ruby' or 'irb'"
-}
-
 build_package_topaz() {
   build_package_copy
   { # shellcheck disable=SC2164
