@@ -737,25 +737,6 @@ build_package_picoruby() {
   } >&4 2>&1
 }
 
-build_package_topaz() {
-  build_package_copy
-  { # shellcheck disable=SC2164
-    cd "${PREFIX_PATH}/bin"
-    echo "Creating symlink for ruby*"
-    ln -fs topaz ruby
-  } >&4 2>&1
-}
-
-topaz_architecture() {
-  case "$(uname -s)" in
-  "Darwin") echo "osx64";;
-  "Linux") [[ "$(uname -m)" = "x86_64" ]] && echo "linux64" || echo "linux32";;
-  *)
-    echo "no nightly builds available" >&2
-    exit 1;;
-  esac
-}
-
 build_package_jruby() {
   build_package_copy
   # shellcheck disable=SC2164
