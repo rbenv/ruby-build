@@ -269,7 +269,7 @@ install_package_using() {
   shift 3
 
   local fetch_args=( "$package_name" "${@:1:$package_type_nargs}" )
-  local make_args=( "$package_name" )
+  local -a build_steps
   local arg last_arg
 
   for arg in "${@:$(( package_type_nargs + 1 ))}"; do
@@ -281,34 +281,27 @@ install_package_using() {
         "$arg" "$package_name" || return 0
       fi
     elif [ "$arg" != "--if" ]; then
-      make_args["${#make_args[@]}"]="$arg"
+      build_steps["${#build_steps[@]}"]="$arg"
     fi
     last_arg="$arg"
   done
 
   # shellcheck disable=SC2164
-  pushd "$BUILD_PATH" >&4
+  pushd "$BUILD_PATH" >/dev/null
+  echo "cd $PWD" >&4
+  # fetch_tarball, fetch_git
   "fetch_${package_type}" "${fetch_args[@]}"
-  make_package "${make_args[@]}"
+
   # shellcheck disable=SC2164
-  popd >&4
-
-  { echo "Installed ${package_name} to ${PREFIX_PATH}"
-    echo
-  } >&2
-}
-
-make_package() {
-  local package_name="$1"
-  shift
-
-# shellcheck disable=SC2164
-  pushd "$package_name" >&4
+  cd "$package_name"
+  echo "cd $PWD" >&4
   before_install_package "$package_name"
-  build_package "$package_name" "$@"
+  build_package "$package_name" "${build_steps[@]}"
   after_install_package "$package_name"
+
   # shellcheck disable=SC2164
-  popd >&4
+  popd >/dev/null
+  log_info "Installed ${package_name} to ${PREFIX_PATH}"
 }
 
 compute_sha2() {
@@ -592,18 +585,17 @@ build_package() {
   local package_name="$1"
   shift
 
-  if [ "$#" -eq 0 ]; then
-    local commands="standard"
-  else
-    local commands="$*"
-  fi
+  # Use "build_package_standard" as the default build step.
+  [ $# -gt 0 ] || set -- standard
 
   log_info "Installing ${package_name}..."
 
   [ -n "$HAS_PATCH" ] && apply_ruby_patch "$package_name"
 
-  for command in $commands; do
-    "build_package_${command}" "$package_name"
+  local step
+  for step; do
+    # e.g. build_package_standard, build_package_truffleruby, etc.
+    "build_package_${step}" "$package_name"
   done
 }
 
