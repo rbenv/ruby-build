@@ -1210,7 +1210,15 @@ build_package_openssl() {
 }
 
 # Post-install check that the openssl extension was built.
+# TODO: explore replacing this implementation with scanning the `make` log
+# for the "Following extensions are not compiled" block.
 build_package_verify_openssl() {
+  local msg
+  msg="->$(print_command "$RUBY_BIN" -e "<SCRIPT>")"
+
+  colorize 36 "$msg"
+  echo
+
   # shellcheck disable=SC2016
   "$RUBY_BIN" -e '
     manager = ARGV[0]
@@ -1223,12 +1231,14 @@ build_package_verify_openssl() {
         "yaml" => "libyaml-devel"
       )
     }
+    ext_name = Hash.new {|h,k| k }.update("yaml" => "psych")
 
     failed = %w[openssl readline zlib yaml].reject do |lib|
       begin
         require lib
       rescue LoadError => e
         $stderr.puts "Loading the Ruby #{lib} extension failed (#{e})"
+        $stderr.puts "See the extension log at #{Dir.pwd}/ext/#{ext_name[lib]}/mkmf.log"
       end
     end
 
@@ -1238,12 +1248,9 @@ build_package_verify_openssl() {
         manager,
         failed.map { |lib| packages.fetch(manager)[lib] }.join(" ")
       ] unless manager.empty?
-      $stderr.puts "Configure options used:"
-      require "rbconfig"; require "shellwords"
-      RbConfig::CONFIG.fetch("configure_args").shellsplit.each { |arg| $stderr.puts "  #{arg}" }
       exit 1
     end
-  ' "$(basename "$(type -p yum apt-get | head -1)")" >&4 2>&1
+  ' "$(basename "$(type -p yum apt-get | head -1)")"
 }
 
 # Kept for backward compatibility with 3rd-party definitions.
