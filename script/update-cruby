@@ -26,5 +26,5 @@ fi
 
 cat > "$file" <<EOS
 !TODO! copy openssl line from other release with the same major.minor version
-install_package "ruby-${version}" "${url}#${sha256}" enable_shared standard verify_openssl
+install_package "ruby-${version}" "${url}#${sha256}" enable_shared standard
 EOS
