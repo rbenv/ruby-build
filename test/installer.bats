@@ -16,6 +16,8 @@ load test_helper
 
   assert [ -e share/ruby-build/1.8.6-p383 ]
   assert [ -e share/ruby-build/ree-1.8.7-2012.02 ]
+  assert [ -e share/man/man1/ruby-build.1 ]
+  assert [ ! -e share/man/man1/ruby-build.1.adoc ]
 }
 
 @test "build definitions don't have the executable bit" {

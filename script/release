@@ -39,8 +39,9 @@ fi
 
 sed -i.bak -E "s!^(RUBY_BUILD_VERSION=).+!\\1\"${new_version}\"!" "$binfile"
 rm -f "${binfile}.bak"
+make share/man/man1/ruby-build.1
 
-git commit -m "ruby-build ${new_version}" -- "$binfile"
+git commit -m "ruby-build ${new_version}" -- "$binfile" share/man/man1/ruby-build.1
 
 git tag "$version_tag"
 git push origin master "${version_tag}"

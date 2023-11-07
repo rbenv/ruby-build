@@ -1,0 +1,208 @@
+'\" t
+.\"     Title: ruby-build
+.\"    Author: Mislav Marohnić
+.\" Generator: Asciidoctor 2.0.20
+.\"      Date: 2023-11-07
+.\"    Manual: ruby-build Manual
+.\"    Source: ruby-build 20231025
+.\"  Language: English
+.\"
+.TH "RUBY\-BUILD" "1" "2023-11-07" "ruby\-build 20231025" "ruby\-build Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+ruby-build \- Download, compile, and install a version of Ruby.
+.SH "SYNOPSIS"
+.sp
+ruby\-build [\-kpv] \fI<definition>\fP \fI<prefix>\fP [\-\- \fI<configure\-args...>\fP]
+.br
+ruby\-build {\-\-list|\-\-definitions}
+.br
+ruby\-build \-\-version
+.SH "DESCRIPTION"
+.sp
+ruby\-build downloads, compiles, and installs a Ruby version named by the
+\fIdefinition\fP argument into the location specified by \fIprefix\fP. Optionally,
+extra Ruby configure arguments may be added after "\-\-".
+.sp
+The \fIdefinition\fP argument can be a path to a file on disk, in which case
+it is sourced into ruby\-build as a bash script.
+.sp
+By default, all compile output is redirected to a log file at:
+"$TMPDIR/ruby\-build.*.log". Activate the verbose mode to skip the log file
+and print everything to standard streams.
+.SH "ENVIRONMENT VARIABLES"
+.sp
+\fBTMPDIR\fP
+.RS 4
+The location to write temporary files on disk
+.RE
+.sp
+\fBRUBY_BUILD_BUILD_PATH\fP (default: a timestamped subdirectory of \fITMPDIR\fP)
+.RS 4
+The build location for downloading source files to and compiling
+.RE
+.sp
+\fBRUBY_BUILD_CACHE_PATH\fP (default: "~/.rbenv/cache" if invoked as rbenv plugin)
+.RS 4
+Where to cache downloaded package files
+.RE
+.sp
+\fBRUBY_BUILD_HTTP_CLIENT\fP (default: first tool found in PATH)
+.RS 4
+One of "aria2c", "curl", or "wget" to use for downloading
+.RE
+.sp
+\fBRUBY_BUILD_ARIA2_OPTS\fP
+.RS 4
+Additional options to pass to aria2c for downloading
+.RE
+.sp
+\fBRUBY_BUILD_CURL_OPTS\fP
+.RS 4
+Additional options to pass to curl for downloading
+.RE
+.sp
+\fBRUBY_BUILD_WGET_OPTS\fP
+.RS 4
+Additional options to pass to wget for downloading
+.RE
+.sp
+\fBRUBY_BUILD_MIRROR_URL\fP (default: a sponsored Amazon CloudFront mirror)
+.RS 4
+Custom mirror URL root to download packages from
+.RE
+.sp
+\fBRUBY_BUILD_MIRROR_PACKAGE_URL\fP
+.RS 4
+Custom complete mirror URL
+.RE
+.sp
+\fBRUBY_BUILD_SKIP_MIRROR\fP
+.RS 4
+Bypass the download mirror and fetch all package files from their original URLs
+.RE
+.sp
+\fBRUBY_BUILD_ROOT\fP (default: "share/ruby\-build" within ruby\-build install location)
+.RS 4
+Custom build definition directory
+.RE
+.sp
+\fBRUBY_BUILD_TARBALL_OVERRIDE\fP
+.RS 4
+Override the URL to fetch the ruby tarball from, optionally followed by "#<checksum>"
+.RE
+.sp
+\fBRUBY_BUILD_DEFINITIONS\fP
+.RS 4
+Paths to search for build definitions in addition to \fIRUBY_BUILD_ROOT\fP
+.RE
+.sp
+\fBCC\fP
+.RS 4
+Path to the C compiler
+.RE
+.sp
+\fBRUBY_CFLAGS\fP
+.RS 4
+Additional \f(CRCFLAGS\fP options to use for Ruby compilation
+.RE
+.sp
+\fBCONFIGURE_OPTS\fP
+.RS 4
+Additional "./configure" arguments
+.RE
+.sp
+\fBMAKE\fP (default: "make")
+.RS 4
+Custom make command (e.g., "gmake")
+.RE
+.sp
+\fBMAKE_OPTS\fP, \fBMAKEOPTS\fP
+.RS 4
+Additional arguments for "make"
+.RE
+.sp
+\fBMAKE_INSTALL_OPTS\fP
+.RS 4
+Additional arguments for "make install"
+.RE
+.sp
+\fBRUBY_CONFIGURE_OPTS\fP
+.RS 4
+Additional "./configure" arguments that apply only to Ruby source
+.RE
+.sp
+\fBRUBY_MAKE_OPTS\fP
+.RS 4
+Additional make arguments that apply only to Ruby source
+.RE
+.sp
+\fBRUBY_MAKE_INSTALL_OPTS\fP
+.RS 4
+Additional "make install" arguments that apply only to Ruby source
+.RE
+.sp
+\fBNO_COLOR\fP (default: allow colors when connected to terminal)
+.RS 4
+Disable ANSI colors in output
+.RE
+.sp
+\fBCLICOLOR_FORCE\fP
+.RS 4
+Use ANSI colors in output even when not connected to a terminal
+.RE
+.SH "NOTES"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+.URL "https://github.com/rbenv/ruby\-build#readme" "" ""
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+.URL "https://github.com/rbenv/ruby\-build/wiki" "" ""
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+.URL "https://github.com/rbenv/ruby\-build/discussions" "" ""
+.RE
+.SH "AUTHOR"
+.sp
+Mislav Marohnić

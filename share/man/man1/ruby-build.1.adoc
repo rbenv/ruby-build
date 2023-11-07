@@ -1,0 +1,111 @@
+= ruby-build(1)
+Mislav Marohnić
+:doctype: manpage
+:man manual: ruby-build Manual
+:man source: ruby-build {version}
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+
+ruby-build - Download, compile, and install a version of Ruby.
+
+== Synopsis
+
+ruby-build [-kpv] _<definition>_ _<prefix>_ [-- _<configure-args...>_] +
+ruby-build {--list|--definitions} +
+ruby-build --version
+
+== Description
+
+ruby-build downloads, compiles, and installs a Ruby version named by the
+_definition_ argument into the location specified by _prefix_. Optionally,
+extra Ruby configure arguments may be added after "--".
+
+The _definition_ argument can be a path to a file on disk, in which case
+it is sourced into ruby-build as a bash script.
+
+By default, all compile output is redirected to a log file at:
+"$TMPDIR/ruby-build.*.log". Activate the verbose mode to skip the log file
+and print everything to standard streams.
+
+== Environment Variables
+
+*TMPDIR*::
+  The location to write temporary files on disk
+
+*RUBY_BUILD_BUILD_PATH* (default: a timestamped subdirectory of _TMPDIR_)::
+  The build location for downloading source files to and compiling
+
+*RUBY_BUILD_CACHE_PATH* (default: "~/.rbenv/cache" if invoked as rbenv plugin)::
+  Where to cache downloaded package files
+
+*RUBY_BUILD_HTTP_CLIENT* (default: first tool found in PATH)::
+  One of "aria2c", "curl", or "wget" to use for downloading
+
+*RUBY_BUILD_ARIA2_OPTS*::
+  Additional options to pass to aria2c for downloading
+
+*RUBY_BUILD_CURL_OPTS*::
+  Additional options to pass to curl for downloading
+
+*RUBY_BUILD_WGET_OPTS*::
+  Additional options to pass to wget for downloading
+
+*RUBY_BUILD_MIRROR_URL* (default: a sponsored Amazon CloudFront mirror)::
+  Custom mirror URL root to download packages from
+
+*RUBY_BUILD_MIRROR_PACKAGE_URL*::
+  Custom complete mirror URL
+
+*RUBY_BUILD_SKIP_MIRROR*::
+  Bypass the download mirror and fetch all package files from their original URLs
+
+*RUBY_BUILD_ROOT* (default: "share/ruby-build" within ruby-build install location)::
+  Custom build definition directory
+
+*RUBY_BUILD_TARBALL_OVERRIDE*::
+  Override the URL to fetch the ruby tarball from, optionally followed by "#<checksum>"
+
+*RUBY_BUILD_DEFINITIONS*::
+  Paths to search for build definitions in addition to _RUBY_BUILD_ROOT_
+
+*CC*::
+  Path to the C compiler
+
+*RUBY_CFLAGS*::
+  Additional `CFLAGS` options to use for Ruby compilation
+
+*CONFIGURE_OPTS*::
+  Additional "./configure" arguments
+
+*MAKE* (default: "make")::
+  Custom make command (e.g., "gmake")
+
+*MAKE_OPTS*, *MAKEOPTS*::
+  Additional arguments for "make"
+
+*MAKE_INSTALL_OPTS*::
+  Additional arguments for "make install"
+
+*RUBY_CONFIGURE_OPTS*::
+  Additional "./configure" arguments that apply only to Ruby source
+
+*RUBY_MAKE_OPTS*::
+  Additional make arguments that apply only to Ruby source
+
+*RUBY_MAKE_INSTALL_OPTS*::
+  Additional "make install" arguments that apply only to Ruby source
+
+*NO_COLOR* (default: allow colors when connected to terminal)::
+  Disable ANSI colors in output
+
+*CLICOLOR_FORCE*::
+  Use ANSI colors in output even when not connected to a terminal
+
+== Notes
+
+* https://github.com/rbenv/ruby-build#readme
+
+* https://github.com/rbenv/ruby-build/wiki
+
+* https://github.com/rbenv/ruby-build/discussions
