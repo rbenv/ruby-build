@@ -100,8 +100,10 @@ sanitize() {
 }
 
 colorize() {
-  if [ -t 1 ]; then printf "\e[%sm%s\e[m" "$1" "$2"
-  else echo -n "$2"
+  if [[ -n $CLICOLOR_FORCE || ( -z $NO_COLOR && -t 1 ) ]]; then
+    printf "\e[%sm%s\e[m" "$1" "$2"
+  else
+    printf "%s" "$2"
   fi
 }
 
