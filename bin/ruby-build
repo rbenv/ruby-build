@@ -406,6 +406,7 @@ http() {
   RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client 2>&3)}"
   [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
 
+  # http_get_curl, http_get_wget, etc.
   "http_${method}_${RUBY_BUILD_HTTP_CLIENT}" "$@"
 }
 
@@ -423,37 +424,32 @@ detect_http_client() {
 
 http_head_aria2c() {
   # shellcheck disable=SC2086
-  aria2c --dry-run --no-conf=true ${ARIA2_OPTS} "$1" >&4 2>&1
+  aria2c --dry-run --no-conf=true $ARIA2_OPTS "$1" >/dev/null
 }
 
 http_get_aria2c() {
-  local out="${2:-$(mktemp "out.XXXXXX")}"
   # shellcheck disable=SC2086
-  if aria2c --allow-overwrite=true --no-conf=true -o "${out}" ${ARIA2_OPTS} "$1" >&4; then
-    [ -n "$2" ] || cat "${out}"
-  else
-    false
-  fi
+  log_command aria2c --allow-overwrite=true --no-conf=true --console-log-level=warn --stderr $ARIA2_OPTS -o "$2" "$1" 2>&3
 }
 
 http_head_curl() {
   # shellcheck disable=SC2086
-  curl -qsILf ${CURL_OPTS} "$1" >&4 2>&1
+  curl -qsILf $CURL_OPTS "$1" >/dev/null
 }
 
 http_get_curl() {
   # shellcheck disable=SC2086
-  curl -q -o "${2:--}" -sSLf ${CURL_OPTS} "$1"
+  log_command curl -q -fL $CURL_OPTS -o "$2" "$1" 2>&3
 }
 
 http_head_wget() {
   # shellcheck disable=SC2086
-  wget -q --spider ${WGET_OPTS} "$1" >&4 2>&1
+  wget -q --spider $WGET_OPTS "$1" >/dev/null
 }
 
 http_get_wget() {
   # shellcheck disable=SC2086
-  wget -nv ${WGET_OPTS} -O "${2:--}" "$1"
+  log_command wget -nv --show-progress $WGET_OPTS -O "$2" "$1" 2>&3
 }
 
 fetch_tarball() {
@@ -494,26 +490,21 @@ fetch_tarball() {
   if ! reuse_existing_tarball "$package_filename" "$checksum"; then
     local tarball_filename
     tarball_filename="$(basename "$package_url")"
-    echo "Downloading ${tarball_filename}..." >&2
+    log_info "Downloading ${tarball_filename}..."
     # shellcheck disable=SC2015
     http head "$mirror_url" &&
     download_tarball "$mirror_url" "$package_filename" "$checksum" ||
     download_tarball "$package_url" "$package_filename" "$checksum"
   fi
 
-  { if tar "$tar_args" "$package_filename"; then
-      if [ ! -d "$package_name" ]; then
-        extracted_dir="$(find_extracted_directory)"
-        mv "$extracted_dir" "$package_name"
-      fi
+  log_command tar "$tar_args" "$package_filename" >/dev/null
 
-      if [ -z "$KEEP_BUILD_PATH" ]; then
-        rm -f "$package_filename"
-      else
-        true
-      fi
-    fi
-  } >&4 2>&1
+  if [ ! -d "$package_name" ]; then
+    extracted_dir="$(find_extracted_directory)"
+    mv "$extracted_dir" "$package_name"
+  fi
+
+  [ -n "$KEEP_BUILD_PATH" ] || rm -f "$package_filename"
 }
 
 find_extracted_directory() {
@@ -541,8 +532,8 @@ reuse_existing_tarball() {
   local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
 
   [ -e "$cached_package_filename" ] || return 1
-  verify_checksum "$cached_package_filename" "$checksum" >&4 2>&1 || return 1
-  ln -s "$cached_package_filename" "$package_filename" >&4 2>&1 || return 1
+  verify_checksum "$cached_package_filename" "$checksum" || return 1
+  ln -s "$cached_package_filename" "$package_filename" || return 1
 }
 
 download_tarball() {
@@ -552,10 +543,8 @@ download_tarball() {
   local package_filename="$2"
   local checksum="$3"
 
-  echo "-> $package_url" >&2
-
-  if http get "$package_url" "$package_filename" >&4 2>&1; then
-    verify_checksum "$package_filename" "$checksum" >&4 2>&1 || return 1
+  if http get "$package_url" "$package_filename"; then
+    verify_checksum "$package_filename" "$checksum" || return 1
   else
     echo "error: failed to download $package_filename" >&2
     return 1
@@ -563,9 +552,8 @@ download_tarball() {
 
   if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
     local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
-    { mv "$package_filename" "$cached_package_filename"
-      ln -s "$cached_package_filename" "$package_filename"
-    } >&4 2>&1 || return 1
+    mv "$package_filename" "$cached_package_filename"
+    ln -s "$cached_package_filename" "$package_filename"
   fi
 }
 

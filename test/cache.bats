@@ -5,7 +5,7 @@ export RUBY_BUILD_SKIP_MIRROR=1
 export RUBY_BUILD_CACHE_PATH="$TMP/cache"
 
 @test "packages are saved to download cache" {
-  stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+  stub curl "-q -fL -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
 
   mkdir -p "$RUBY_BUILD_CACHE_PATH"
   install_fixture definitions/without-checksum
@@ -56,7 +56,7 @@ export RUBY_BUILD_CACHE_PATH="$TMP/cache"
 
   stub shasum true "echo invalid" "echo $checksum"
   stub curl "-*I* : true" \
-    "-q -o * -*S* https://?*/$checksum : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$3"
+    "-q -fL -o * https://?*/$checksum : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$4"
 
   mkdir -p "$RUBY_BUILD_CACHE_PATH"
   touch "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz"
@@ -74,7 +74,7 @@ export RUBY_BUILD_CACHE_PATH="$TMP/cache"
 
 
 @test "nonexistent cache directory is ignored" {
-  stub curl "-q -o * -*S* http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$3"
+  stub curl "-q -fL -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
 
   export RUBY_BUILD_CACHE_PATH="${TMP}/nonexistent"
 
