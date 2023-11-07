@@ -1544,9 +1544,16 @@ fi
 unset RUBYOPT
 unset RUBYLIB
 
+# If something goes wrong during building, print error information to stderr.
 trap build_failed ERR
+
+# This is where the magic happens: execute commands from the definition
+# file while in a temporary build directory. This will typically result in
+# `install_package` leading to `build_package_standard`.
 mkdir -p "$BUILD_PATH"
 # shellcheck disable=SC1090
 source "$DEFINITION_PATH"
+
+# By default, the temporary build path is wiped after successful build.
 [ -z "${KEEP_BUILD_PATH}" ] && rm -fr "$BUILD_PATH"
 trap - ERR
