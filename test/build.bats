@@ -667,8 +667,7 @@ OUT
   stub bundle \
     '--version : echo 1' \
     ' : echo bundle "$@" >> build.log' \
-    '--version : echo 1' \
-    " exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
+    "exec rake install : { cat build.log; echo bundle \"\$@\"; } >> '$INSTALL_ROOT/build.log'"
 
   run_inline_definition <<DEF
 install_package "rubinius-2.0.0" "http://releases.rubini.us/rubinius-2.0.0.tar.gz" rbx
