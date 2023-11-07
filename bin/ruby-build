@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 #
-# Usage: ruby-build [-kpv] <definition> <prefix>
-#        ruby-build --definitions
+# Usage: ruby-build [-kpv] <definition> <prefix> [-- <configure-args...>]
+#        ruby-build {--list|--definitions}
 #        ruby-build --version
 #
-#   -k/--keep        Do not remove source tree after installation
-#   -p/--patch       Apply a patch from stdin before building
-#   -v/--verbose     Verbose mode: print compilation status to stdout
-#   -4/--ipv4        Resolve names to IPv4 addresses only
-#   -6/--ipv6        Resolve names to IPv6 addresses only
-#   --definitions    List all local definitions
-#   -l/--list        List latest stable releases for each Ruby
-#   --version        Show version of ruby-build
+#   -l, --list      List latest stable releases for each Ruby
+#   --definitions   List all local definitions, including outdated ones
+#   --version       Show version of ruby-build
+#
+#   -v, --verbose   Verbose mode: forward all build output to stdout/stderr
+#   -p, --patch     Apply a patch from stdin before building
+#   -k, --keep      Do not remove source tree after installation
+#   -4, --ipv4      Resolve names to IPv4 addresses only
+#   -6, --ipv6      Resolve names to IPv6 addresses only
 #
 
 RUBY_BUILD_VERSION="20231025"

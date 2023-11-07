@@ -101,11 +101,11 @@ The following versions contain \`1.9.3' in the name:
   1.9.3-p0
   1.9.3-p194
 
-See all available versions with \`rbenv install --list'.
+See all available versions with \`rbenv install --list-all'.
 
 If the version you need is missing, try upgrading ruby-build:
 
-  git -C ${BATS_TEST_DIRNAME}/.. pull
+  git -C ${BATS_TEST_DIRNAME/$HOME\//~/}/.. pull
 OUT
 
   unstub brew
@@ -122,7 +122,7 @@ OUT
   assert_output <<OUT
 ERROR
 
-See all available versions with \`rbenv install --list'.
+See all available versions with \`rbenv install --list-all'.
 
 If the version you need is missing, try upgrading ruby-build:
 
