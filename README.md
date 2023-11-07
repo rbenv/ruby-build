@@ -95,6 +95,8 @@ The build process may be configured through the following environment variables:
 | `RUBY_CONFIGURE_OPTS`           | Additional `./configure` options (applies only to Ruby source).                                  |
 | `RUBY_MAKE_OPTS`                | Additional `make` options (applies only to Ruby source).                                         |
 | `RUBY_MAKE_INSTALL_OPTS`        | Additional `make install` options (applies only to Ruby source).                                 |
+| `NO_COLOR`                      | Disable ANSI colors in output. The default is to use colors for output connected to a terminal.  |
+| `CLICOLOR_FORCE`                | Use ANSI colors in output even when not connected to a terminal.                                 |
 
 #### Applying Patches
 
