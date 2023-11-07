@@ -220,18 +220,16 @@ osx_version() {
 
 build_failed() {
   { echo
-    colorize 1 "BUILD FAILED"
-    echo " ($(os_information) using $(version))"
+    colorize '31;1' "BUILD FAILED"
+    echo " ($(os_information) on $(uname -m) using $(version))"
     echo
 
     if ! rmdir "${BUILD_PATH}" 2>/dev/null; then
-      echo "Inspect or clean up the working tree at ${BUILD_PATH}"
+      echo "You can inspect the build directory at ${BUILD_PATH}"
 
       if [ -n "$(head -1 "$LOG_PATH" 2>/dev/null)" ]; then
-        colorize 33 "Results logged to ${LOG_PATH}"
-        printf "\n\n"
-        echo "Last 10 log lines:"
-        tail -n 10 "$LOG_PATH"
+        colorize 33 "See the full build log at ${LOG_PATH}"
+        printf "\n"
       fi
     fi
   } >&3
