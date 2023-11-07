@@ -14,7 +14,6 @@ setup() {
 
   install_fixture definitions/without-checksum
   assert_failure
-  assert_output_contains "> http://example.com/packages/package-1.0.0.tar.gz"
   assert_output_contains "error: failed to download package-1.0.0.tar.gz"
 }
 
@@ -30,16 +29,11 @@ setup() {
 @test "using aria2c if available" {
   export RUBY_BUILD_ARIA2_OPTS=
   export -n RUBY_BUILD_HTTP_CLIENT
-  stub aria2c "--allow-overwrite=true --no-conf=true -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
+  stub aria2c "--allow-overwrite=true --no-conf=true --console-log-level=warn --stderr -o * http://example.com/* : cp $FIXTURE_ROOT/\${7##*/} \$6"
 
   install_fixture definitions/without-checksum
   assert_success
-  assert_output <<OUT
-Downloading package-1.0.0.tar.gz...
--> http://example.com/packages/package-1.0.0.tar.gz
-Installing package-1.0.0...
-Installed package-1.0.0 to ${TMP}/install
-OUT
+  assert_output_contains "Downloading package-1.0.0.tar.gz..."
   unstub aria2c
 }
 
@@ -50,11 +44,7 @@ OUT
 install_git "package-dev" "http://example.com/packages/package.git" master copy
 DEF
   assert_success
-  assert_output <<OUT
-Cloning http://example.com/packages/package.git...
-Installing package-dev...
-Installed package-dev to ${TMP}/install
-OUT
+  assert_output_contains "Cloning http://example.com/packages/package.git..."
   unstub git
 }
 
@@ -68,10 +58,6 @@ OUT
 install_git "package-dev" "http://example.com/packages/package.git" master copy
 DEF
   assert_success
-  assert_output <<OUT
-Cloning http://example.com/packages/package.git...
-Installing package-dev...
-Installed package-dev to ${TMP}/install
-OUT
+  assert_output_contains "Cloning http://example.com/packages/package.git..."
   unstub git
 }

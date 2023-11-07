@@ -18,9 +18,16 @@ RUBY_BUILD_VERSION="20231025"
 
 OLDIFS="$IFS"
 
+# Have shell functions inherit the ERR trap.
 set -E
-exec 3<&2 # preserve original stderr at fd 3
 
+# Some functions need to be able to write to the original process stderr
+# stream, since fd 2 would often have been redirected elsewhere. To enable
+# this, ruby-build initializes two additional file descriptors:
+#
+#  3: the original stderr
+#  4: the log file
+exec 3<&2
 
 lib() {
   parse_options() {
@@ -98,6 +105,78 @@ colorize() {
   fi
 }
 
+print_command() {
+  local arg
+  local tmpdir="${TMPDIR%/}"
+  for arg; do
+    arg="${arg//$tmpdir\//\$TMPDIR/}"
+    arg="${arg//$HOME\//\$HOME/}"
+    case "$arg" in
+    *\'* | *\$* )
+      printf ' "%s"' "$arg" ;;
+    *' '* )
+      printf " '%s'" "$arg" ;;
+    * )
+      printf ' %s' "$arg" ;;
+    esac
+  done
+  printf '\n'
+}
+
+# Log the full invocation of an external command.
+log_command() {
+  local msg
+  msg="->$(print_command "$@")"
+
+  colorize 36 "$msg"
+  echo
+  [ -n "$VERBOSE" ] || printf "%s\n" "$msg" >&4
+
+  local status=0
+  "$@" || status="$?"
+  if [ "$status" -ne 0 ]; then
+    echo "external command failed with status $status" >&4
+  fi
+  return "$status"
+}
+
+# Log the full invocation of an external command and capture its output.
+capture_command() {
+  local msg
+  msg="->$(print_command "$@")"
+
+  colorize 36 "$msg"
+  echo
+
+  # In verbose mode, connect the subcommand to original stdout & stderr.
+  local cmd_stdout=1
+  local cmd_stderr=3
+  if [ -z "$VERBOSE" ]; then
+    printf "%s\n" "$msg" >&4
+    # In normal mode, redirect all subcommand output to LOG_PATH.
+    cmd_stdout=4
+    cmd_stderr=4
+  fi
+
+  local status=0
+  # shellcheck disable=SC2261
+  "$@" 2>&$cmd_stderr >&$cmd_stdout || status="$?"
+  if [ "$status" -ne 0 ]; then
+    echo "external command failed with status $status" >&4
+  fi
+  return "$status"
+}
+
+log_info() {
+  colorize 1 "==> $*"
+  echo
+  [ -n "$VERBOSE" ] || echo "==> $*" >&4
+}
+
+log_notice() {
+  echo "ruby-build: $*"
+}
+
 os_information() {
   if type -p lsb_release >/dev/null; then
     lsb_release -sir | xargs echo
@@ -141,18 +220,16 @@ osx_version() {
 
 build_failed() {
   { echo
-    colorize 1 "BUILD FAILED"
-    echo " ($(os_information) using $(version))"
+    colorize '31;1' "BUILD FAILED"
+    echo " ($(os_information) on $(uname -m) using $(version))"
     echo
 
     if ! rmdir "${BUILD_PATH}" 2>/dev/null; then
-      echo "Inspect or clean up the working tree at ${BUILD_PATH}"
+      echo "You can inspect the build directory at ${BUILD_PATH}"
 
       if [ -n "$(head -1 "$LOG_PATH" 2>/dev/null)" ]; then
-        colorize 33 "Results logged to ${LOG_PATH}"
-        printf "\n\n"
-        echo "Last 10 log lines:"
-        tail -n 10 "$LOG_PATH"
+        colorize 33 "See the full build log at ${LOG_PATH}"
+        printf "\n"
       fi
     fi
   } >&3
@@ -192,7 +269,7 @@ install_package_using() {
   shift 3
 
   local fetch_args=( "$package_name" "${@:1:$package_type_nargs}" )
-  local make_args=( "$package_name" )
+  local -a build_steps
   local arg last_arg
 
   for arg in "${@:$(( package_type_nargs + 1 ))}"; do
@@ -204,34 +281,27 @@ install_package_using() {
         "$arg" "$package_name" || return 0
       fi
     elif [ "$arg" != "--if" ]; then
-      make_args["${#make_args[@]}"]="$arg"
+      build_steps["${#build_steps[@]}"]="$arg"
     fi
     last_arg="$arg"
   done
 
   # shellcheck disable=SC2164
-  pushd "$BUILD_PATH" >&4
+  pushd "$BUILD_PATH" >/dev/null
+  echo "cd $PWD" >&4
+  # fetch_tarball, fetch_git
   "fetch_${package_type}" "${fetch_args[@]}"
-  make_package "${make_args[@]}"
+
   # shellcheck disable=SC2164
-  popd >&4
-
-  { echo "Installed ${package_name} to ${PREFIX_PATH}"
-    echo
-  } >&2
-}
-
-make_package() {
-  local package_name="$1"
-  shift
-
-# shellcheck disable=SC2164
-  pushd "$package_name" >&4
+  cd "$package_name"
+  echo "cd $PWD" >&4
   before_install_package "$package_name"
-  build_package "$package_name" "$@"
+  build_package "$package_name" "${build_steps[@]}"
   after_install_package "$package_name"
+
   # shellcheck disable=SC2164
-  popd >&4
+  popd >/dev/null
+  log_info "Installed ${package_name} to ${PREFIX_PATH}"
 }
 
 compute_sha2() {
@@ -299,7 +369,7 @@ verify_checksum() {
       echo "unexpected checksum length: ${#expected_checksum} (${expected_checksum})"
       echo "expected 0 (no checksum), 32 (MD5), or 64 (SHA2-256)"
       echo
-    } >&4
+    } >&2
     return 1 ;;
   esac
 
@@ -316,7 +386,7 @@ verify_checksum() {
       echo "checksum mismatch: ${filename} (file is corrupt)"
       echo "expected $expected_checksum, got $computed_checksum"
       echo
-    } >&4
+    } >&2
     return 1
   fi
 }
@@ -326,9 +396,10 @@ http() {
   [ -n "$2" ] || return 1
   shift 1
 
-  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client 2>&3)}"
+  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
   [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
 
+  # http_get_curl, http_get_wget, etc.
   "http_${method}_${RUBY_BUILD_HTTP_CLIENT}" "$@"
 }
 
@@ -346,37 +417,32 @@ detect_http_client() {
 
 http_head_aria2c() {
   # shellcheck disable=SC2086
-  aria2c --dry-run --no-conf=true ${ARIA2_OPTS} "$1" >&4 2>&1
+  aria2c --dry-run --no-conf=true $ARIA2_OPTS "$1" >/dev/null
 }
 
 http_get_aria2c() {
-  local out="${2:-$(mktemp "out.XXXXXX")}"
   # shellcheck disable=SC2086
-  if aria2c --allow-overwrite=true --no-conf=true -o "${out}" ${ARIA2_OPTS} "$1" >&4; then
-    [ -n "$2" ] || cat "${out}"
-  else
-    false
-  fi
+  log_command aria2c --allow-overwrite=true --no-conf=true --console-log-level=warn --stderr $ARIA2_OPTS -o "$2" "$1" 2>&3
 }
 
 http_head_curl() {
   # shellcheck disable=SC2086
-  curl -qsILf ${CURL_OPTS} "$1" >&4 2>&1
+  curl -qsILf $CURL_OPTS "$1" >/dev/null
 }
 
 http_get_curl() {
   # shellcheck disable=SC2086
-  curl -q -o "${2:--}" -sSLf ${CURL_OPTS} "$1"
+  log_command curl -q -fL $CURL_OPTS -o "$2" "$1" 2>&3
 }
 
 http_head_wget() {
   # shellcheck disable=SC2086
-  wget -q --spider ${WGET_OPTS} "$1" >&4 2>&1
+  wget -q --spider $WGET_OPTS "$1" >/dev/null
 }
 
 http_get_wget() {
   # shellcheck disable=SC2086
-  wget -nv ${WGET_OPTS} -O "${2:--}" "$1"
+  log_command wget -nv --show-progress $WGET_OPTS -O "$2" "$1" 2>&3
 }
 
 fetch_tarball() {
@@ -408,7 +474,7 @@ fetch_tarball() {
 
   if [ "$package_url" != "${package_url%bz2}" ]; then
     if ! type -p bzip2 >/dev/null; then
-      echo "warning: bzip2 not found; consider installing \`bzip2\` package" >&4
+      echo "warning: bzip2 not found; consider installing the \`bzip2\` package" >&2
     fi
     package_filename="${package_filename%.gz}.bz2"
     tar_args="${tar_args/z/j}"
@@ -417,26 +483,21 @@ fetch_tarball() {
   if ! reuse_existing_tarball "$package_filename" "$checksum"; then
     local tarball_filename
     tarball_filename="$(basename "$package_url")"
-    echo "Downloading ${tarball_filename}..." >&2
+    log_info "Downloading ${tarball_filename}..."
     # shellcheck disable=SC2015
     http head "$mirror_url" &&
     download_tarball "$mirror_url" "$package_filename" "$checksum" ||
     download_tarball "$package_url" "$package_filename" "$checksum"
   fi
 
-  { if tar "$tar_args" "$package_filename"; then
-      if [ ! -d "$package_name" ]; then
-        extracted_dir="$(find_extracted_directory)"
-        mv "$extracted_dir" "$package_name"
-      fi
+  log_command tar "$tar_args" "$package_filename" >/dev/null
 
-      if [ -z "$KEEP_BUILD_PATH" ]; then
-        rm -f "$package_filename"
-      else
-        true
-      fi
-    fi
-  } >&4 2>&1
+  if [ ! -d "$package_name" ]; then
+    extracted_dir="$(find_extracted_directory)"
+    mv "$extracted_dir" "$package_name"
+  fi
+
+  [ -n "$KEEP_BUILD_PATH" ] || rm -f "$package_filename"
 }
 
 find_extracted_directory() {
@@ -464,8 +525,8 @@ reuse_existing_tarball() {
   local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
 
   [ -e "$cached_package_filename" ] || return 1
-  verify_checksum "$cached_package_filename" "$checksum" >&4 2>&1 || return 1
-  ln -s "$cached_package_filename" "$package_filename" >&4 2>&1 || return 1
+  verify_checksum "$cached_package_filename" "$checksum" || return 1
+  ln -s "$cached_package_filename" "$package_filename" || return 1
 }
 
 download_tarball() {
@@ -475,10 +536,8 @@ download_tarball() {
   local package_filename="$2"
   local checksum="$3"
 
-  echo "-> $package_url" >&2
-
-  if http get "$package_url" "$package_filename" >&4 2>&1; then
-    verify_checksum "$package_filename" "$checksum" >&4 2>&1 || return 1
+  if http get "$package_url" "$package_filename"; then
+    verify_checksum "$package_filename" "$checksum" || return 1
   else
     echo "error: failed to download $package_filename" >&2
     return 1
@@ -486,9 +545,8 @@ download_tarball() {
 
   if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
     local cached_package_filename="${RUBY_BUILD_CACHE_PATH}/$package_filename"
-    { mv "$package_filename" "$cached_package_filename"
-      ln -s "$cached_package_filename" "$package_filename"
-    } >&4 2>&1 || return 1
+    mv "$package_filename" "$cached_package_filename"
+    ln -s "$cached_package_filename" "$package_filename"
   fi
 }
 
@@ -497,7 +555,7 @@ fetch_git() {
   local git_url="$2"
   local git_ref="$3"
 
-  echo "Cloning ${git_url}..." >&2
+  log_info "Cloning ${git_url}..."
 
   if ! type git &>/dev/null; then
     echo "error: please install \`git\` and try again" >&2
@@ -508,18 +566,18 @@ fetch_git() {
     local cache_dir
     cache_dir="$RUBY_BUILD_CACHE_PATH/$(sanitize "$git_url")"
     if [ -e "$cache_dir" ]; then
-      git -C "$cache_dir" fetch --force "$git_url" "+${git_ref}:${git_ref}" >&4 2>&1
+      log_command git -C "$cache_dir" fetch --force "$git_url" "+${git_ref}:${git_ref}" 2>&3
     else
-      git clone --bare --branch "$git_ref" "$git_url" "$cache_dir" >&4 2>&1
+      log_command git clone --bare --branch "$git_ref" "$git_url" "$cache_dir" 2>&3
     fi
     git_url="$cache_dir"
   fi
 
-  if [ -e "${package_name}" ]; then
-    git -C "$package_name" fetch --depth 1 origin "+${git_ref}" >&4 2>&1
-    git -C "$package_name" checkout -q -B "$git_ref" "origin/${git_ref}" >&4 2>&1
+  if [ -e "$package_name" ]; then
+    log_command git -C "$package_name" fetch --depth 1 origin "+${git_ref}" 2>&3
+    log_command git -C "$package_name" checkout -q -B "$git_ref" "origin/${git_ref}" 2>&3
   else
-    git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
+    log_command git clone --depth 1 --branch "$git_ref" "$git_url" "$package_name" 2>&3
   fi
 }
 
@@ -527,18 +585,17 @@ build_package() {
   local package_name="$1"
   shift
 
-  if [ "$#" -eq 0 ]; then
-    local commands="standard"
-  else
-    local commands="$*"
-  fi
+  # Use "build_package_standard" as the default build step.
+  [ $# -gt 0 ] || set -- standard
 
-  echo "Installing ${package_name}..." >&2
+  log_info "Installing ${package_name}..."
 
   [ -n "$HAS_PATCH" ] && apply_ruby_patch "$package_name"
 
-  for command in $commands; do
-    "build_package_${command}" "$package_name"
+  local step
+  for step; do
+    # e.g. build_package_standard, build_package_truffleruby, etc.
+    "build_package_${step}" "$package_name"
   done
 }
 
@@ -562,7 +619,7 @@ build_package_warn_eol() {
     echo "WARNING: $package_name is past its end of life and is now unsupported."
     echo "It no longer receives bug fixes or critical security updates."
     echo
-  } >&3
+  } >&2
 }
 
 build_package_warn_unsupported() {
@@ -572,7 +629,7 @@ build_package_warn_unsupported() {
     echo "WARNING: $package_name is nearing its end of life."
     echo "It only receives critical security updates, no bug fixes."
     echo
-  } >&3
+  } >&2
 }
 
 build_package_standard_build() {
@@ -622,14 +679,15 @@ build_package_standard_build() {
     if [ -z "$CC" ] && is_mac 1010; then
       export CC=clang
     fi
+    # ./configure --prefix=/path/to/ruby
     # shellcheck disable=SC2086,SC2153
-    ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
-      "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS} || return 1
-  ) >&4 2>&1
+    capture_command ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
+      "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS}
+  ) || return $?
 
+  # make -j <num_cpu_cores>
   # shellcheck disable=SC2086
-  { "$MAKE" "${!PACKAGE_MAKE_OPTS_ARRAY}" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
-  } >&4 2>&1
+  capture_command "$MAKE" "${!PACKAGE_MAKE_OPTS_ARRAY}" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
 }
 
 build_package_standard_install() {
@@ -640,15 +698,14 @@ build_package_standard_install() {
   local PACKAGE_MAKE_INSTALL_OPTS="${package_var_name}_MAKE_INSTALL_OPTS"
   local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
 
+  # make install
   # shellcheck disable=SC2086
-  { "$MAKE" ${MAKE_INSTALL_TARGET:-install} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}" $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS}
-  } >&4 2>&1
+  capture_command "$MAKE" ${MAKE_INSTALL_TARGET:-install} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}" $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS}
 }
 
 build_package_standard_install_with_bundled_gems() {
-  { "$MAKE" update-gems
-    "$MAKE" extract-gems
-  } >&4 2>&1
+  capture_command "$MAKE" update-gems
+  capture_command "$MAKE" extract-gems
 
   build_package_standard_install "$@"
 }
@@ -660,15 +717,11 @@ build_package_standard() {
 }
 
 build_package_autoconf() {
-  { autoreconf -i
-  } >&4 2>&1
+  capture_command autoreconf -i
 }
 
 build_package_ruby() {
-  local package_name="$1"
-
-  { "$RUBY_BIN" setup.rb
-  } >&4 2>&1
+  capture_command "$RUBY_BIN" setup.rb
 }
 
 build_package_ree_installer() {
@@ -686,55 +739,77 @@ build_package_ree_installer() {
   mkdir -p "$PREFIX_PATH/lib/ruby/gems/1.8/gems"
 
   # shellcheck disable=SC2086
-  { ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems "${options[@]}" $CONFIGURE_OPTS
-  } >&4 2>&1
+  capture_command ./installer --auto "$PREFIX_PATH" --dont-install-useful-gems "${options[@]}" $CONFIGURE_OPTS
 }
 
 build_package_rbx() {
-  local package_name="$1"
+  export PATH="${PWD}/.gem/bin:${PATH}"
+  if [ -e "Gemfile" ]; then
+    bundle --version &>/dev/null || GEM_HOME="${PWD}/.gem" capture_command gem install bundler -v '~> 1.3.5'
+    capture_command bundle --path=vendor/bundle
+  fi
 
-  { [ ! -e "Gemfile" ] || bundle --path=vendor/bundle
-    if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
-      mkdir -p vendor
-      ln -s "$RUBY_BUILD_CACHE_PATH" vendor/prebuilt
+  if [ -n "$RUBY_BUILD_CACHE_PATH" ]; then
+    mkdir -p vendor
+    ln -s "$RUBY_BUILD_CACHE_PATH" vendor/prebuilt
+  fi
+
+  local opt
+  local -a configure_opts
+  for opt in "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"; do
+    if [[ $opt == --with-openssl-dir=* ]]; then
+      local openssl_dir="${opt#*=}"
+      configure_opts[${#configure_opts[@]}]="--with-lib-dir=${openssl_dir}/lib"
+      configure_opts[${#configure_opts[@]}]="--with-include-dir=${openssl_dir}/include"
+    else
+      configure_opts[${#configure_opts[@]}]="$opt"
     fi
+  done
 
-    local opt
-    local -a configure_opts
-    for opt in "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"; do
-      if [[ $opt == --with-openssl-dir=* ]]; then
-        local openssl_dir="${opt#*=}"
-        configure_opts[${#configure_opts[@]}]="--with-lib-dir=${openssl_dir}/lib"
-        configure_opts[${#configure_opts[@]}]="--with-include-dir=${openssl_dir}/include"
-      else
-        configure_opts[${#configure_opts[@]}]="$opt"
-      fi
+  # shellcheck disable=SC2086
+  RUBYOPT="-rrubygems $RUBYOPT" capture_command ./configure --prefix="$PREFIX_PATH" "${configure_opts[@]}" $RUBY_CONFIGURE_OPTS
+  if [ -e "Gemfile" ]; then
+    capture_command bundle exec rake install
+  else
+    rake --version &>/dev/null || GEM_HOME="${PWD}/.gem" capture_command gem install rake -v '~> 10.1.0'
+    capture_command rake install
+  fi
+
+  local gemdir="${PREFIX_PATH}/gems/bin"
+  local file binstub
+  # Symlink Rubinius' `gems/bin/` into `bin/`
+  if [ -d "$gemdir" ] && [ ! -L "$gemdir" ]; then
+    for file in "$gemdir"/*; do
+      binstub="${PREFIX_PATH}/bin/${file##*/}"
+      rm -f "$binstub"
+      { echo "#!${PREFIX_PATH}/bin/ruby"
+        grep -v '^#!' "$file"
+      } > "$binstub"
+      chmod +x "$binstub"
     done
+    rm -rf "$gemdir"
+    ln -s ../bin "$gemdir"
+  fi
 
-    # shellcheck disable=SC2086
-    RUBYOPT="-rrubygems $RUBYOPT" ./configure --prefix="$PREFIX_PATH" "${configure_opts[@]}" $RUBY_CONFIGURE_OPTS
-    rake install
-    fix_rbx_gem_binstubs "$PREFIX_PATH"
-    fix_rbx_irb "$PREFIX_PATH"
-  } >&4 2>&1
+  "${PREFIX_PATH}/bin/irb" --version &>/dev/null ||
+    capture_command "${PREFIX_PATH}/bin/gem" install rubysl-tracer -v '~> 2.0' --no-rdoc --no-ri ||
+    true
 }
 
 build_package_mruby() {
-  { ./minirake
-    mkdir -p "$PREFIX_PATH"
-    cp -fR build/host/* include "$PREFIX_PATH"
-    ln -fs mruby "$PREFIX_PATH/bin/ruby"
-    ln -fs mirb "$PREFIX_PATH/bin/irb"
-  } >&4 2>&1
+  capture_command ./minirake
+  mkdir -p "$PREFIX_PATH"
+  cp -fR build/host/* include "$PREFIX_PATH"
+  ln -fs mruby "$PREFIX_PATH/bin/ruby"
+  ln -fs mirb "$PREFIX_PATH/bin/irb"
 }
 
 build_package_picoruby() {
-  { ./minirake
-    mkdir -p "$PREFIX_PATH"
-    cp -fR build/host/* include "$PREFIX_PATH"
-    ln -fs picoruby "$PREFIX_PATH/bin/ruby"
-    ln -fs picoirb "$PREFIX_PATH/bin/irb"
-  } >&4 2>&1
+  capture_command ./minirake
+  mkdir -p "$PREFIX_PATH"
+  cp -fR build/host/* include "$PREFIX_PATH"
+  ln -fs picoruby "$PREFIX_PATH/bin/ruby"
+  ln -fs picoirb "$PREFIX_PATH/bin/irb"
 }
 
 build_package_jruby() {
@@ -755,9 +830,8 @@ install_jruby_launcher() {
   local jruby_version
   jruby_version="$(./ruby -e 'puts JRUBY_VERSION' 2>/dev/null)"
   [[ $jruby_version != "9.2."* ]] ||
-    ./ruby gem update -q --silent --system 3.3.26 --no-document --no-post-install-message >&4 2>&1
-  { ./ruby gem install jruby-launcher --no-document
-  } >&4 2>&1
+    capture_command ./ruby gem update -q --silent --system 3.3.26 --no-document --no-post-install-message
+  capture_command ./ruby gem install jruby-launcher --no-document
 }
 
 fix_jruby_shebangs() {
@@ -775,7 +849,7 @@ build_package_truffleruby() {
 
   # shellcheck disable=SC2164
   cd "${PREFIX_PATH}"
-  "${PREFIX_PATH}/lib/truffle/post_install_hook.sh"
+  capture_command ./lib/truffle/post_install_hook.sh
 }
 
 build_package_truffleruby_graalvm() {
@@ -791,7 +865,7 @@ build_package_truffleruby_graalvm() {
   fi
 
   if [ -e bin/gu ]; then
-    bin/gu install ruby || return $?
+    capture_command bin/gu install ruby
   fi
 
   local ruby_home
@@ -802,9 +876,9 @@ build_package_truffleruby_graalvm() {
 
   # shellcheck disable=SC2164
   cd "${PREFIX_PATH}"
-  ln -s "${ruby_home#"$PREFIX_PATH/"}/bin" . || return $?
+  ln -s "${ruby_home#"$PREFIX_PATH/"}/bin" .
 
-  "$ruby_home/lib/truffle/post_install_hook.sh"
+  capture_command "$ruby_home/lib/truffle/post_install_hook.sh"
 }
 
 build_package_artichoke() {
@@ -829,10 +903,11 @@ clean_prefix_path_truffleruby() {
   if [ -d "$PREFIX_PATH" ] &&
      [ ! -e "$PREFIX_PATH/bin/truffleruby" ] &&
      [ -n "$(ls -A "$PREFIX_PATH")" ]; then
-    echo
-    echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix" >&2
-    echo "TruffleRuby only supports being installed to a not existing directory, an empty directory, or replacing an existing TruffleRuby installation"
-    echo "See https://github.com/oracle/truffleruby/issues/1389 for details" >&2
+    { echo
+      echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix."
+      echo "TruffleRuby only supports being installed to a not existing directory, an empty directory, or replacing an existing TruffleRuby installation."
+      echo "See https://github.com/oracle/truffleruby/issues/1389 for details"
+    } >&2
     return 1
   fi
 
@@ -853,33 +928,6 @@ after_install_package() {
   local stub=1
 }
 
-fix_rbx_gem_binstubs() {
-  local prefix="$1"
-  local gemdir="${prefix}/gems/bin"
-  local bindir="${prefix}/bin"
-  local file binstub
-  # Symlink Rubinius' `gems/bin/` into `bin/`
-  if [ -d "$gemdir" ] && [ ! -L "$gemdir" ]; then
-    for file in "$gemdir"/*; do
-      binstub="${bindir}/${file##*/}"
-      rm -f "$binstub"
-      { echo "#!${bindir}/ruby"
-        grep -v '^#!' "$file"
-      } > "$binstub"
-      chmod +x "$binstub"
-    done
-    rm -rf "$gemdir"
-    ln -s ../bin "$gemdir"
-  fi
-}
-
-fix_rbx_irb() {
-  local prefix="$1"
-  "${prefix}/bin/irb" --version &>/dev/null ||
-    "${prefix}/bin/gem" install rubysl-tracer -v '~> 2.0' --no-rdoc --no-ri &>/dev/null ||
-    true
-}
-
 require_java() {
   local required="$1"
   local java_version version_string
@@ -893,9 +941,9 @@ require_java() {
   local found_version="${nums[0]}"
   [ "$found_version" -gt 1 ] 2>/dev/null || found_version="${nums[1]}"
   [ "$found_version" -ge "$required" ] 2>/dev/null && return 0
-  colorize 1 "ERROR" >&3
-  echo ": Java >= ${required} required, but your Java version was:" >&3
-  cat <<<"$java_version" >&3
+  { colorize 1 "ERROR"
+    printf ": Java >= %s required, but your Java version was:\n%s\n" "$required" "$java_version"
+  } >&2
   return 1
 }
 
@@ -924,7 +972,7 @@ use_homebrew_yaml() {
   local libdir
   libdir="$(brew --prefix libyaml 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
-    echo "ruby-build: using libyaml from homebrew"
+    log_notice "using libyaml from homebrew"
     package_option ruby configure --with-libyaml-dir="$libdir"
   else
     return 1
@@ -945,7 +993,7 @@ use_homebrew_gmp() {
   local libdir
   libdir="$(brew --prefix gmp 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
-    echo "ruby-build: using gmp from homebrew"
+    log_notice "using gmp from homebrew"
     package_option ruby configure --with-gmp-dir="$libdir"
   else
     return 1
@@ -970,7 +1018,7 @@ use_homebrew_readline() {
   local libdir
   libdir="$(brew --prefix readline 2>/dev/null || true)"
   if [ -d "$libdir" ]; then
-    echo "ruby-build: using readline from homebrew"
+    log_notice "using readline from homebrew"
     package_option ruby configure --with-readline-dir="$libdir"
   else
     return 1
@@ -1070,7 +1118,7 @@ needs_openssl() {
     (( homebrew_version >= lower_bound && homebrew_version < upper_bound )) || continue
     while read -r formula version prefix; do
       [ "$version" = "${versions[index]}" ] || continue
-      echo "ruby-build: using $formula from homebrew"
+      log_notice "using $formula from homebrew"
       package_option ruby configure --with-openssl-dir="$prefix"
       return 1
     done <<<"$brew_installs"
@@ -1100,10 +1148,12 @@ use_homebrew_openssl() {
   local ssldir
   ssldir="$(brew --prefix openssl@1.1 2>/dev/null || true)"
   if [ -d "$ssldir" ]; then
-    echo "ruby-build: using openssl@1.1 from homebrew"
+    log_notice "using openssl@1.1 from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
-    colorize 1 "ERROR openssl@1.1 from Homebrew is required, run 'brew install openssl@1.1'"
+    { colorize 1 "ERROR"
+      echo ": openssl@1.1 from Homebrew is required; run:  brew install openssl@1.1"
+    } >&2
     return 1
   fi
 }
@@ -1163,7 +1213,15 @@ build_package_openssl() {
 }
 
 # Post-install check that the openssl extension was built.
+# TODO: explore replacing this implementation with scanning the `make` log
+# for the "Following extensions are not compiled" block.
 build_package_verify_openssl() {
+  local msg
+  msg="->$(print_command "$RUBY_BIN" -e "<SCRIPT>")"
+
+  colorize 36 "$msg"
+  echo
+
   # shellcheck disable=SC2016
   "$RUBY_BIN" -e '
     manager = ARGV[0]
@@ -1176,12 +1234,14 @@ build_package_verify_openssl() {
         "yaml" => "libyaml-devel"
       )
     }
+    ext_name = Hash.new {|h,k| k }.update("yaml" => "psych")
 
     failed = %w[openssl readline zlib yaml].reject do |lib|
       begin
         require lib
       rescue LoadError => e
         $stderr.puts "Loading the Ruby #{lib} extension failed (#{e})"
+        $stderr.puts "See the extension log at #{Dir.pwd}/ext/#{ext_name[lib]}/mkmf.log"
       end
     end
 
@@ -1191,12 +1251,9 @@ build_package_verify_openssl() {
         manager,
         failed.map { |lib| packages.fetch(manager)[lib] }.join(" ")
       ] unless manager.empty?
-      $stderr.puts "Configure options used:"
-      require "rbconfig"; require "shellwords"
-      RbConfig::CONFIG.fetch("configure_args").shellsplit.each { |arg| $stderr.puts "  #{arg}" }
       exit 1
     end
-  ' "$(basename "$(type -p yum apt-get | head -1)")" >&4 2>&1
+  ' "$(basename "$(type -p yum apt-get | head -1)")"
 }
 
 # Kept for backward compatibility with 3rd-party definitions.
@@ -1222,36 +1279,6 @@ build_package_auto_tcltk() {
   fi
 }
 
-rake() {
-  if [ -e "./Gemfile" ]; then
-    bundle exec rake "$@"
-  else
-    isolated_gem_dependency "rake --version" rake -v '~> 10.1.0'
-    command rake "$@"
-  fi
-}
-
-bundle() {
-  isolated_gem_dependency "bundle --version" bundler -v '~> 1.3.5'
-  command bundle "$@"
-}
-
-isolated_gem_dependency() {
-  set +E
-  ( command $1 &>/dev/null ) || {
-    set -E
-    shift 1
-    isolated_gem_install "$@"
-  }
-  set -E
-}
-
-isolated_gem_install() {
-  export GEM_HOME="${PWD}/.gem"
-  export PATH="${GEM_HOME}/bin:${PATH}"
-  gem install "$@"
-}
-
 apply_ruby_patch() {
   local patchfile
   if is_ruby_package "$1"; then
@@ -1260,7 +1287,7 @@ apply_ruby_patch() {
 
     local striplevel=0
     grep -q '^--- a/' "$patchfile" && striplevel=1
-    patch -p$striplevel --force -i "$patchfile"
+    log_command patch -p$striplevel --force -i "$patchfile"
   fi
 }
 
@@ -1506,23 +1533,27 @@ else
   BUILD_PATH="$RUBY_BUILD_BUILD_PATH"
 fi
 
-exec 4<> "$LOG_PATH" # open the log file at fd 4
 if [ -n "$VERBOSE" ]; then
-  tail -f "$LOG_PATH" &
-  TAIL_PID=$!
-  trap 'kill $TAIL_PID' SIGINT SIGTERM EXIT
+  # open the original stdout at fd 4
+  exec 4<&1
 else
-  if [ -z "$RUBY_BUILD_TESTING" ]; then
-    echo "To follow progress, use 'tail -f $LOG_PATH' or pass --verbose" >&2
-  fi
+  # open the log file at fd 4
+  exec 4<> "$LOG_PATH"
 fi
 
 unset RUBYOPT
 unset RUBYLIB
 
+# If something goes wrong during building, print error information to stderr.
 trap build_failed ERR
+
+# This is where the magic happens: execute commands from the definition
+# file while in a temporary build directory. This will typically result in
+# `install_package` leading to `build_package_standard`.
 mkdir -p "$BUILD_PATH"
 # shellcheck disable=SC1090
 source "$DEFINITION_PATH"
+
+# By default, the temporary build path is wiped after successful build.
 [ -z "${KEEP_BUILD_PATH}" ] && rm -fr "$BUILD_PATH"
 trap - ERR
