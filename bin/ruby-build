@@ -555,7 +555,7 @@ fetch_git() {
   local git_url="$2"
   local git_ref="$3"
 
-  echo "Cloning ${git_url}..." >&2
+  log_info "Cloning ${git_url}..."
 
   if ! type git &>/dev/null; then
     echo "error: please install \`git\` and try again" >&2
@@ -566,18 +566,18 @@ fetch_git() {
     local cache_dir
     cache_dir="$RUBY_BUILD_CACHE_PATH/$(sanitize "$git_url")"
     if [ -e "$cache_dir" ]; then
-      git -C "$cache_dir" fetch --force "$git_url" "+${git_ref}:${git_ref}" >&4 2>&1
+      log_command git -C "$cache_dir" fetch --force "$git_url" "+${git_ref}:${git_ref}" 2>&3
     else
-      git clone --bare --branch "$git_ref" "$git_url" "$cache_dir" >&4 2>&1
+      log_command git clone --bare --branch "$git_ref" "$git_url" "$cache_dir" 2>&3
     fi
     git_url="$cache_dir"
   fi
 
-  if [ -e "${package_name}" ]; then
-    git -C "$package_name" fetch --depth 1 origin "+${git_ref}" >&4 2>&1
-    git -C "$package_name" checkout -q -B "$git_ref" "origin/${git_ref}" >&4 2>&1
+  if [ -e "$package_name" ]; then
+    log_command git -C "$package_name" fetch --depth 1 origin "+${git_ref}" 2>&3
+    log_command git -C "$package_name" checkout -q -B "$git_ref" "origin/${git_ref}" 2>&3
   else
-    git clone --depth 1 --branch "$git_ref" "$git_url" "${package_name}" >&4 2>&1
+    log_command git clone --depth 1 --branch "$git_ref" "$git_url" "$package_name" 2>&3
   fi
 }
 
