@@ -673,6 +673,11 @@ build_package_standard_build() {
         package_option ruby configure --with-openssl-dir="/usr/local"
       fi
     fi
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-ext* &&
+          "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--without-ext* ]]; then
+      # Fail the `make` step if any of these extensions were not compiled.
+      package_option ruby configure --with-ext=openssl,psych,+
+    fi
   fi
 
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
@@ -1214,48 +1219,9 @@ build_package_openssl() {
   fi
 }
 
-# Post-install check that the openssl extension was built.
-# TODO: explore replacing this implementation with scanning the `make` log
-# for the "Following extensions are not compiled" block.
+# Kept for backward compatibility with 3rd-party definitions.
 build_package_verify_openssl() {
-  local msg
-  msg="->$(print_command "$RUBY_BIN" -e "<SCRIPT>")"
-
-  colorize 36 "$msg"
-  echo
-
-  # shellcheck disable=SC2016
-  "$RUBY_BIN" -e '
-    manager = ARGV[0]
-    packages = {
-      "apt-get" => Hash.new {|h,k| "lib#{k}-dev" }.update(
-        "openssl" => "libssl-dev",
-        "zlib" => "zlib1g-dev"
-      ),
-      "yum" => Hash.new {|h,k| "#{k}-devel" }.update(
-        "yaml" => "libyaml-devel"
-      )
-    }
-    ext_name = Hash.new {|h,k| k }.update("yaml" => "psych")
-
-    failed = %w[openssl readline zlib yaml].reject do |lib|
-      begin
-        require lib
-      rescue LoadError => e
-        $stderr.puts "Loading the Ruby #{lib} extension failed (#{e})"
-        $stderr.puts "See the extension log at #{Dir.pwd}/ext/#{ext_name[lib]}/mkmf.log"
-      end
-    end
-
-    if failed.size > 0
-      $stderr.puts "ERROR: Ruby install aborted due to missing extensions"
-      $stderr.print "Try running `%s install -y %s` to fetch missing dependencies.\n\n" % [
-        manager,
-        failed.map { |lib| packages.fetch(manager)[lib] }.join(" ")
-      ] unless manager.empty?
-      exit 1
-    end
-  ' "$(basename "$(type -p yum apt-get | head -1)")"
+  true
 }
 
 # Kept for backward compatibility with 3rd-party definitions.
