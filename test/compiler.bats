@@ -14,21 +14,22 @@ export -n RUBY_CONFIGURE_OPTS
   stub_repeated uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.10'
   stub_repeated brew 'false'
-  stub_repeated make 'echo "make $(inspect_args "$@")"'
+  # shellcheck disable=SC2016
+  stub_repeated make 'echo "make $(inspect_args "$@")" >> build.log'
 
   cat > ./configure <<CON
 #!${BASH}
-echo ./configure "\$@"
-echo CC=\$CC
-echo CFLAGS=\${CFLAGS-no}
+echo ./configure "\$@" > build.log
+echo CC=\$CC >> build.log
+echo CFLAGS=\${CFLAGS-no} >> build.log
 CON
   chmod +x ./configure
 
   run_inline_definition <<DEF
-exec 4<&1
 build_package_standard ruby
 DEF
   assert_success
+  run cat build.log
   assert_output <<OUT
 ./configure --prefix=$INSTALL_ROOT
 CC=clang
