@@ -369,7 +369,7 @@ verify_checksum() {
       echo "unexpected checksum length: ${#expected_checksum} (${expected_checksum})"
       echo "expected 0 (no checksum), 32 (MD5), or 64 (SHA2-256)"
       echo
-    } >&4
+    } >&2
     return 1 ;;
   esac
 
@@ -386,7 +386,7 @@ verify_checksum() {
       echo "checksum mismatch: ${filename} (file is corrupt)"
       echo "expected $expected_checksum, got $computed_checksum"
       echo
-    } >&4
+    } >&2
     return 1
   fi
 }
@@ -396,7 +396,7 @@ http() {
   [ -n "$2" ] || return 1
   shift 1
 
-  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client 2>&3)}"
+  RUBY_BUILD_HTTP_CLIENT="${RUBY_BUILD_HTTP_CLIENT:-$(detect_http_client)}"
   [ -n "$RUBY_BUILD_HTTP_CLIENT" ] || return 1
 
   # http_get_curl, http_get_wget, etc.
@@ -474,7 +474,7 @@ fetch_tarball() {
 
   if [ "$package_url" != "${package_url%bz2}" ]; then
     if ! type -p bzip2 >/dev/null; then
-      echo "warning: bzip2 not found; consider installing \`bzip2\` package" >&4
+      echo "warning: bzip2 not found; consider installing the \`bzip2\` package" >&2
     fi
     package_filename="${package_filename%.gz}.bz2"
     tar_args="${tar_args/z/j}"
@@ -619,7 +619,7 @@ build_package_warn_eol() {
     echo "WARNING: $package_name is past its end of life and is now unsupported."
     echo "It no longer receives bug fixes or critical security updates."
     echo
-  } >&3
+  } >&2
 }
 
 build_package_warn_unsupported() {
@@ -629,7 +629,7 @@ build_package_warn_unsupported() {
     echo "WARNING: $package_name is nearing its end of life."
     echo "It only receives critical security updates, no bug fixes."
     echo
-  } >&3
+  } >&2
 }
 
 build_package_standard_build() {
@@ -903,10 +903,11 @@ clean_prefix_path_truffleruby() {
   if [ -d "$PREFIX_PATH" ] &&
      [ ! -e "$PREFIX_PATH/bin/truffleruby" ] &&
      [ -n "$(ls -A "$PREFIX_PATH")" ]; then
-    echo
-    echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix" >&2
-    echo "TruffleRuby only supports being installed to a not existing directory, an empty directory, or replacing an existing TruffleRuby installation"
-    echo "See https://github.com/oracle/truffleruby/issues/1389 for details" >&2
+    { echo
+      echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix."
+      echo "TruffleRuby only supports being installed to a not existing directory, an empty directory, or replacing an existing TruffleRuby installation."
+      echo "See https://github.com/oracle/truffleruby/issues/1389 for details"
+    } >&2
     return 1
   fi
 
@@ -940,9 +941,9 @@ require_java() {
   local found_version="${nums[0]}"
   [ "$found_version" -gt 1 ] 2>/dev/null || found_version="${nums[1]}"
   [ "$found_version" -ge "$required" ] 2>/dev/null && return 0
-  colorize 1 "ERROR" >&3
-  echo ": Java >= ${required} required, but your Java version was:" >&3
-  cat <<<"$java_version" >&3
+  { colorize 1 "ERROR"
+    printf ": Java >= %s required, but your Java version was:\n%s\n" "$required" "$java_version"
+  } >&2
   return 1
 }
 
@@ -1150,7 +1151,9 @@ use_homebrew_openssl() {
     log_notice "using openssl@1.1 from homebrew"
     package_option ruby configure --with-openssl-dir="$ssldir"
   else
-    colorize 1 "ERROR openssl@1.1 from Homebrew is required, run 'brew install openssl@1.1'"
+    { colorize 1 "ERROR"
+      echo ": openssl@1.1 from Homebrew is required; run:  brew install openssl@1.1"
+    } >&2
     return 1
   fi
 }
