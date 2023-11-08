@@ -2,12 +2,12 @@
 .\"     Title: ruby-build
 .\"    Author: Mislav Marohnić
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2023-11-07
+.\"      Date: 2023-11-08
 .\"    Manual: ruby-build Manual
 .\"    Source: ruby-build 20231107
 .\"  Language: English
 .\"
-.TH "RUBY\-BUILD" "1" "2023-11-07" "ruby\-build 20231107" "ruby\-build Manual"
+.TH "RUBY\-BUILD" "1" "2023-11-08" "ruby\-build 20231107" "ruby\-build Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -28,10 +28,10 @@
 .  LINKSTYLE blue R < >
 .\}
 .SH "NAME"
-ruby-build \- Download, compile, and install a version of Ruby.
+ruby-build \- Download, compile, and install a version of Ruby
 .SH "SYNOPSIS"
 .sp
-ruby\-build [\-kpv] \fI<definition>\fP \fI<prefix>\fP [\-\- \fI<configure\-args...>\fP]
+ruby\-build [\-kpv] \fI<definition>\fP \fI<prefix>\fP [\-\- \fI<configure\-args>\fP...]
 .br
 ruby\-build {\-\-list|\-\-definitions}
 .br
@@ -39,15 +39,80 @@ ruby\-build \-\-version
 .SH "DESCRIPTION"
 .sp
 ruby\-build downloads, compiles, and installs a Ruby version named by the
-\fIdefinition\fP argument into the location specified by \fIprefix\fP. Optionally,
-extra Ruby configure arguments may be added after "\-\-".
+\fIdefinition\fP argument into the location specified by \fIprefix\fP.
 .sp
 The \fIdefinition\fP argument can be a path to a file on disk, in which case
 it is sourced into ruby\-build as a bash script.
 .sp
-By default, all compile output is redirected to a log file at:
-"$TMPDIR/ruby\-build.*.log". Activate the verbose mode to skip the log file
+Optionally, extra Ruby \fIconfigure\-args\fP may be listed after "\-\-" and
+will get forwarded to the \f(CR./configure\fP invocation.
+.sp
+By default, all compile output is redirected to a log file at
+\f(CR$TMPDIR/ruby\-build.*.log\fP. Activate the verbose mode to skip the log file
 and print everything to standard streams.
+.SH "OPTIONS"
+.sp
+\fB\-l, \-\-list\fP
+.RS 4
+List latest stable releases for each Ruby
+.RE
+.sp
+\fB\-\-definitions\fP
+.RS 4
+List all local definitions, including outdated ones
+.RE
+.sp
+\fB\-\-version\fP
+.RS 4
+Show version of ruby\-build
+.RE
+.sp
+\fB\-v, \-\-verbose\fP
+.RS 4
+Verbose mode: forward all build output to stdout/stderr
+.RE
+.sp
+\fB\-p, \-\-patch\fP
+.RS 4
+Apply a patch from stdin before building
+.RE
+.sp
+\fB\-k, \-\-keep\fP
+.RS 4
+Do not remove source tree after installation
+.RE
+.sp
+\fB\-4, \-\-ipv4\fP
+.RS 4
+Resolve names to IPv4 addresses only
+.RE
+.sp
+\fB\-6, \-\-ipv6\fP
+.RS 4
+Resolve names to IPv6 addresses only
+.RE
+.SH "EXAMPLES"
+.sp
+Install Ruby version 3.2.2 under \f(CR/opt/rubies\fP while tweaking some
+configuration options:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ ruby\-build 3.2.2 /opt/rubies/ruby\-3.2.2 \-\- \-\-disable\-install\-doc \-\-with\-openssl\-dir=/opt/openssl
+.fam
+.fi
+.if n .RE
+.sp
+Usage as rbenv plugin:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ rbenv install 3.2.2
+.fam
+.fi
+.if n .RE
 .SH "ENVIRONMENT VARIABLES"
 .sp
 \fBTMPDIR\fP

@@ -7,26 +7,67 @@ Mislav Marohnić
 
 == Name
 
-ruby-build - Download, compile, and install a version of Ruby.
+ruby-build - Download, compile, and install a version of Ruby
 
 == Synopsis
 
-ruby-build [-kpv] _<definition>_ _<prefix>_ [-- _<configure-args...>_] +
+ruby-build [-kpv] _<definition>_ _<prefix>_ [-- _<configure-args>_...] +
 ruby-build {--list|--definitions} +
 ruby-build --version
 
 == Description
 
 ruby-build downloads, compiles, and installs a Ruby version named by the
-_definition_ argument into the location specified by _prefix_. Optionally,
-extra Ruby configure arguments may be added after "--".
+_definition_ argument into the location specified by _prefix_.
 
 The _definition_ argument can be a path to a file on disk, in which case
 it is sourced into ruby-build as a bash script.
 
-By default, all compile output is redirected to a log file at:
-"$TMPDIR/ruby-build.*.log". Activate the verbose mode to skip the log file
+Optionally, extra Ruby _configure-args_ may be listed after "--" and
+will get forwarded to the `./configure` invocation.
+
+By default, all compile output is redirected to a log file at
+`$TMPDIR/ruby-build.*.log`. Activate the verbose mode to skip the log file
 and print everything to standard streams.
+
+== Options
+
+*-l, --list*::
+  List latest stable releases for each Ruby
+
+*--definitions*::
+  List all local definitions, including outdated ones
+
+*--version*::
+  Show version of ruby-build
+
+*-v, --verbose*::
+  Verbose mode: forward all build output to stdout/stderr
+
+*-p, --patch*::
+  Apply a patch from stdin before building
+
+*-k, --keep*::
+  Do not remove source tree after installation
+
+*-4, --ipv4*::
+  Resolve names to IPv4 addresses only
+
+*-6, --ipv6*::
+  Resolve names to IPv6 addresses only
+
+== Examples
+
+Install Ruby version 3.2.2 under `/opt/rubies` while tweaking some
+configuration options:
+----
+$ ruby-build 3.2.2 /opt/rubies/ruby-3.2.2 -- --disable-install-doc --with-openssl-dir=/opt/openssl
+----
+
+Usage as rbenv plugin:
+----
+$ rbenv install 3.2.2
+----
 
 == Environment Variables
 
