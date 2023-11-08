@@ -110,10 +110,9 @@ colorize() {
 
 print_command() {
   local arg
-  local tmpdir="${TMPDIR%/}"
   for arg; do
-    arg="${arg//$tmpdir\//\$TMPDIR/}"
-    arg="${arg//$HOME\//\$HOME/}"
+    [ "${#TMPDIR}" -le 1 ] || arg="${arg//$TMP\//\$TMPDIR/}"
+    [ "${#HOME}" -le 1 ] || arg="${arg//$HOME\//\$HOME/}"
     case "$arg" in
     *\'* | *\$* )
       printf ' "%s"' "$arg" ;;
