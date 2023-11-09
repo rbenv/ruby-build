@@ -445,7 +445,7 @@ http_head_wget() {
 
 http_get_wget() {
   # shellcheck disable=SC2086
-  log_command wget -nv --show-progress $WGET_OPTS -O "$2" "$1" 2>&3
+  log_command wget $WGET_OPTS -O "$2" "$1" 2>&3
 }
 
 fetch_tarball() {
