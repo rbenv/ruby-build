@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Adds "warn_unsupported" or "warn_eol" to CRuby definitions based on the
+# information from endoflife.date.
+
+set -e
+
+date_to_seconds() {
+  # BSD date
+  date -jf '%Y-%m-%d' -v 0H -v 0M -v 0S "$1" '+%s' 2>/dev/null ||
+  # GNU date
+  date --date "$1" '+%s'
+}
+
+now_seconds="$(date '+%s')"
+
+curl -fsSL https://endoflife.date/api/ruby.json | jq -r '.[] | [.cycle,.eol] | @tsv' | while read -r cycle eol_date; do
+  eol_seconds="$(date_to_seconds "$eol_date")"
+  days_to_eol=$(((eol_seconds - now_seconds) / 60 / 60 / 24))
+  if [ $days_to_eol -lt 0 ]; then
+    grep -L warn_eol share/ruby-build/"$cycle"[.-]* | grep -ve '-dev$' | \
+      xargs sed -i.bak -E '/openssl/n; s/ warn_unsupported//; s/(.+)"/\1" warn_eol/'
+  elif [ $days_to_eol -lt 180 ]; then
+    grep -L warn_unsupported share/ruby-build/"$cycle"[.-]* | grep -ve '-dev$' | \
+      xargs sed -i.bak -E '/openssl/n; s/(.+)"/\1" warn_unsupported/'
+  fi
+done
+
+num_updated="$(rm -fv share/ruby-build/*.bak | wc -l)"
+printf "definition files updated: %d\n" "$num_updated"
