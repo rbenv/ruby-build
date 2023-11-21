@@ -692,9 +692,20 @@ build_package_standard_build() {
       "${!PACKAGE_CONFIGURE_OPTS_ARRAY}" $CONFIGURE_OPTS ${!PACKAGE_CONFIGURE_OPTS}
   ) || return $?
 
+  local status=0
   # make -j <num_cpu_cores>
   # shellcheck disable=SC2086
-  capture_command "$MAKE" "${!PACKAGE_MAKE_OPTS_ARRAY}" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS}
+  capture_command "$MAKE" "${!PACKAGE_MAKE_OPTS_ARRAY}" $MAKE_OPTS ${!PACKAGE_MAKE_OPTS} || status=$?
+
+  if [[ $status -ne 0 && -z $VERBOSE ]]; then
+    # Surface any extension building problems from `make` log to stderr.
+    # https://github.com/ruby/ruby/blob/HEAD/ext/extmk.rb
+    sed -n '/Following extensions are not compiled/,/Fix the problems/p' "$LOG_PATH" | \
+      sed '/remove these directories and try again/d' | \
+      sed "s:\\([[:space:]]*Check\\) \\(ext/.*\\):\\1 ${PWD}/\\2:" >&2
+  fi
+
+  return $status
 }
 
 build_package_standard_install() {
