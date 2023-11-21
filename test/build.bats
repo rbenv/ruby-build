@@ -111,7 +111,7 @@ assert_build_log() {
 yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -144,7 +144,7 @@ yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p0 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -177,7 +177,7 @@ yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p1 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -211,7 +211,7 @@ yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p1 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -237,7 +237,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-libyaml-dir=$brew_libdir]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-libyaml-dir=$brew_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -261,7 +261,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-gmp-dir=$gmp_libdir]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-gmp-dir=$gmp_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -285,7 +285,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=$readline_libdir]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=$readline_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -310,7 +310,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=/custom]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-readline-dir=/custom]
 make -j 2
 make install
 OUT
@@ -337,7 +337,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -374,7 +374,7 @@ DEF
 openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,zlib-dynamic,no-ssl3,shared]
 make -j 2
 make install_sw install_ssldirs
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -398,7 +398,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=/path/to/openssl]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/path/to/openssl]
 make -j 2
 make install
 OUT
@@ -448,7 +448,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$TMP/homebrew/opt/openssl@3.0]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$TMP/homebrew/opt/openssl@3.0,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -471,7 +471,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,cppflags=-DYJIT_FORCE_ENABLE -DRUBY_PATCHLEVEL_NAME=test,--with-openssl-dir=/path/to/openssl,--with-readline-dir=/custom]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,cppflags=-DYJIT_FORCE_ENABLE -DRUBY_PATCHLEVEL_NAME=test,--with-openssl-dir=/path/to/openssl,--with-ext=openssl,psych,+,--with-readline-dir=/custom]
 make -j 2
 make install
 OUT
@@ -494,7 +494,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -518,7 +518,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 4
 make install
 OUT
@@ -532,8 +532,7 @@ OUT
   stub_make_install
 
   export -n MAKE_OPTS
-  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=/test"
-  run_inline_definition <<DEF
+  RUBY_CONFIGURE_OPTS="--with-openssl-dir=/test" run_inline_definition <<DEF
 install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
 DEF
   assert_success
@@ -543,7 +542,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=/test]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/test]
 make -j 1
 make install
 OUT
@@ -566,7 +565,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install --globalmake RUBYMAKE=true with spaces
 OUT
@@ -594,8 +593,7 @@ CONF
   stub apply 'echo apply "$@" >> build.log'
   stub_make_install
 
-  export RUBY_CONFIGURE="${TMP}/custom-configure"
-  run_inline_definition <<DEF
+  RUBY_CONFIGURE="${TMP}/custom-configure" run_inline_definition <<DEF
 install_package "ruby-2.0.0" "http://ruby-lang.org/pub/ruby-2.0.0.tar.gz"
 DEF
   assert_success
@@ -606,7 +604,7 @@ DEF
 
   assert_build_log <<OUT
 apply -p1 -i /my/patch.diff
-ruby-2.0.0: [--prefix=$INSTALL_ROOT]
+ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT

@@ -31,7 +31,7 @@ DEF
   assert_success
   run cat build.log
   assert_output <<OUT
-./configure --prefix=$INSTALL_ROOT
+./configure --prefix=$INSTALL_ROOT --with-ext=openssl,psych,+
 CC=clang
 CFLAGS=no
 make -j 2
