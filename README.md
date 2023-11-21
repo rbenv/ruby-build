@@ -47,7 +47,7 @@ $ ruby-build 3.2.2 /opt/rubies/ruby-3.2.2  # installs Ruby 3.2.2
 $ rbenv install 3.2.2  # installs Ruby 3.2.2 to ~/.rbenv/versions/3.2.2
 ```
 
-> **Warning**  
+> [!WARNING]
 > ruby-build mostly does not verify that system dependencies are present before downloading and attempting to compile Ruby from source. Please ensure that [all requisite libraries][build-env] such as build tools and development headers are already present on your system.
 
 Basically, what ruby-build does when installing a Ruby version is this:
