@@ -674,8 +674,11 @@ build_package_standard_build() {
       fi
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-ext* &&
-          "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--without-ext* ]]; then
-      # Fail the `make` step if any of these extensions were not compiled.
+          "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--without-ext* &&
+          "$(normalize_semver "${package_name#ruby-}")" -ge 200500 ]]; then
+      # For Ruby 2.5+, fail the `make` step if any of these extensions were not compiled.
+      # Otherwise, the build would have succeeded, but Ruby would be useless at runtime.
+      # https://github.com/ruby/ruby/commit/b58a30e1c14e971adba4096104274d5d692492e9
       package_option ruby configure --with-ext=openssl,psych,+
     fi
   fi

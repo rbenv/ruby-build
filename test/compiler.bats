@@ -26,7 +26,7 @@ CON
   chmod +x ./configure
 
   run_inline_definition <<DEF
-build_package_standard ruby
+build_package_standard ruby-2.5.0
 DEF
   assert_success
   run cat build.log
