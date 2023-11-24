@@ -23,7 +23,7 @@ executable() {
 cached_tarball() {
   local save_to_fixtures
   case "$*" in
-  "ruby-2.0.0 configure" | "yaml-0.1.6 configure" | "jruby-9000.dev bin/jruby" )
+  "ruby-3.2.0 configure" | "yaml-0.1.6 configure" | "jruby-9000.dev bin/jruby" )
     save_to_fixtures=1
     ;;
   esac
@@ -93,7 +93,7 @@ assert_build_log() {
 
 @test "yaml is installed for ruby" {
   cached_tarball "yaml-0.1.6" configure
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -111,7 +111,7 @@ assert_build_log() {
 yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -119,7 +119,7 @@ OUT
 
 @test "apply ruby patch before building" {
   cached_tarball "yaml-0.1.6" configure
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -144,7 +144,7 @@ yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p0 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -152,7 +152,7 @@ OUT
 
 @test "striplevel ruby patch before building" {
   cached_tarball "yaml-0.1.6" configure
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -177,7 +177,7 @@ yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p1 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -185,7 +185,7 @@ OUT
 
 @test "apply ruby patch from git diff before building" {
   cached_tarball "yaml-0.1.6" configure
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -211,14 +211,14 @@ yaml-0.1.6: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 patch -p1 --force -i $TMP/ruby-patch.XXX
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
 }
 
 @test "yaml is linked from Homebrew" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   brew_libdir="$TMP/homebrew-yaml"
   mkdir -p "$brew_libdir"
@@ -228,7 +228,7 @@ OUT
   stub_make_install
 
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -237,14 +237,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-libyaml-dir=$brew_libdir,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-libyaml-dir=$brew_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
 }
 
 @test "gmp is linked from Homebrew" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   gmp_libdir="$TMP/homebrew-gmp"
   mkdir -p "$gmp_libdir"
@@ -253,7 +253,7 @@ OUT
   stub_make_install
 
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -261,14 +261,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-gmp-dir=$gmp_libdir,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-gmp-dir=$gmp_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
 }
 
 @test "readline is linked from Homebrew" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   readline_libdir="$TMP/homebrew-readline"
   mkdir -p "$readline_libdir"
@@ -277,7 +277,7 @@ OUT
   stub_make_install
 
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -285,14 +285,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=$readline_libdir,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=$readline_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
 }
 
 @test "readline is not linked from Homebrew when explicitly defined" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   readline_libdir="$TMP/homebrew-readline"
   mkdir -p "$readline_libdir"
@@ -302,7 +302,7 @@ OUT
 
   export RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom'
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -310,14 +310,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-readline-dir=/custom]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-readline-dir=/custom]
 make -j 2
 make install
 OUT
 }
 
 @test "use system OpenSSL" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
@@ -328,7 +328,7 @@ OUT
   mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
   run_inline_definition <<DEF
 install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -337,7 +337,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -345,7 +345,7 @@ OUT
 
 @test "install bundled OpenSSL" {
   cached_tarball "openssl-1.1.1w" config
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   mkdir -p "${TMP}/ssl/certs"
   touch "${TMP}/ssl/cert.pem"
@@ -360,7 +360,7 @@ OUT
   mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
   run_inline_definition <<DEF
 install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -374,14 +374,14 @@ DEF
 openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,zlib-dynamic,no-ssl3,shared]
 make -j 2
 make install_sw install_ssldirs
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
 }
 
 @test "skip bundling OpenSSL if custom openssl dir was specified" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Darwin'
   stub_repeated brew false
@@ -389,7 +389,7 @@ OUT
 
   RUBY_CONFIGURE_OPTS="--with-openssl-dir=/path/to/openssl" run_inline_definition <<DEF
 install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -398,14 +398,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/path/to/openssl]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/path/to/openssl]
 make -j 2
 make install
 OUT
 }
 
 @test "link to Homebrew OpenSSL" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   local homebrew_prefix="${TMP}/homebrew"
   executable "${homebrew_prefix}/opt/openssl@3/bin/openssl" <<EXE
@@ -438,7 +438,7 @@ EXE
 
   run_inline_definition <<DEF
 install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl:1.1.0-3.0.x
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -448,20 +448,20 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$TMP/homebrew/opt/openssl@3.0,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$TMP/homebrew/opt/openssl@3.0,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
 }
 
 @test "forward extra command-line arguments as configure flags" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated brew false
   stub_make_install
 
   cat > "$TMP/build-definition" <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
 
   RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom' run ruby-build "$TMP/build-definition" "$INSTALL_ROOT" -- cppflags="-DYJIT_FORCE_ENABLE -DRUBY_PATCHLEVEL_NAME=test" --with-openssl-dir=/path/to/openssl
@@ -471,14 +471,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,cppflags=-DYJIT_FORCE_ENABLE -DRUBY_PATCHLEVEL_NAME=test,--with-openssl-dir=/path/to/openssl,--with-ext=openssl,psych,+,--with-readline-dir=/custom]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,cppflags=-DYJIT_FORCE_ENABLE -DRUBY_PATCHLEVEL_NAME=test,--with-openssl-dir=/path/to/openssl,--with-ext=openssl,psych,+,--with-readline-dir=/custom]
 make -j 2
 make install
 OUT
 }
 
 @test "number of CPU cores defaults to 2" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Darwin'
   stub sysctl false
@@ -486,7 +486,7 @@ OUT
 
   export -n MAKE_OPTS
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -494,14 +494,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
 }
 
 @test "number of CPU cores is detected on Mac" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Darwin'
   stub sysctl '-n hw.ncpu : echo 4'
@@ -509,7 +509,7 @@ OUT
 
   export -n MAKE_OPTS
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -518,14 +518,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 4
 make install
 OUT
 }
 
 @test "number of CPU cores is detected on FreeBSD" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo FreeBSD'
   stub sysctl '-n hw.ncpu : echo 1'
@@ -533,7 +533,7 @@ OUT
 
   export -n MAKE_OPTS
   RUBY_CONFIGURE_OPTS="--with-openssl-dir=/test" run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -542,14 +542,14 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/test]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/test]
 make -j 1
 make install
 OUT
 }
 
 @test "using MAKE_INSTALL_OPTS" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   stub_repeated uname '-s : echo Linux'
   stub_make_install
@@ -557,7 +557,7 @@ OUT
   export MAKE_INSTALL_OPTS="--globalmake"
   export RUBY_MAKE_INSTALL_OPTS="RUBYMAKE=true with spaces"
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -565,7 +565,7 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
 make -j 2
 make install --globalmake RUBYMAKE=true with spaces
 OUT
@@ -581,7 +581,7 @@ OUT
 }
 
 @test "can use RUBY_CONFIGURE to apply a patch" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   executable "${TMP}/custom-configure" <<CONF
 #!$BASH
@@ -594,7 +594,7 @@ CONF
   stub_make_install
 
   RUBY_CONFIGURE="${TMP}/custom-configure" run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/pub/ruby-2.0.0.tar.gz"
+install_package "ruby-3.2.0" "http://ruby-lang.org/pub/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
@@ -604,7 +604,28 @@ DEF
 
   assert_build_log <<OUT
 apply -p1 -i /my/patch.diff
-ruby-2.0.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
+@test "Ruby 2.4 and older does not pass --with-ext" {
+  cached_tarball "ruby-2.4.10" configure
+
+  stub_repeated uname '-s : echo Linux'
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "ruby-2.4.10" "http://ruby-lang.org/pub/ruby-2.4.10.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.4.10: [--prefix=$INSTALL_ROOT]
 make -j 2
 make install
 OUT
@@ -916,11 +937,11 @@ DEF
 }
 
 @test "does not initialize LDFLAGS directories" {
-  cached_tarball "ruby-2.0.0" configure
+  cached_tarball "ruby-3.2.0" configure
 
   export LDFLAGS="-L ${BATS_TEST_DIRNAME}/what/evs"
   run_inline_definition <<DEF
-install_package "ruby-2.0.0" "http://ruby-lang.org/ruby/2.0/ruby-2.0.0.tar.gz" ldflags_dirs
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz" ldflags_dirs
 DEF
   assert_success
 
