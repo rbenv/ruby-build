@@ -81,9 +81,10 @@ OUT
 }
 
 stub_make_install() {
+  local target="${1:-install}"
   stub "$MAKE" \
     " : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log" \
-    "install* : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
+    "$target : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
 }
 
 assert_build_log() {
@@ -354,7 +355,7 @@ OUT
   stub_repeated brew false
   stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"'
   stub openssl "version -d : echo 'OPENSSLDIR: \"${TMP}/ssl\"'"
-  stub_make_install
+  stub_make_install "install_sw"
   stub_make_install
 
   mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
@@ -643,6 +644,33 @@ OUT
 
   run "$INSTALL_ROOT/bin/package" "world"
   assert_success "hello world"
+}
+
+@test "dev Ruby install strategy" {
+  cached_tarball "ruby-3.2.0" configure
+
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
+  # shellcheck disable=SC2016
+  stub autoreconf ' : echo "autoreconf $(inspect_args "$@")" >> build.log'
+  stub_make_install "update-gems"
+
+  run_inline_definition <<DEF
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/3.0/ruby-3.2.0.tar.gz" autoconf standard_install_with_bundled_gems
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub make
+  unstub autoreconf
+
+  assert_build_log <<OUT
+autoreconf -i
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+make -j 2
+make update-gems extract-gems install
+OUT
 }
 
 @test "mruby strategy" {

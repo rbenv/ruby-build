@@ -634,7 +634,7 @@ build_package_warn_unsupported() {
   } >&2
 }
 
-build_package_standard_build() {
+build_package_standard() {
   local package_name="$1"
 
   if [ "${MAKEOPTS+defined}" ]; then
@@ -708,13 +708,7 @@ build_package_standard_build() {
       sed "s:\\([[:space:]]*Check\\) \\(ext/.*\\):\\1 ${PWD}/\\2:" >&2
   fi
 
-  return $status
-}
-
-build_package_standard_install() {
-  local package_name="$1"
-  local package_var_name
-  package_var_name="$(capitalize "${package_name%%-*}")"
+  [ $status -eq 0 ] || return $status
 
   local PACKAGE_MAKE_INSTALL_OPTS="${package_var_name}_MAKE_INSTALL_OPTS"
   local PACKAGE_MAKE_INSTALL_OPTS_ARRAY="${package_var_name}_MAKE_INSTALL_OPTS_ARRAY[@]"
@@ -724,17 +718,19 @@ build_package_standard_install() {
   capture_command "$MAKE" ${MAKE_INSTALL_TARGET:-install} "${!PACKAGE_MAKE_INSTALL_OPTS_ARRAY}" $MAKE_INSTALL_OPTS ${!PACKAGE_MAKE_INSTALL_OPTS}
 }
 
+# Used in place of "standard" step for building development branches of Ruby.
 build_package_standard_install_with_bundled_gems() {
-  capture_command "$MAKE" update-gems
-  capture_command "$MAKE" extract-gems
-
-  build_package_standard_install "$@"
+  MAKE_INSTALL_TARGET="update-gems extract-gems install" build_package_standard "$@"
 }
 
-# Backward Compatibility for standard function
-build_package_standard() {
-  build_package_standard_build "$@"
-  build_package_standard_install "$@"
+# Kept for backward compatibility with 3rd-party Ruby definitions.
+build_package_standard_build() {
+  true
+}
+
+# Kept for backward compatibility with 3rd-party Ruby definitions.
+build_package_standard_install() {
+  build_package_standard "$@"
 }
 
 build_package_autoconf() {
