@@ -672,6 +672,21 @@ build_package_standard() {
         # use openssl installed from Ports Collection
         package_option ruby configure --with-openssl-dir="/usr/local"
       fi
+    elif [ "$(normalize_semver "${package_name#ruby-}")" -lt 200707 ]; then
+      local opt
+      for opt in $RUBY_CONFIGURE_OPTS "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"; do
+        if [[ $opt == --with-openssl-dir=* ]]; then
+          # Ruby < 2.7.7 are known to prioritize the result of `pkg-config --libs openssl`
+          # over the directory explicitly supplied by "--with-openssl-dir". This can cause
+          # issues if an incompatible OpenSSL version is found in pkg-config search path.
+          # https://github.com/ruby/openssl/pull/486
+          #
+          # The workaround is to adjust the search path to prioritize the location supplied
+          # in "--with-openssl-dir".
+          export PKG_CONFIG_PATH="${opt#--with-openssl-dir=}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+          break
+        fi
+      done
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-ext* &&
           "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--without-ext* &&

@@ -6,6 +6,7 @@ export MAKE=make
 export MAKE_OPTS="-j 2"
 export CC=cc
 export -n RUBY_CONFIGURE_OPTS
+export -n PKG_CONFIG_PATH
 
 setup() {
   mkdir -p "$INSTALL_ROOT"
@@ -58,7 +59,7 @@ generate_tarball() {
       cat > "${path}/${file}" <<OUT
 #!$BASH
 IFS=,
-echo "$name: [\$*]" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} >> build.log
+echo "$name: [\$*]" \${RUBYOPT:+RUBYOPT=\$RUBYOPT} \${PKG_CONFIG_PATH:+PKG_CONFIG_PATH=\$PKG_CONFIG_PATH} >> build.log
 OUT
       chmod +x "${path}/${file}"
       ;;
@@ -83,7 +84,7 @@ OUT
 stub_make_install() {
   local target="${1:-install}"
   stub "$MAKE" \
-    " : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log" \
+    " : echo \"\${PKG_CONFIG_PATH:+PKG_CONFIG_PATH=\$PKG_CONFIG_PATH }$MAKE \$(inspect_args \"\$@\")\" >> build.log" \
     "$target : echo \"$MAKE \$(inspect_args \"\$@\")\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
 }
 
@@ -372,11 +373,11 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,zlib-dynamic,no-ssl3,shared]
-make -j 2
+openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,zlib-dynamic,no-ssl3,shared] PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig
+PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig make -j 2
 make install_sw install_ssldirs
-ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl,--with-ext=openssl,psych,+]
-make -j 2
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl,--with-ext=openssl,psych,+] PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig
+PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig make -j 2
 make install
 OUT
 }
@@ -401,6 +402,29 @@ DEF
   assert_build_log <<OUT
 ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/path/to/openssl]
 make -j 2
+make install
+OUT
+}
+
+@test "explicit OpenSSL dir sets PKG_CONFIG_PATH for older Rubies" {
+  cached_tarball "ruby-2.7.3" configure
+
+  stub_repeated uname '-s : echo Darwin'
+  stub_repeated brew false
+  stub_make_install
+
+  PKG_CONFIG_PATH=/orig/searchpath RUBY_CONFIGURE_OPTS="--with-openssl-dir=/path/to/openssl" run_inline_definition <<DEF
+install_package "ruby-2.7.3" "http://ruby-lang.org/ruby/2.0/ruby-2.7.3.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-2.7.3: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+,--with-openssl-dir=/path/to/openssl] PKG_CONFIG_PATH=/path/to/openssl/lib/pkgconfig:/orig/searchpath
+PKG_CONFIG_PATH=/path/to/openssl/lib/pkgconfig:/orig/searchpath make -j 2
 make install
 OUT
 }
