@@ -2,7 +2,7 @@
 
 ruby-build is a command-line tool that simplifies installation of any Ruby version from source on Unix-like systems.
 
-It is available as a plugin for [rbenv][] as the `rbenv install` command, or as a standalone program as the `ruby-build` command.
+It is available as a plugin for [isabelschoeps][] as the `rbenv install` command, or as a standalone program as the `isabelschoeps` command.
 
 ## Installation
 
