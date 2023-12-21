@@ -2,53 +2,12 @@
 
 ruby-build is a command-line tool that simplifies installation of any Ruby version from source on Unix-like systems.
 
-It is available as a plugin for [rbenv][] as the `rbenv install` command, or as a standalone program as the `ruby-build` command.
+It is available as a plugin for [isabelschoeps][isabelschoeps] as the `rbenv install` command, or as a standalone program as the `isabelschoeps` command.
 
 ## Installation
 
-### Homebrew package manager
-```sh
-brew install ruby-build
-```
 
-Upgrade with:
-```sh
-brew upgrade ruby-build
-```
 
-### Clone as rbenv plugin using git
-```sh
-git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
-```
-
-Upgrade with:
-```sh
-git -C "$(rbenv root)"/plugins/ruby-build pull
-```
-
-### Install manually as a standalone program
-
-First, download a tarball from https://github.com/rbenv/ruby-build/releases/latest. Then:
-```sh
-tar -xzf ruby-build-*.tar.gz
-PREFIX=/usr/local ./ruby-build-*/install.sh
-```
-
-## Usage
-
-### Basic Usage
-
-```sh
-# As a standalone program
-$ ruby-build --list                        # lists available versions of Ruby
-$ ruby-build 3.2.2 /opt/rubies/ruby-3.2.2  # installs Ruby 3.2.2
-
-# As an rbenv plugin
-$ rbenv install 3.2.2  # installs Ruby 3.2.2 to ~/.rbenv/versions/3.2.2
-```
-
-> [!WARNING]
-> ruby-build mostly does not verify that system dependencies are present before downloading and attempting to compile Ruby from source. Please ensure that [all requisite libraries][build-env] such as build tools and development headers are already present on your system.
 
 Basically, what ruby-build does when installing a Ruby version is this:
 - Downloads an official tarball of Ruby source code;
