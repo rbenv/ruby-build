@@ -17,7 +17,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Install bats
-      run: git clone --depth 1 https://github.com/sstephenson/bats.git
+      run: git clone --depth 1 --branch v1.10.0 https://github.com/bats-core/bats-core.git bats
     - name: Run tests
       run: PATH="./bats/bin:$PATH" script/test
     - name: Verify download URL checksums
