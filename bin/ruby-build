@@ -655,7 +655,10 @@ build_package_standard() {
   local PACKAGE_CFLAGS="${package_var_name}_CFLAGS"
 
   if [ "$package_var_name" = "RUBY" ]; then
-    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-readline-dir=* ]]; then
+    # shellcheck disable=SC2155
+    local ruby_semver="$(normalize_semver "${package_name#ruby-}")"
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-readline-dir=* && "$ruby_semver" -lt 300300 ]]; then
+      # Ruby 3.3+ does not need external readline: https://github.com/rbenv/ruby-build/issues/2330
       use_homebrew_readline || use_freebsd_readline || true
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libffi-dir=* ]]; then
@@ -672,7 +675,7 @@ build_package_standard() {
         # use openssl installed from Ports Collection
         package_option ruby configure --with-openssl-dir="/usr/local"
       fi
-    elif [ "$(normalize_semver "${package_name#ruby-}")" -lt 200707 ]; then
+    elif [ "$ruby_semver" -lt 200707 ]; then
       local opt
       for opt in $RUBY_CONFIGURE_OPTS "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"; do
         if [[ $opt == --with-openssl-dir=* ]]; then
@@ -690,7 +693,7 @@ build_package_standard() {
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-ext* &&
           "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--without-ext* &&
-          "$(normalize_semver "${package_name#ruby-}")" -ge 200500 ]]; then
+          "$ruby_semver" -ge 200500 ]]; then
       # For Ruby 2.5+, fail the `make` step if any of these extensions were not compiled.
       # Otherwise, the build would have succeeded, but Ruby would be useless at runtime.
       # https://github.com/ruby/ruby/commit/b58a30e1c14e971adba4096104274d5d692492e9
