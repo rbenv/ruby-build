@@ -293,6 +293,30 @@ make install
 OUT
 }
 
+@test "readline is not auto-discovered for Ruby 3.3" {
+  cached_tarball "ruby-3.3.0" configure
+
+  readline_libdir="$TMP/homebrew-readline"
+  mkdir -p "$readline_libdir"
+
+  stub_repeated brew "--prefix readline : echo '$readline_libdir'"
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "ruby-3.3.0" "http://ruby-lang.org/ruby/3.0/ruby-3.3.0.tar.gz"
+DEF
+  assert_success
+
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.3.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
 @test "readline is not linked from Homebrew when explicitly defined" {
   cached_tarball "ruby-3.2.0" configure
 
