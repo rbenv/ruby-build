@@ -1,0 +1,1 @@
+install_package "mruby-3.3.0" "https://github.com/mruby/mruby/archive/3.3.0.tar.gz#53088367e3d7657eb722ddfacb938f74aed1f8538b3717fe0b6eb8f58402af65" mruby
