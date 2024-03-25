@@ -1,16 +1,16 @@
 platform="$(uname -s)-$(uname -m)"
 case $platform in
 Linux-x86_64)
-  url="https://raw.githubusercontent.com/graalvm/graal-languages-ea-builds/main/truffleruby/versions/latest-jvm-linux-amd64.url"
+  url="https://github.com/graalvm/graal-languages-ea-builds/raw/HEAD/truffleruby/versions/latest-jvm-linux-amd64.url"
   ;;
 Linux-aarch64)
-  url="https://raw.githubusercontent.com/graalvm/graal-languages-ea-builds/main/truffleruby/versions/latest-jvm-linux-aarch64.url"
+  url="https://github.com/graalvm/graal-languages-ea-builds/raw/HEAD/truffleruby/versions/latest-jvm-linux-aarch64.url"
   ;;
 Darwin-x86_64)
-  url="https://raw.githubusercontent.com/graalvm/graal-languages-ea-builds/main/truffleruby/versions/latest-jvm-darwin-amd64.url"
+  url="https://github.com/graalvm/graal-languages-ea-builds/raw/HEAD/truffleruby/versions/latest-jvm-darwin-amd64.url"
   ;;
 Darwin-arm64)
-  url="https://raw.githubusercontent.com/graalvm/graal-languages-ea-builds/main/truffleruby/versions/latest-jvm-darwin-aarch64.url"
+  url="https://github.com/graalvm/graal-languages-ea-builds/raw/HEAD/truffleruby/versions/latest-jvm-darwin-aarch64.url"
   ;;
 *)
   colorize 1 "Unsupported platform: $platform"
@@ -18,9 +18,7 @@ Darwin-arm64)
   ;;
 esac
 
-pushd "$BUILD_PATH" >/dev/null
-http get $url url.txt
-url=$(<url.txt)
-popd
-
-install_package "truffleruby+graalvm-dev" "$url" truffleruby
+urlfile="$(mktemp "${TMP}/truffleruby.XXXXXX")"
+http get "$url" "$urlfile"
+install_package "truffleruby+graalvm-dev" "$(<"$urlfile")" truffleruby
+rm -f "$urlfile"

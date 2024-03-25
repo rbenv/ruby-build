@@ -423,8 +423,15 @@ http_head_aria2c() {
 }
 
 http_get_aria2c() {
-  # shellcheck disable=SC2086
-  log_command aria2c --allow-overwrite=true --no-conf=true --console-log-level=warn --stderr $ARIA2_OPTS -o "$2" "$1" 2>&3
+  local destfile="$2"
+  if [[ $destfile == /* ]]; then
+    # the "-o" option to aria2c cannot be an absolute path, but we can achieve that with "--dir"
+    # shellcheck disable=SC2086
+    log_command aria2c --allow-overwrite=true --no-conf=true --console-log-level=warn --stderr $ARIA2_OPTS --dir "${destfile%/*}" -o "${destfile##*/}" "$1" 2>&3
+  else
+    # shellcheck disable=SC2086
+    log_command aria2c --allow-overwrite=true --no-conf=true --console-log-level=warn --stderr $ARIA2_OPTS -o "$destfile" "$1" 2>&3
+  fi
 }
 
 http_head_curl() {
