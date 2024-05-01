@@ -1,2 +1,2 @@
-install_package "openssl-3.1.4" "https://www.openssl.org/source/openssl-3.1.4.tar.gz#840af5366ab9b522bde525826be3ef0fb0af81c6a9ebd84caa600fea1731eee3" openssl --if needs_openssl:1.0.2-3.x.x
+install_package "openssl-3.1.5" "https://www.openssl.org/source/openssl-3.1.5.tar.gz#6ae015467dabf0469b139ada93319327be24b98251ffaeceda0221848dc09262" openssl --if needs_openssl:1.0.2-3.x.x
 install_git "ruby-3.1.0-dev" "https://github.com/ruby/ruby.git" "ruby_3_1" autoconf standard_install_with_bundled_gems
