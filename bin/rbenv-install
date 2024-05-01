@@ -178,6 +178,10 @@ PREFIX="${RBENV_ROOT}/versions/${VERSION_NAME}"
 if [ -d "${PREFIX}/bin" ]; then
   if [ -z "$FORCE" ] && [ -z "$SKIP_EXISTING" ]; then
     echo "rbenv: $PREFIX already exists" >&2
+    if [ ! -t 0 ]; then
+      echo "rbenv: must use \`--force' or \`--skip-existing' in non-interactive mode" >&2
+      exit 1
+    fi
     read -rp "continue with installation? (y/N) "
 
     case "$REPLY" in
