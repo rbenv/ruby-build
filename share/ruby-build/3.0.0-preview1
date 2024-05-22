@@ -1,2 +1,2 @@
 install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz#cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8" openssl --if needs_openssl:1.0.1-1.x.x
-install_package "ruby-3.0.0-preview1" "https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.0-preview1.tar.bz2#013bdc6e859d76d67a6fcd990d401ed57e6e25896bab96d1d0648a877f556dbb" warn_unsupported enable_shared standard
+install_package "ruby-3.0.0-preview1" "https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.0-preview1.tar.bz2#013bdc6e859d76d67a6fcd990d401ed57e6e25896bab96d1d0648a877f556dbb" warn_eol enable_shared standard
