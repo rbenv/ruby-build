@@ -83,7 +83,7 @@ The build process may be configured through the following environment variables:
 | `RUBY_BUILD_MIRROR_URL`         | Custom mirror URL root.                                                                          |
 | `RUBY_BUILD_MIRROR_PACKAGE_URL` | Custom complete mirror URL (e.g. http://mirror.example.com/package-1.0.0.tar.gz).                |
 | `RUBY_BUILD_SKIP_MIRROR`        | Bypass the download mirror and fetch all package files from their original URLs.                 |
-| `RUBY_BUILD_ROOT`               | Custom build definition directory. (Default: `share/ruby-build`)                                 |
+| `RUBY_BUILD_ROOT`               | Custom build definition directory containing `share/ruby-build/<defs>`. (Default: ruby-build's installation prefix ) |
 | `RUBY_BUILD_TARBALL_OVERRIDE`   | Override the URL to fetch the ruby tarball from, optionally followed by `#checksum`.             |
 | `RUBY_BUILD_DEFINITIONS`        | Additional paths to search for build definitions. (Colon-separated list)                         |
 | `CC`                            | Path to the C compiler.                                                                          |
