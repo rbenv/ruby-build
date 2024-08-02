@@ -36,6 +36,7 @@ jobs:
           curl -sL https://cache.ruby-lang.org/pub/ruby/${{ env.ABI_VERSION }}/ruby-${{ env.RUBY_VERSION }}.tar.gz
           curl -sL https://www.openssl.org/source/openssl-${{ env.OPENSSL_VERSION }}.tar.gz
           script/update-cruby ${{ env.RUBY_VERSION }} ${{ env.OPENSSL_VERSION }} .
+          rm *.gz
 
       - name: commit and push
         run: |
