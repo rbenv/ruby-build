@@ -1,0 +1,48 @@
+name: Update Ruby definitions
+
+on:
+  workflow_dispatch:
+    inputs:
+      ruby_version:
+          description: 'Ruby version'
+          required: true
+          default: '3.3.4'
+      openssl_version:
+            description: 'OpenSSL version'
+            required: true
+            default: '3.0.14'
+
+  repository_dispatch:
+    types: [update-ruby]
+
+jobs:
+  update-ruby:
+    name: Update Ruby definitions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Store Ruby version
+        run: echo "RUBY_VERSION=${{ github.event.client_payload.ruby_version || github.event.inputs.ruby_version }}" >> $GITHUB_ENV
+
+      - name: Store ABI version
+        run: echo "ABI_VERSION=$(echo ${{ env.RUBY_VERSION }} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+
+      - name: Store OpenSSL version
+        run: echo "OPENSSL_VERSION=${{ github.event.client_payload.openssl_version || github.event.inputs.openssl_version }}" >> $GITHUB_ENV
+
+      - name: Run script/update-cruby
+        run: |
+          curl -sL https://cache.ruby-lang.org/pub/ruby/${{ env.ABI_VERSION }}/ruby-${{ env.RUBY_VERSION }}.tar.gz
+          curl -sL https://www.openssl.org/source/openssl-${{ env.OPENSSL_VERSION }}.tar.gz
+          script/update-cruby ${{ env.RUBY_VERSION }} ${{ env.OPENSSL_VERSION }} .
+
+      - name: commit and push
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Added ${{ env.RUBY_VERSION }} with OpenSSL ${{ env.OPENSSL_VERSION }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
