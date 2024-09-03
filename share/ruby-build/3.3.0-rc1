@@ -1,2 +1,2 @@
-install_package "openssl-3.0.14" "https://www.openssl.org/source/openssl-3.0.14.tar.gz#eeca035d4dd4e84fc25846d952da6297484afa0650a6f84c682e39df3a4123ca" openssl --if needs_openssl:1.0.2-3.x.x
+install_package "openssl-3.0.15" "https://www.openssl.org/source/openssl-3.0.15.tar.gz#23c666d0edf20f14249b3d8f0368acaee9ab585b09e1de82107c66e1f3ec9533" openssl --if needs_openssl:1.0.2-3.x.x
 install_package "ruby-3.3.0-rc1" "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.0-rc1.tar.gz#c4ff82395a90ef76c7f906b7687026e0ab96b094dcf3a532d9ab97784a073222" enable_shared standard
