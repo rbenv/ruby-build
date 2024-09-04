@@ -26,7 +26,7 @@ else
   exit 1
 fi
 
-openssl_url="https://www.openssl.org/source/openssl-${openssl_version}.tar.gz"
+openssl_url="https://github.com/openssl/openssl/releases/download/openssl-${openssl_version}/openssl-${openssl_version}.tar.gz"
 if command -v sha256sum >/dev/null; then
   openssl_sha256=$(sha256sum "$release_directory/$openssl_basename" | cut -d ' ' -f 1)
 elif command -v shasum >/dev/null; then
