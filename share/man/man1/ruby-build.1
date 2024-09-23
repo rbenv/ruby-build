@@ -2,12 +2,12 @@
 .\"     Title: ruby-build
 .\"    Author: Mislav Marohnić
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2023-11-11
+.\"      Date: 2024-09-23
 .\"    Manual: ruby-build Manual
 .\"    Source: ruby-build 20240917
 .\"  Language: English
 .\"
-.TH "RUBY\-BUILD" "1" "2023-11-11" "ruby\-build 20240917" "ruby\-build Manual"
+.TH "RUBY\-BUILD" "1" "2024-09-23" "ruby\-build 20240917" "ruby\-build Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -31,7 +31,7 @@
 ruby-build \- Download, compile, and install a version of Ruby
 .SH "SYNOPSIS"
 .sp
-ruby\-build [\-kpv] \fI<definition>\fP \fI<prefix>\fP [\-\- \fI<configure\-args>\fP...]
+ruby\-build [\-dvpk] \fI<definition>\fP \fI<prefix>\fP [\-\- \fI<configure\-args>\fP...]
 .br
 ruby\-build {\-\-list|\-\-definitions}
 .br
@@ -67,6 +67,11 @@ List all local definitions, including outdated ones
 Show version of ruby\-build
 .RE
 .sp
+\fB\-d, \-\-dir\fP
+.RS 4
+Install the Ruby in the \fIprefix/definition\fP destination instead of directly in \fIprefix\fP
+.RE
+.sp
 \fB\-v, \-\-verbose\fP
 .RS 4
 Verbose mode: forward all build output to stdout/stderr
@@ -100,6 +105,16 @@ configuration options:
 .nf
 .fam C
 $ ruby\-build 3.2.2 /opt/rubies/ruby\-3.2.2 \-\- \-\-disable\-install\-doc \-\-with\-openssl\-dir=/opt/openssl
+.fam
+.fi
+.if n .RE
+.sp
+Install Ruby version 3.3.5 under \f(CR~/.rbenv/versions\fP:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ ruby\-build \-\-dir 3.3.5 ~/.rbenv/versions
 .fam
 .fi
 .if n .RE

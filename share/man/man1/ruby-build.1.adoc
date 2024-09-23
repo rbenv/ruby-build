@@ -11,7 +11,7 @@ ruby-build - Download, compile, and install a version of Ruby
 
 == Synopsis
 
-ruby-build [-kpv] _<definition>_ _<prefix>_ [-- _<configure-args>_...] +
+ruby-build [-dvpk] _<definition>_ _<prefix>_ [-- _<configure-args>_...] +
 ruby-build {--list|--definitions} +
 ruby-build --version
 
@@ -41,6 +41,9 @@ and print everything to standard streams.
 *--version*::
   Show version of ruby-build
 
+*-d, --dir*::
+  Install the Ruby in the _prefix/definition_ destination instead of directly in _prefix_
+
 *-v, --verbose*::
   Verbose mode: forward all build output to stdout/stderr
 
@@ -62,6 +65,11 @@ Install Ruby version 3.2.2 under `/opt/rubies` while tweaking some
 configuration options:
 ----
 $ ruby-build 3.2.2 /opt/rubies/ruby-3.2.2 -- --disable-install-doc --with-openssl-dir=/opt/openssl
+----
+
+Install Ruby version 3.3.5 under `~/.rbenv/versions`:
+----
+$ ruby-build --dir 3.3.5 ~/.rbenv/versions
 ----
 
 Usage as rbenv plugin:

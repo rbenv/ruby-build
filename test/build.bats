@@ -620,6 +620,15 @@ make install --globalmake RUBYMAKE=true with spaces
 OUT
 }
 
+@test "nested install destination" {
+  export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
+
+  run ruby-build -d "$FIXTURE_ROOT"/definitions/without-checksum "$INSTALL_ROOT"
+  assert_success
+  refute [ -d "$INSTALL_ROOT"/bin ]
+  assert [ -x "$INSTALL_ROOT"/without-checksum/bin/package ]
+}
+
 @test "custom relative install destination" {
   export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
 
