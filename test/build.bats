@@ -653,6 +653,19 @@ make install
 OUT
 }
 
+@test "definition file with ruby prefix" {
+  export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
+
+  cd "$TMP"
+  cat > ruby-123-internal <<DEF
+install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz" copy
+DEF
+
+  run ruby-build ruby-123-internal "$INSTALL_ROOT"
+  assert_success
+  assert [ -x "$INSTALL_ROOT"/bin/package ]
+}
+
 @test "custom relative install destination" {
   export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
 
