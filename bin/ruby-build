@@ -1465,6 +1465,17 @@ if [ ! -f "$DEFINITION_PATH" ]; then
     fi
   done
 
+  # If the given definition is like ruby-X.Y.Z, search again with X.Y.Z
+  if [[ "$DEFINITION_PATH" =~ ^ruby-[0-9] ]]; then
+    DEFINITION_PATH="${DEFINITION_PATH#ruby-}"
+    for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
+        DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
+        break
+      fi
+    done
+  fi
+
   if [ ! -f "$DEFINITION_PATH" ]; then
     echo "ruby-build: definition not found: ${DEFINITION_PATH}" >&2
     exit 2

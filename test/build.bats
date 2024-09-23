@@ -629,6 +629,43 @@ OUT
   assert [ -x "$INSTALL_ROOT"/without-checksum/bin/package ]
 }
 
+@test "nested install destination with ruby prefix" {
+  cached_tarball "ruby-3.2.0" configure
+
+  stub_repeated brew false
+  stub_make_install
+
+  mkdir -p "$TMP"/definitions
+  cat > "$TMP"/definitions/3.2.0 <<DEF
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+
+  RUBY_BUILD_DEFINITIONS="$TMP"/definitions run ruby-build --dir ruby-3.2.0 "$INSTALL_ROOT"
+  assert_success
+
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT/ruby-3.2.0,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
+@test "definition file with ruby prefix" {
+  export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
+
+  cd "$TMP"
+  cat > ruby-123-internal <<DEF
+install_package "package-1.0.0" "http://example.com/packages/package-1.0.0.tar.gz" copy
+DEF
+
+  run ruby-build ruby-123-internal "$INSTALL_ROOT"
+  assert_success
+  assert [ -x "$INSTALL_ROOT"/bin/package ]
+}
+
 @test "custom relative install destination" {
   export RUBY_BUILD_CACHE_PATH="$FIXTURE_ROOT"
 
