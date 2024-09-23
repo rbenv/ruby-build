@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Usage: ruby-build [-kpv] <definition> <prefix> [-- <configure-args...>]
+# Usage: ruby-build [-dvpk] <definition> <prefix> [-- <configure-args...>]
 #        ruby-build {--list|--definitions}
 #        ruby-build --version
 #
@@ -8,6 +8,7 @@
 #   --definitions   List all local definitions, including outdated ones
 #   --version       Show version of ruby-build
 #
+#   -d, --dir       Install the Ruby in <prefix>/<definition> instead of <prefix>
 #   -v, --verbose   Verbose mode: forward all build output to stdout/stderr
 #   -p, --patch     Apply a patch from stdin before building
 #   -k, --keep      Do not remove source tree after installation
@@ -1358,6 +1359,7 @@ unset HAS_PATCH
 unset IPV4
 unset IPV6
 unset EARLY_EXIT
+unset APPEND_DEFINITION_TO_PREFIX
 
 RUBY_BUILD_INSTALL_PREFIX="$(abs_dirname "$0")/.."
 
@@ -1377,6 +1379,9 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "l" | "list")
     EARLY_EXIT=list_maintained_versions
+    ;;
+  "d" | "dir")
+    APPEND_DEFINITION_TO_PREFIX=true
     ;;
   "k" | "keep" )
     KEEP_BUILD_PATH=true
@@ -1423,6 +1428,10 @@ fi
 
 if [ "${#EXTRA_ARGUMENTS[@]}" -gt 0 ]; then
   RUBY_CONFIGURE_OPTS_ARRAY=("${EXTRA_ARGUMENTS[@]}")
+fi
+
+if [ "$APPEND_DEFINITION_TO_PREFIX" = "true" ]; then
+  PREFIX_PATH="$PREFIX_PATH/$(basename "$DEFINITION_PATH")"
 fi
 
 case "$EARLY_EXIT" in
