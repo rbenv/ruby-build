@@ -41,6 +41,9 @@ ruby\-build \-\-version
 ruby\-build downloads, compiles, and installs a Ruby version named by the
 \fIdefinition\fP argument into the location specified by \fIprefix\fP.
 .sp
+The \fIdefinition\fP argument can optionally start with "ruby\-", in which case
+it resolves to a CRuby that matches the version number that follows.
+.sp
 The \fIdefinition\fP argument can be a path to a file on disk, in which case
 it is sourced into ruby\-build as a bash script.
 .sp
@@ -98,18 +101,27 @@ Resolve names to IPv6 addresses only
 .RE
 .SH "EXAMPLES"
 .sp
-Install Ruby version 3.2.2 under \f(CR/opt/rubies\fP while tweaking some
-configuration options:
+Install a Ruby version while tweaking some configuration options:
 .sp
 .if n .RS 4
 .nf
 .fam C
-$ ruby\-build 3.2.2 /opt/rubies/ruby\-3.2.2 \-\- \-\-disable\-install\-doc \-\-with\-openssl\-dir=/opt/openssl
+$ ruby\-build 3.2.2 /path/to/destination \-\- \-\-disable\-install\-doc \-\-with\-openssl\-dir=/opt/openssl
 .fam
 .fi
 .if n .RE
 .sp
-Install Ruby version 3.3.5 under \f(CR~/.rbenv/versions\fP:
+Install a Ruby version to \f(CR~/.rubies/ruby\-3.2.2\fP:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ ruby\-build \-\-dir ruby\-3.2.2 ~/.rubies
+.fam
+.fi
+.if n .RE
+.sp
+Install a Ruby version to \f(CR~/.rbenv/versions/3.3.5\fP:
 .sp
 .if n .RS 4
 .nf
@@ -119,12 +131,12 @@ $ ruby\-build \-\-dir 3.3.5 ~/.rbenv/versions
 .fi
 .if n .RE
 .sp
-Usage as rbenv plugin:
+Usage as rbenv plugin, accomplishes the same as the previous example:
 .sp
 .if n .RS 4
 .nf
 .fam C
-$ rbenv install 3.2.2
+$ rbenv install 3.3.5
 .fam
 .fi
 .if n .RE

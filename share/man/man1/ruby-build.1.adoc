@@ -20,6 +20,9 @@ ruby-build --version
 ruby-build downloads, compiles, and installs a Ruby version named by the
 _definition_ argument into the location specified by _prefix_.
 
+The _definition_ argument can optionally start with "ruby-", in which case
+it resolves to a CRuby that matches the version number that follows.
+
 The _definition_ argument can be a path to a file on disk, in which case
 it is sourced into ruby-build as a bash script.
 
@@ -61,20 +64,24 @@ and print everything to standard streams.
 
 == Examples
 
-Install Ruby version 3.2.2 under `/opt/rubies` while tweaking some
-configuration options:
+Install a Ruby version while tweaking some configuration options:
 ----
-$ ruby-build 3.2.2 /opt/rubies/ruby-3.2.2 -- --disable-install-doc --with-openssl-dir=/opt/openssl
+$ ruby-build 3.2.2 /path/to/destination -- --disable-install-doc --with-openssl-dir=/opt/openssl
 ----
 
-Install Ruby version 3.3.5 under `~/.rbenv/versions`:
+Install a Ruby version to `~/.rubies/ruby-3.2.2`:
+----
+$ ruby-build --dir ruby-3.2.2 ~/.rubies
+----
+
+Install a Ruby version to `~/.rbenv/versions/3.3.5`:
 ----
 $ ruby-build --dir 3.3.5 ~/.rbenv/versions
 ----
 
-Usage as rbenv plugin:
+Usage as rbenv plugin, accomplishes the same as the previous example:
 ----
-$ rbenv install 3.2.2
+$ rbenv install 3.3.5
 ----
 
 == Environment Variables
