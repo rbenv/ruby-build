@@ -1,2 +1,2 @@
 install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz#cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8" openssl --if needs_openssl:1.0.1-1.x.x
-install_git "ruby-2.7-dev" "https://github.com/ruby/ruby.git" "ruby_2_7" autoconf standard_install_with_bundled_gems
+install_git "ruby-2.7-dev" "https://github.com/ruby/ruby.git" "ruby_2_7" autoconf enable_shared standard_install_with_bundled_gems
