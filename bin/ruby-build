@@ -1209,20 +1209,20 @@ build_package_openssl() {
   # Tell Ruby to use this openssl for its extension.
   package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
 
-  # Make sure pkg-config finds our build first.
-  export PKG_CONFIG_PATH="${OPENSSL_PREFIX_PATH}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-
   local nokerberos
   [[ "$1" != openssl-1.0.* ]] || nokerberos=1
 
   # Compile a shared lib with zlib dynamically linked.
-  package_option openssl configure --openssldir="$OPENSSLDIR" zlib-dynamic no-ssl3 shared ${nokerberos:+no-ssl2 no-krb5}
+  package_option openssl configure --openssldir="$OPENSSLDIR" --libdir="lib" zlib-dynamic no-ssl3 shared ${nokerberos:+no-ssl2 no-krb5}
 
   # Skip building OpenSSL docs, which is slow.
   local make_target="install_sw install_ssldirs"
   [[ "$1" != openssl-1.0.* ]] || make_target="install_sw" # OpenSSL 1.0 does not have `install_ssldirs`
 
   OPENSSL_CONFIGURE="${OPENSSL_CONFIGURE:-./config}" MAKE_INSTALL_TARGET="$make_target" build_package_standard "$@"
+
+  # Make sure pkg-config finds the new OpenSSL installation.
+  export PKG_CONFIG_PATH="${OPENSSL_PREFIX_PATH}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
   local pem_file="$OPENSSLDIR/cert.pem"
   if is_mac; then
