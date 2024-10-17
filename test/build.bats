@@ -397,8 +397,8 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,zlib-dynamic,no-ssl3,shared] PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig
-PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig make -j 2
+openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,--libdir=lib,zlib-dynamic,no-ssl3,shared]
+make -j 2
 make install_sw install_ssldirs
 ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl,--with-ext=openssl,psych,+] PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig
 PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig make -j 2
