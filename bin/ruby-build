@@ -1154,7 +1154,7 @@ needs_openssl() {
   # shellcheck disable=SC2207
   versions=( $(awk '{print $2}' <<<"$brew_installs" | sort_versions) )
   local index="${#versions[@]}"
-  while [ $((index--)) -ge 0 ]; do
+  while [ $((--index)) -ge 0 ]; do
     homebrew_version="$(normalize_semver "${versions[index]}")"
     (( homebrew_version >= lower_bound && homebrew_version < upper_bound )) || continue
     while read -r formula version prefix; do
