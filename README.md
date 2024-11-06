@@ -40,7 +40,8 @@ PREFIX=/usr/local ./ruby-build-*/install.sh
 
 ```sh
 # As a standalone program
-$ ruby-build --list                        # lists available versions of Ruby
+$ ruby-build --list                        # lists latest stable releases for each Ruby
+$ ruby-build --definitions                 # lists all definitions, including outdated ones
 $ ruby-build 3.2.2 /opt/rubies/ruby-3.2.2  # installs Ruby 3.2.2
 $ ruby-build -d ruby-3.2.2 /opt/rubies     # alternate form for the previous example
 
