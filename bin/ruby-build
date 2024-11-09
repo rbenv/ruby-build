@@ -1122,6 +1122,8 @@ normalize_semver() {
 # If a compatible Homebrew-installed OpenSSL version is found during
 # checking, Ruby will be linked to it and the check will return false.
 needs_openssl() {
+  [ -z "$RUBY_BUILD_VENDOR_OPENSSL" ] || return 0
+
   [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-openssl-dir=* ]] || return 1
 
   local system_version
