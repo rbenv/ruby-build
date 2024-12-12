@@ -10,7 +10,7 @@ on:
       openssl_version:
             description: 'OpenSSL version'
             required: true
-            default: '3.0.14'
+            default: '3.0.15'
 
   repository_dispatch:
     types: [update-ruby]
