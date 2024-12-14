@@ -94,7 +94,8 @@ OUT
 
   run rbenv-install 1.9.3
   assert_failure
-  assert_output <<OUT
+  (
+    cat <<OUT
 ERROR
 
 The following versions contain \`1.9.3' in the name:
@@ -103,10 +104,20 @@ The following versions contain \`1.9.3' in the name:
 
 See all available versions with \`rbenv install --list-all'.
 
-If the version you need is missing, try upgrading ruby-build:
-
-  git -C ${BATS_TEST_DIRNAME/$HOME\//~/}/.. pull
 OUT
+    here="${BATS_TEST_DIRNAME}/.."
+    echo -n "If the version you need is missing, try upgrading ruby-build"
+    # If this test is run from a git checkout, then .git will exist
+    # and ruby-build will give git cloning instructions. If it isn't
+    # (e.g. if ruby-build came from a tarball instead of git), we still
+    # want the test suite to pass.
+    if [ -d "${here}/.git" ]; then
+      printf ":\n\n"
+      echo "  git -C ${here} pull"
+    else
+      printf ".\n"
+    fi
+  ) | assert_output
 
   unstub brew
   unstub ruby-build
