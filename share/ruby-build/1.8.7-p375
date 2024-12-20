@@ -1,2 +1,0 @@
-install_git "ruby-1.8.7-p375" "https://github.com/ruby/ruby.git" "dabc90361d1b71fcac4f606eb1eb1fa25c047fd9" warn_eol autoconf auto_tcltk standard
-install_package "rubygems-1.6.2" "https://rubygems.org/rubygems/rubygems-1.6.2.tgz#cb5261818b931b5ea2cb54bc1d583c47823543fcf9682f0d6298849091c1cea7" ruby
