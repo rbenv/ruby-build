@@ -1211,11 +1211,21 @@ build_package_openssl() {
   # Tell Ruby to use this openssl for its extension.
   package_option ruby configure --with-openssl-dir="$OPENSSL_PREFIX_PATH"
 
-  local nokerberos
-  [[ "$1" != openssl-1.0.* ]] || nokerberos=1
-
   # Compile a shared lib with zlib dynamically linked.
-  package_option openssl configure --openssldir="$OPENSSLDIR" --libdir="lib" -Wl,-rpath="$OPENSSL_PREFIX_PATH/lib" zlib-dynamic no-ssl3 shared ${nokerberos:+no-ssl2 no-krb5}
+  package_option openssl configure --openssldir="$OPENSSLDIR" --libdir="lib" zlib-dynamic no-ssl3 shared
+
+  # Help OpenSSL find its own shared libraries on Linux.
+  if [ "$(uname -s)" = "Linux" ]; then
+    # shellcheck disable=SC2031
+    if [ "$CC" = "clang" ] || "${CC:-cc}" --version 2>&1 | grep -wq clang; then
+      package_option openssl configure -Wl,-rpath,"$OPENSSL_PREFIX_PATH/lib"
+    else
+      package_option openssl configure -Wl,-rpath="$OPENSSL_PREFIX_PATH/lib"
+    fi
+  fi
+
+  # Disable SSLv2 and Kerberos on older OpenSSL
+  [[ "$1" != openssl-1.0.* ]] || package_option openssl configure no-ssl2 no-krb5
 
   # Skip building OpenSSL docs, which is slow.
   local make_target="install_sw install_ssldirs"
