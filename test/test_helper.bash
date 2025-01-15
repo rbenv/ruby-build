@@ -66,8 +66,16 @@ unstub() {
 
   export "${prefix}_STUB_END"=1
 
+  local stub_was_invoked=
+  [ -e "${TMP}/${program}-stub-run" ] && stub_was_invoked=1
+
   local STATUS=0
   "$path" || STATUS="$?"
+
+  local debug_var="${prefix}_STUB_DEBUG"
+  if [ $STATUS -ne 0 ] && [ -z "${!debug_var}" ] && [ -n "$stub_was_invoked" ]; then
+    echo "unstub $program: re-run test with ${debug_var}=3 to log \`$program' invocations" >&2
+  fi
 
   rm -f "$path"
   rm -f "${TMP}/${program}-stub-plan" "${TMP}/${program}-stub-run"

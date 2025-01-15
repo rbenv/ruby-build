@@ -14,8 +14,8 @@ _STUB_RESULT="${PROGRAM}_STUB_RESULT"
 _STUB_END="${PROGRAM}_STUB_END"
 _STUB_DEBUG="${PROGRAM}_STUB_DEBUG"
 
-if [ -n "${!_STUB_DEBUG}" ]; then
-  echo "$program" "$@" >&${!_STUB_DEBUG}
+if [ -n "${!_STUB_DEBUG}" ] && [ -z "${!_STUB_END}" ]; then
+  echo stub: "$program" "$@" >&${!_STUB_DEBUG}
 fi
 
 [ -e "${!_STUB_PLAN}" ] || exit 1
@@ -25,9 +25,11 @@ fi
 # Initialize or load the stub run information.
 eval "${_STUB_INDEX}"=1
 eval "${_STUB_RESULT}"=0
+# shellcheck disable=SC1090
 [ ! -e "${!_STUB_RUN}" ] || source "${!_STUB_RUN}"
 
 # Expose this for stub scripts.
+# shellcheck disable=SC2317
 inspect_args() {
   local arg
   local sep=''
@@ -101,9 +103,11 @@ if [ -n "${!_STUB_END}" ]; then
   # Clean up the run file.
   rm -f "${!_STUB_RUN}"
 
+  stub_index_value="${!_STUB_INDEX}"
   # If the number of lines in the plan is larger than
   # the requested index, we failed.
-  if [ $index -ge "${!_STUB_INDEX}" ]; then
+  if [ "$index" -ge "$stub_index_value" ]; then
+    echo "$program: expected $index invocations, got $((stub_index_value-1))" >&2
     eval "${_STUB_RESULT}"=1
   fi
 
