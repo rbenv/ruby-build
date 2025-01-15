@@ -378,9 +378,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
-  stub cc \
-    '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"' \
-    '--version : echo gcc'
+  stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"'
   stub openssl "version -d : echo 'OPENSSLDIR: \"${TMP}/ssl\"'"
   stub_make_install "install_sw"
   stub_make_install
@@ -399,41 +397,12 @@ DEF
   unstub make
 
   assert_build_log <<OUT
-openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,--libdir=lib,zlib-dynamic,no-ssl3,shared,-Wl,-rpath=${INSTALL_ROOT}/openssl/lib]
+openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,--libdir=lib,zlib-dynamic,no-ssl3,shared,-Wl,-rpath,${INSTALL_ROOT}/openssl/lib]
 make -j 2
 make install_sw install_ssldirs
 ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$INSTALL_ROOT/openssl,--with-ext=openssl,psych,+] PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig
 PKG_CONFIG_PATH=${TMP}/install/openssl/lib/pkgconfig make -j 2
 make install
-OUT
-}
-
-@test "install OpenSSL with clang" {
-  cached_tarball "openssl-1.1.1w" config
-
-  mkdir -p "${TMP}/ssl/certs"
-  touch "${TMP}/ssl/cert.pem"
-
-  stub_repeated uname '-s : echo Linux'
-  stub cc '--version : echo "Hello clang 1.2.3"'
-  stub openssl "version -d : echo 'OPENSSLDIR: \"${TMP}/ssl\"'"
-  stub_make_install "install_sw"
-
-  mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
-  run_inline_definition <<DEF
-install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl
-DEF
-  assert_success
-
-  unstub uname
-  unstub cc
-  # unstub openssl
-  unstub make
-
-  assert_build_log <<OUT
-openssl-1.1.1w: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,--libdir=lib,zlib-dynamic,no-ssl3,shared,-Wl,-rpath,${INSTALL_ROOT}/openssl/lib]
-make -j 2
-make install_sw install_ssldirs
 OUT
 }
 

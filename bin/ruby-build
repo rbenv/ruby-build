@@ -1216,12 +1216,7 @@ build_package_openssl() {
 
   # Help OpenSSL find its own shared libraries on Linux.
   if [ "$(uname -s)" = "Linux" ]; then
-    # shellcheck disable=SC2031
-    if [ "$CC" = "clang" ] || "${CC:-cc}" --version 2>&1 | grep -wq clang; then
-      package_option openssl configure -Wl,-rpath,"$OPENSSL_PREFIX_PATH/lib"
-    else
-      package_option openssl configure -Wl,-rpath="$OPENSSL_PREFIX_PATH/lib"
-    fi
+    package_option openssl configure -Wl,-rpath,"$OPENSSL_PREFIX_PATH/lib"
   fi
 
   # Disable SSLv2 and Kerberos on older OpenSSL
