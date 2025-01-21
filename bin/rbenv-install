@@ -250,8 +250,10 @@ if [ "$STATUS" == "2" ]; then
       printf ":\n\n"
       echo "  brew upgrade ruby-build"
     elif [ -d "${here}/.git" ]; then
+      display_here="$here"
+      [[ -z "${HOME%/}" || $here != "${HOME}/"* ]] || display_here="~${here#"$HOME"}"
       printf ":\n\n"
-      echo "  git -C ${here/${HOME}\//~/} pull"
+      echo "  git -C $display_here pull"
     else
       printf ".\n"
     fi
