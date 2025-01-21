@@ -89,8 +89,8 @@ OUT
 
 @test "nonexistent version" {
   display_here="${BATS_TEST_DIRNAME}"/..
-  if [[ -n $HOME && "$display_here" == "${HOME%/}/"* ]]; then
-    display_here="~${display_here#"${HOME%/}"}"
+  if [[ -n $HOME && $display_here == "${HOME}/"* ]]; then
+    display_here="~${display_here#"${HOME}"}"
   fi
 
   stub_git_dir=
