@@ -8,7 +8,7 @@ set -e
 cd "$(dirname "$0")"
 
 if [ -z "${PREFIX}" ]; then
-  PREFIX="/usr/local"
+  PREFIX="/usr/local" 
 fi
 
 BIN_PATH="${PREFIX}/bin"
