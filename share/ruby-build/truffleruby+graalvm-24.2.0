@@ -1,0 +1,19 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby+graalvm-24.2.0" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.0/truffleruby-jvm-24.2.0-linux-amd64.tar.gz#03f811dbfc937f94637449e34885d4892115170779a4ab26c9bcdb2bcc8bf83a" truffleruby
+  ;;
+Linux-aarch64)
+  install_package "truffleruby+graalvm-24.2.0" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.0/truffleruby-jvm-24.2.0-linux-aarch64.tar.gz#88e968ba301c7102d9a9875b77cf78201923bb84aa46603154606a70ee59e9df" truffleruby
+  ;;
+Darwin-x86_64)
+  install_package "truffleruby+graalvm-24.2.0" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.0/truffleruby-jvm-24.2.0-macos-amd64.tar.gz#86af96e19d2500e96333e4ba0418abdbafa18694e1a31ab82c56bd8d6efed98e" truffleruby
+  ;;
+Darwin-arm64)
+  install_package "truffleruby+graalvm-24.2.0" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.0/truffleruby-jvm-24.2.0-macos-aarch64.tar.gz#8f72461572d2ba8da9b4e4bbb0ef8860190367d3cdb6d96a0ed5de9c4a3e0657" truffleruby
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
