@@ -935,7 +935,7 @@ build_package_artichoke() {
 remove_windows_files() {
   # shellcheck disable=SC2164
   cd "$PREFIX_PATH"
-  rm -f bin/*.exe bin/*.dll bin/*.bat bin/jruby.sh
+  rm -f bin/*.exe bin/*.dll bin/*.bat
 }
 
 clean_prefix_path_truffleruby() {
