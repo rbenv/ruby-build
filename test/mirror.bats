@@ -182,3 +182,27 @@ DEF
   unstub curl
   unstub shasum
 }
+
+
+@test "package is fetched from the URL returned by a commond" {
+  export RUBY_BUILD_MIRROR_URL=
+  export RUBY_BUILD_MIRROR_CMD=get_mirror_url
+
+  local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
+
+  stub get_mirror_url 'echo "${1/cache.ruby-lang.org/mirror.example.com}#$2"'
+  stub shasum true "echo $checksum"
+  stub curl "-*I* https://mirror.example.com/packages/package-1.0.0.tar.gz#$checksum : true" \
+    "-q -o * -*S* https://mirror.example.com/packages/package-1.0.0.tar.gz#$checksum : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$3"
+
+  run_inline_definition <<DEF
+install_package "package-1.0.0" "https://cache.ruby-lang.org/packages/package-1.0.0.tar.gz#$checksum" copy
+DEF
+
+  assert_success
+  assert [ -x "${INSTALL_ROOT}/bin/package" ]
+
+  unstub curl
+  unstub shasum
+  unstub get_mirror_url
+}
