@@ -1,6 +1,7 @@
 export TMP="$BATS_TMPDIR"/ruby-build-test
 export RUBY_BUILD_CURL_OPTS=
 export RUBY_BUILD_HTTP_CLIENT="curl"
+unset JAVA_HOME
 
 if [ "$FIXTURE_ROOT" != "$BATS_TEST_DIRNAME/fixtures" ]; then
   export FIXTURE_ROOT="$BATS_TEST_DIRNAME/fixtures"
