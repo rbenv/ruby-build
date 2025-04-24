@@ -1,6 +1,6 @@
 case $(uname -s) in
 Linux)
-  install_package "jruby-head" "https://github.com/ruby/jruby-dev-builder/releases/latest/download/jruby-head-ubuntu-20.04.tar.gz" jruby
+  install_package "jruby-head" "https://github.com/ruby/jruby-dev-builder/releases/latest/download/jruby-head-ubuntu-24.04.tar.gz" jruby
   ;;
 Darwin)
   install_package "jruby-head" "https://github.com/ruby/jruby-dev-builder/releases/latest/download/jruby-head-macos-latest.tar.gz" jruby
