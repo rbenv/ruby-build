@@ -18,7 +18,12 @@ archive="$release_directory/$basename"
 [ -e "$archive" ] || wget -O "$archive" "$url"
 sha256=$(sha256sum "$archive" | cut -d ' ' -f 1)
 
+min_java_version="8"
+if [ "${version%%.*}" -ge 10 ]; then
+  min_java_version="21"
+fi
+
 cat > "$file" <<EOS
-require_java 8
+require_java ${min_java_version}
 install_package "jruby-${version}" "${url}#${sha256}" jruby
 EOS
