@@ -65,7 +65,30 @@ Depending on the context, ruby-build does a little bit more than the above: for 
 
 #### Custom Build Definitions
 
-To install a version of Ruby that is not recognized by ruby-build, you can specify the path to a custom build definition file in place of a Ruby version number.
+To install a version of Ruby that is not available in ruby-build, you can specify the path to a custom build definition file in place of a Ruby version number.
+
+```sh
+# As a standalone program
+$ ruby-build -d /path/to/3.4-custom /opt/rubies  # installs to /opt/rubies/3.4-custom
+
+# As an rbenv plugin
+$ rbenv install /path/to/3.4-custom              # installs to $(rbenv root)/versions/3.4-custom
+```
+
+You can also provide a _directory_ of custom build definition files.
+The path(s) will be searched along with ruby-build's bundled `share/ruby-build/` directory.
+(Perhaps a collection of 3rd-party build definitions published as a git repo,
+or an organization's custom build definitions distributed in-house.)
+
+```sh
+# As a standalone program
+$ RUBY_BUILD_DEFINITIONS=/path/to/custom/defs ruby-build --definitions              # lists all available versions of Ruby, including custom defs
+$ RUBY_BUILD_DEFINITIONS=/path/to/custom/defs ruby-build -d 3.5-custom /opt/rubies  # installs to /opt/rubies/3.5-custom
+
+# As an rbenv plugin
+$ RUBY_BUILD_DEFINITIONS=/path/to/custom/defs rbenv install --list                  # lists all available versions of Ruby, including custom defs
+$ RUBY_BUILD_DEFINITIONS=/path/to/custom/defs rbenv install 3.5-custom              # installs to $(rbenv root)/versions/3.5-custom
+```
 
 Check out [default build definitions][definitions] as examples on how to write definition files.
 
