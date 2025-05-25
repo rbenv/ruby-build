@@ -107,6 +107,7 @@ The build process may be configured through the following environment variables:
 | `RUBY_BUILD_WGET_OPTS`          | Additional options to pass to `wget` for downloading.                                            |
 | `RUBY_BUILD_MIRROR_URL`         | Custom mirror URL root.                                                                          |
 | `RUBY_BUILD_MIRROR_PACKAGE_URL` | Custom complete mirror URL (e.g. http://mirror.example.com/package-1.0.0.tar.gz).                |
+| `RUBY_BUILD_MIRROR_CMD`         | Custom mirror command (see [below](#more-flexible-mirror-url) for the usage).                    |
 | `RUBY_BUILD_SKIP_MIRROR`        | Bypass the download mirror and fetch all package files from their original URLs.                 |
 | `RUBY_BUILD_TARBALL_OVERRIDE`   | Override the URL to fetch the ruby tarball from, optionally followed by `#checksum`.             |
 | `RUBY_BUILD_DEFINITIONS`        | Colon-separated list of paths to search for build definition files.                              |
@@ -172,6 +173,25 @@ complete URL by setting `RUBY_BUILD_MIRROR_PACKAGE_URL`. It behaves the same as
 
 The default ruby-build download mirror is sponsored by
 [Basecamp](https://basecamp.com/).
+
+#### More flexible mirror URL
+
+For more flexible mirror URL, you can provide a custom command to output the
+desired mirror URL, as shown below:
+
+```sh
+# There are two arguments:
+#   1st arg: the original URL without checksum
+#   2nd arg: the checksum
+$ cat <<'EOF' >./get_mirror_url && chmod +x ./get_mirror_url
+#!/bin/sh
+echo "$1" | sed "s/cache.ruby-lang.org/mirror.example.com/"
+EOF
+
+$ export RUBY_BUILD_MIRROR_CMD="$(pwd)/get_mirror_url"
+```
+
+After executing the above script in your shell, install a version as usual.
 
 #### Keeping the build directory after installation
 
