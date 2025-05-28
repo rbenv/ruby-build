@@ -4,7 +4,7 @@ Linux-x86_64)
   install_package "truffleruby-head" "https://github.com/ruby/truffleruby-dev-builder/releases/latest/download/truffleruby-head-ubuntu-24.04.tar.gz" truffleruby
   ;;
 Linux-aarch64)
-  install_package "truffleruby-head" "https://github.com/graalvm/graalvm-ce-dev-builds/releases/latest/download/truffleruby-community-dev-linux-aarch64.tar.gz" truffleruby
+  install_package "truffleruby-head" "https://github.com/ruby/truffleruby-dev-builder/releases/latest/download/truffleruby-head-ubuntu-24.04-arm64.tar.gz" truffleruby
   ;;
 Darwin-x86_64)
   install_package "truffleruby-head" "https://github.com/ruby/truffleruby-dev-builder/releases/latest/download/truffleruby-head-macos-latest.tar.gz" truffleruby
