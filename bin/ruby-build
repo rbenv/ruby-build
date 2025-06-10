@@ -16,7 +16,7 @@
 #   -6, --ipv6      Resolve names to IPv6 addresses only
 #
 
-RUBY_BUILD_VERSION="20250409"
+RUBY_BUILD_VERSION="20250529.1"
 
 OLDIFS="$IFS"
 
@@ -970,7 +970,11 @@ after_install_package() {
 require_java() {
   local required="$1"
   local java_version version_string
-  java_version="$(java -version 2>&1 || true)"
+  if [ -n "$JAVA_HOME" ]; then
+    java_version="$("$JAVA_HOME/bin/java" -version 2>&1 || true)"
+  else
+    java_version="$(java -version 2>&1 || true)"
+  fi
   version_string="$(grep 'java version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' | head -1 || true)"
   [ -n "$version_string" ] || version_string="$(grep 'openjdk version' <<<"$java_version" | head -1 | grep -o '[0-9.]\+' | head -1 || true)"
   IFS="."
