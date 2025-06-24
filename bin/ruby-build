@@ -728,7 +728,7 @@ build_package_standard() {
       # See: https://gcc.gnu.org/gcc-15/changes.html#c
       # Ruby older than 3.2 can't compile on GCC v15 in the default mode of gnu23.
       # See: https://github.com/rbenv/ruby-build/discussions/2529
-      if is_fedora && is_fedora 42; then
+      if is_fedora 42; then
         # Fedora 42+ uses GCC v15 with mode gnu23 as default, so we configure for mode gnu17
         export CFLAGS="$CFLAGS -std=gnu17"
       fi
