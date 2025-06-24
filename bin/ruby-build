@@ -207,7 +207,7 @@ is_freebsd() {
 }
 
 is_fedora() {
-  if [ -r /etc/os-release ]; then
+  [ -r /etc/os-release ] || return 1
       # shellcheck disable=SC1091
       source /etc/os-release
       # This will treat Aurora, Bazzite, BlueFin, uCore, and other Fedora variants as `fedora`.
