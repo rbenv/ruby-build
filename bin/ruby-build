@@ -728,10 +728,12 @@ build_package_standard() {
     if [ -z "$CC" ] && is_mac 1010; then
       export CC=clang
     elif [ "$ruby_semver" -lt 300200 ]; then
-      # Ruby older than 3.2 can't compile on GCC v15 unless options are provided to
-      #   use older GNU standard that is effectively "like GCC v14" => -std=gnu17
+      # GCC v15 changed the default mode from gnu17 to gnu23.
+      # See: https://gcc.gnu.org/gcc-15/changes.html#c
+      # Ruby older than 3.2 can't compile on GCC v15 in the default mode of gnu23.
+      # See: https://github.com/rbenv/ruby-build/discussions/2529
       if is_fedora && is_fedora 42; then
-        # Fedora 42+ has GCC v15 as default
+        # Fedora 42+ uses GCC v15 with mode gnu23 as default, so we configure for mode gnu17
         export CFLAGS="$CFLAGS -std=gnu17"
       fi
     fi
