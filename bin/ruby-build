@@ -206,6 +206,21 @@ is_freebsd() {
   [ "$(uname -s)" = "FreeBSD" ]
 }
 
+is_fedora() {
+  if [ -r /etc/os-release ]; then
+      # shellcheck disable=SC1091
+      source /etc/os-release
+      # This will treat Aurora, Bazzite, BlueFin, uCore, and other Fedora variants as `fedora`.
+      # shellcheck disable=SC2153
+      local os_id
+      od_id="${ID_LIKE:-$ID}"
+      local os_version
+      os_version=$VERSION_ID
+      [ "${od_id}" = "fedora" ] || return 1
+      [ $# -eq 0 ] || [ "${os_version}" -ge "$1" ]
+  fi
+}
+
 freebsd_package_prefix() {
   local package="$1"
   pkg info --prefix "$package" 2>/dev/null | cut -wf2
@@ -712,6 +727,13 @@ build_package_standard() {
     fi
     if [ -z "$CC" ] && is_mac 1010; then
       export CC=clang
+    elif [ "$ruby_semver" -lt 300200 ]; then
+      # Ruby older than 3.2 can't compile on GCC v15 unless options are provided to
+      #   use older GNU standard that is effectively "like GCC v14" => -std=gnu17
+      if is_fedora && is_fedora 42; then
+        # Fedora 42+ has GCC v15 as default
+        export CFLAGS="$CFLAGS -std=gnu17"
+      fi
     fi
     # ./configure --prefix=/path/to/ruby
     # shellcheck disable=SC2086,SC2153
