@@ -208,12 +208,11 @@ is_freebsd() {
 
 is_fedora() {
   [ -r /etc/os-release ] || return 1
-      # shellcheck disable=SC1091
-      source /etc/os-release
-      # This will treat Aurora, Bazzite, BlueFin, uCore, and other Fedora variants as `fedora`.
-      if [[ "${ID_LIKE:-$ID}" != "fedora" || ( $# -gt 0 && "$VERSION_ID" -lt "$1") ]]; then
-        return 1
-      fi
+  # shellcheck disable=SC1091
+  source /etc/os-release
+  # Treat Aurora, Bazzite, BlueFin, uCore, and other Fedora variants as "fedora".
+  if [[ "${ID_LIKE:-$ID}" != "fedora" || ( $# -gt 0 && "$VERSION_ID" -lt "$1") ]]; then
+    return 1
   fi
 }
 
@@ -723,15 +722,15 @@ build_package_standard() {
     fi
     if [ -z "$CC" ] && is_mac 1010; then
       export CC=clang
-    elif [ "$ruby_semver" -lt 300200 ]; then
-      # GCC v15 changed the default mode from gnu17 to gnu23.
-      # See: https://gcc.gnu.org/gcc-15/changes.html#c
-      # Ruby older than 3.2 can't compile on GCC v15 in the default mode of gnu23.
-      # See: https://github.com/rbenv/ruby-build/discussions/2529
-      if is_fedora 42; then
-        # Fedora 42+ uses GCC v15 with mode gnu23 as default, so we configure for mode gnu17
-        export CFLAGS="-std=gnu17 $CFLAGS "
-      fi
+    elif [ "$ruby_semver" -lt 300200 ] && is_fedora 42; then
+      # Fedora 42+ has updated to GCC v15. GCC v15 changed the default
+      # mode from gnu17 to gnu23: https://gcc.gnu.org/gcc-15/changes.html#c
+      #
+      # Ruby < 3.2 can't compile on GCC v15 in the default mode of gnu23.
+      #
+      # TODO: Consider changing this to check for GCC v15 specifically
+      # rather than inspecting the OS itself.
+      export CFLAGS="-std=gnu17 $CFLAGS"
     fi
     # ./configure --prefix=/path/to/ruby
     # shellcheck disable=SC2086,SC2153
