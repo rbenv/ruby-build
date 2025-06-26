@@ -1106,6 +1106,10 @@ has_broken_mac_openssl() {
   [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]]
 }
 
+pkgconfig_openssl_version() {
+  pkg-config --modversion openssl 2>/dev/null || true
+}
+
 # Detect the OpenSSL version that a compiler can reasonably link to.
 system_openssl_version() {
   cc -xc -E - <<EOF 2>/dev/null | sed -n 's/"\{0,1\}OpenSSL \([0-9][0-9.]*\).*/\1/p'
@@ -1148,7 +1152,8 @@ needs_openssl() {
   [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-openssl-dir=* ]] || return 1
 
   local system_version
-  if ! has_broken_mac_openssl; then
+  system_version="$(pkgconfig_openssl_version)"
+  if [ -z "$system_version" ] && ! has_broken_mac_openssl; then
     system_version="$(system_openssl_version)"
   fi
 
