@@ -1107,6 +1107,11 @@ has_broken_mac_openssl() {
 }
 
 pkgconfig_openssl_version() {
+  local libdir
+  libdir="$(pkg-config --variable=prefix openssl 2>/dev/null || true)"
+  # We don't want to link to Homebrew Cellar because links break when packages are upgraded.
+  [[ "$libdir" != */Cellar/* ]] || return 0
+
   pkg-config --modversion openssl 2>/dev/null || true
 }
 

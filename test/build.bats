@@ -536,6 +536,9 @@ OUT
 @test "link to Homebrew OpenSSL" {
   cached_tarball "ruby-3.2.0" configure
 
+  openssl_libdir="$TMP/homebrew/Cellar/openssl@3/3.0.0"
+  mkdir -p "$openssl_libdir"
+
   local homebrew_prefix="${TMP}/homebrew"
   executable "${homebrew_prefix}/opt/openssl@3/bin/openssl" <<EXE
 #!/$BASH
@@ -563,6 +566,7 @@ EXE
   stub_repeated brew \
     'list : printf "git\nopenssl@3\nopenssl-utils\nopenssl@1.1\nopenssl@3.0\nwget\nopenssl@3.1"' \
     "--prefix : echo '$homebrew_prefix'/opt/\$2 "
+  stub_repeated pkg-config '--modversion openssl : echo 3.0.0' "--variable=prefix openssl : echo '$openssl_libdir'"
   stub_make_install
 
   run_inline_definition <<DEF
