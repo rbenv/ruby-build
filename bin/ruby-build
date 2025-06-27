@@ -1034,6 +1034,8 @@ needs_yaml() {
 use_pkgconfig_yaml() {
   local libdir
   libdir="$(pkg-config --variable=prefix yaml-0.1 2>/dev/null || true)"
+  # We don't want to link to Homebrew Cellar because links break when packages are upgraded.
+  [[ "$libdir" != */Cellar/* ]] || return 1
   if [ -d "$libdir" ]; then
     package_option ruby configure --with-libyaml-dir="$libdir"
   else
@@ -1065,6 +1067,8 @@ use_freebsd_yaml() {
 use_pkgconfig_gmp() {
   local libdir
   libdir="$(pkg-config --variable=prefix gmp 2>/dev/null || true)"
+  # We don't want to link to Homebrew Cellar because links break when packages are upgraded.
+  [[ "$libdir" != */Cellar/* ]] || return 1
   if [ -d "$libdir" ]; then
     package_option ruby configure --with-gmp-dir="$libdir"
   else
@@ -1100,6 +1104,8 @@ use_freebsd_readline() {
 use_pkgconfig_readline() {
   local libdir
   libdir="$(pkg-config --variable=prefix readline 2>/dev/null || true)"
+  # We don't want to link to Homebrew Cellar because links break when packages are upgraded.
+  [[ "$libdir" != */Cellar/* ]] || return 1
   if [ -d "$libdir" ]; then
     package_option ruby configure --with-readline-dir="$libdir"
   else
@@ -1121,6 +1127,8 @@ use_homebrew_readline() {
 use_pkgconfig_libffi() {
   local libdir
   libdir="$(pkg-config --variable=prefix libffi 2>/dev/null || true)"
+  # We don't want to link to Homebrew Cellar because links break when packages are upgraded.
+  [[ "$libdir" != */Cellar/* ]] || return 1
   if [ -d "$libdir" ]; then
     package_option ruby configure --with-libffi-dir="$libdir"
   else
@@ -1160,7 +1168,11 @@ pkgconfig_openssl_version() {
 }
 
 pkgconfig_openssl_prefix() {
-  pkg-config --variable=prefix openssl 2>/dev/null || true
+  local libdir
+  libdir="$(pkg-config --variable=prefix openssl 2>/dev/null || true)"
+  # We don't want to link to Homebrew Cellar because links break when packages are upgraded.
+  [[ "$libdir" != */Cellar/* ]] || return 0
+  printf "%s" "$libdir"
 }
 
 # List all Homebrew-installed OpenSSL versions and their filesystem prefixes.
