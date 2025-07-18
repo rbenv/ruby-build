@@ -99,6 +99,7 @@ assert_build_log() {
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
   stub_make_install
 
@@ -107,6 +108,7 @@ assert_build_log() {
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -125,6 +127,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
@@ -138,6 +141,7 @@ PATCH
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
   unstub patch
 
@@ -158,6 +162,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
@@ -171,6 +176,7 @@ PATCH
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
   unstub patch
 
@@ -191,6 +197,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
   stub_make_install
   stub patch ' : echo patch "$@" | sed -E "s/\.[[:alnum:]]+$/.XXX/" >> build.log'
@@ -205,6 +212,7 @@ PATCH
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
   unstub patch
 
@@ -227,6 +235,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew "--prefix libyaml : echo '$brew_libdir'"
+  stub_repeated pkg-config false
   stub_make_install
 
   run_inline_definition <<DEF
@@ -236,10 +245,37 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
 ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-libyaml-dir=$brew_libdir,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
+@test "yaml is linked using pkg-config" {
+  cached_tarball "ruby-3.2.0" configure
+
+  yaml_libdir="$TMP/pkgconfig-yaml"
+  mkdir -p "$yaml_libdir"
+
+  stub_repeated brew '--prefix yaml : echo /var/empty'
+  stub_repeated pkg-config "--variable=prefix yaml-0.1 : echo '$yaml_libdir'"
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+  assert_success
+
+  unstub brew
+  unstub pkg-config
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-libyaml-dir=$yaml_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -252,6 +288,7 @@ OUT
   mkdir -p "$gmp_libdir"
 
   stub_repeated brew "--prefix gmp : echo '$gmp_libdir'"
+  stub_repeated pkg-config false
   stub_make_install
 
   run_inline_definition <<DEF
@@ -260,6 +297,33 @@ DEF
   assert_success
 
   unstub brew
+  unstub pkg-config
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-gmp-dir=$gmp_libdir,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
+@test "gmp is linked using pkg-config" {
+  cached_tarball "ruby-3.2.0" configure
+
+  gmp_libdir="$TMP/pkgconfig-gmp"
+  mkdir -p "$gmp_libdir"
+
+  stub_repeated brew '--prefix gmp : echo /var/empty'
+  stub_repeated pkg-config "--variable=prefix gmp : echo '$gmp_libdir'"
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+  assert_success
+
+  unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -276,6 +340,7 @@ OUT
   mkdir -p "$readline_libdir"
 
   stub_repeated brew "--prefix readline : echo '$readline_libdir'"
+  stub_repeated pkg-config false
   stub_make_install
 
   run_inline_definition <<DEF
@@ -284,6 +349,33 @@ DEF
   assert_success
 
   unstub brew
+  unstub pkg-config
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-readline-dir=$readline_libdir,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
+@test "readline is linked using pkg-config" {
+  cached_tarball "ruby-3.2.0" configure
+
+  readline_libdir="$TMP/pkgconfig-readline"
+  mkdir -p "$readline_libdir"
+
+  stub_repeated brew '--prefix readline : echo /var/empty'
+  stub_repeated pkg-config "--variable=prefix readline : echo '$readline_libdir'"
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+  assert_success
+
+  unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -300,6 +392,7 @@ OUT
   mkdir -p "$readline_libdir"
 
   stub_repeated brew "--prefix readline : echo '$readline_libdir'"
+  stub_repeated pkg-config false
   stub_make_install
 
   run_inline_definition <<DEF
@@ -308,6 +401,7 @@ DEF
   assert_success
 
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -324,6 +418,7 @@ OUT
   mkdir -p "$readline_libdir"
 
   stub_repeated brew "--prefix readline : echo '$readline_libdir'" ' : false'
+  stub_repeated pkg-config false
   stub_make_install
 
   export RUBY_CONFIGURE_OPTS='--with-readline-dir=/custom'
@@ -333,6 +428,7 @@ DEF
   assert_success
 
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -347,6 +443,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
+  stub_repeated pkg-config false
   # shellcheck disable=SC2016
   stub cc '-xc -E - : [[ "$(cat)" == *OPENSSL_VERSION_TEXT* ]] && printf "# <unrelated> 4.0.2\n\"OpenSSL 1.0.3a  1 Aug 202\"\n0 errors.\n"'
   stub_make_install
@@ -360,10 +457,40 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
 ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
+@test "use pkg-config OpenSSL" {
+  cached_tarball "ruby-3.2.0" configure
+
+  openssl_libdir="$TMP/homebrew-readline"
+  mkdir -p "$openssl_libdir"
+
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
+  stub_repeated pkg-config '--modversion openssl : echo 3.0.0' "--variable=prefix openssl : echo '$openssl_libdir'"
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub pkg-config
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$openssl_libdir,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
@@ -378,6 +505,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"' # system_openssl_version
   stub openssl "version -d : echo 'OPENSSLDIR: \"${TMP}/ssl\"'"
   stub_make_install "install_sw"
@@ -392,6 +520,7 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub cc
   # Depending on certain system certificate files being present under /etc/,
   # `openssl version -d` might not have been called, so avoid unstubbing it
@@ -418,6 +547,7 @@ OUT
     'find-certificate -a -p /Library/Keychains/System.keychain : echo "System.keychain"' \
     'find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain : echo "SystemRootCertificates.keychain"'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"' # system_openssl_version
   stub openssl
   stub_make_install "install_sw"
@@ -433,6 +563,7 @@ DEF
   unstub uname
   unstub security
   unstub brew
+  unstub pkg-config
   # Depending on the state of system `/usr/bin/openssl` in the test runner,
   # `cc` might not have been called, so avoid unstubbing it since that would
   # verify the number of invocations.
@@ -462,6 +593,7 @@ PEM
 
   stub_repeated uname '-s : echo Darwin'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
 
   RUBY_CONFIGURE_OPTS="--with-openssl-dir=/path/to/openssl" run_inline_definition <<DEF
@@ -472,6 +604,7 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -486,6 +619,7 @@ OUT
 
   stub_repeated uname '-s : echo Darwin'
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
 
   PKG_CONFIG_PATH=/orig/searchpath RUBY_CONFIGURE_OPTS="--with-openssl-dir=/path/to/openssl" run_inline_definition <<DEF
@@ -495,6 +629,7 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -534,6 +669,7 @@ EXE
   stub_repeated brew \
     'list : printf "git\nopenssl@3\nopenssl-utils\nopenssl@1.1\nopenssl@3.0\nwget\nopenssl@3.1"' \
     "--prefix : echo '$homebrew_prefix'/opt/\$2 "
+  stub_repeated pkg-config false
   stub_make_install
 
   run_inline_definition <<DEF
@@ -545,6 +681,7 @@ DEF
   unstub uname
   unstub cc
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -558,6 +695,7 @@ OUT
   cached_tarball "ruby-3.2.0" configure
 
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
 
   cat > "$TMP/build-definition" <<DEF
@@ -568,6 +706,7 @@ DEF
   assert_success
 
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -684,6 +823,7 @@ OUT
   cached_tarball "ruby-3.2.0" configure
 
   stub_repeated brew false
+  stub_repeated pkg-config false
   stub_make_install
 
   mkdir -p "$TMP"/definitions
@@ -695,6 +835,7 @@ DEF
   assert_success
 
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -796,6 +937,7 @@ OUT
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
+  stub_repeated pkg-config false
   # shellcheck disable=SC2016
   stub autoreconf ' : echo "autoreconf $(inspect_args "$@")" >> build.log'
   stub_make_install "update-gems"
@@ -807,6 +949,7 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
   unstub autoreconf
 
