@@ -369,6 +369,35 @@ make install
 OUT
 }
 
+@test "use pkg-config OpenSSL" {
+  cached_tarball "ruby-3.2.0" configure
+
+  openssl_libdir="$TMP/opt/local/libexec/openssl3"
+  mkdir -p "$openssl_libdir"
+
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
+  stub_repeated pkg-config '--modversion openssl : echo 3.0.0' "--variable=prefix openssl : echo '$openssl_libdir'"
+  stub_make_install
+
+  mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
+  run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
 @test "install bundled OpenSSL on Linux" {
   cached_tarball "openssl-1.1.1w" config
   cached_tarball "ruby-3.2.0" configure
@@ -507,6 +536,9 @@ OUT
 @test "link to Homebrew OpenSSL" {
   cached_tarball "ruby-3.2.0" configure
 
+  openssl_libdir="$TMP/homebrew/Cellar/openssl@3/3.0.0"
+  mkdir -p "$openssl_libdir"
+
   local homebrew_prefix="${TMP}/homebrew"
   executable "${homebrew_prefix}/opt/openssl@3/bin/openssl" <<EXE
 #!/$BASH
@@ -534,6 +566,7 @@ EXE
   stub_repeated brew \
     'list : printf "git\nopenssl@3\nopenssl-utils\nopenssl@1.1\nopenssl@3.0\nwget\nopenssl@3.1"' \
     "--prefix : echo '$homebrew_prefix'/opt/\$2 "
+  stub_repeated pkg-config '--modversion openssl : echo 3.0.0' "--variable=prefix openssl : echo '$openssl_libdir'"
   stub_make_install
 
   run_inline_definition <<DEF
