@@ -1106,13 +1106,18 @@ has_broken_mac_openssl() {
   [[ $openssl_version = "OpenSSL 0.9.8"?* || $openssl_version = "LibreSSL"* ]]
 }
 
-pkgconfig_openssl_version() {
-  local libdir
-  libdir="$(pkg-config --variable=prefix openssl 2>/dev/null || true)"
-  # We don't want to link to Homebrew Cellar because links break when packages are upgraded.
-  [[ "$libdir" != */Cellar/* ]] || return 0
-
-  pkg-config --modversion openssl 2>/dev/null || true
+# Print the prefix of a library found by pkg-config, but only if it
+# doesn't come from Homebrew's cellar.
+pkgconfig_prefix() {
+  local prefix brew_prefix
+  prefix="$(pkg-config --variable=prefix "$1" 2>/dev/null || true)"
+  [ -n "$prefix" ] || return 1
+  brew_prefix="$(brew --prefix 2>/dev/null || true)"
+  if [[ -n $prefix_prefix && ( $prefix == "$brew_prefix"/Cellar/* || \
+       $prefix == "$(brew --repository 2>/dev/null || true)"/Cellar/* ) ]]; then
+    return 1
+  fi
+  printf '%s\n' "$prefix"
 }
 
 # Detect the OpenSSL version that a compiler can reasonably link to.
@@ -1157,7 +1162,9 @@ needs_openssl() {
   [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-openssl-dir=* ]] || return 1
 
   local system_version
-  system_version="$(pkgconfig_openssl_version)"
+  if pkgconfig_prefix "openssl" >/dev/null; then
+    system_version="$(pkg-config --modversion openssl 2>/dev/null || true)"
+  fi
   if [ -z "$system_version" ] && ! has_broken_mac_openssl; then
     system_version="$(system_openssl_version)"
   fi

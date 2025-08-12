@@ -349,6 +349,7 @@ OUT
   stub_repeated brew false
   # shellcheck disable=SC2016
   stub cc '-xc -E - : [[ "$(cat)" == *OPENSSL_VERSION_TEXT* ]] && printf "# <unrelated> 4.0.2\n\"OpenSSL 1.0.3a  1 Aug 202\"\n0 errors.\n"'
+  stub_repeated pkg-config false
   stub_make_install
 
   mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
@@ -360,6 +361,7 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -373,14 +375,14 @@ OUT
   cached_tarball "ruby-3.2.0" configure
 
   openssl_libdir="$TMP/opt/local/libexec/openssl3"
-  mkdir -p "$openssl_libdir"
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
-  stub_repeated pkg-config '--modversion openssl : echo 3.0.0' "--variable=prefix openssl : echo '$openssl_libdir'"
+  stub pkg-config \
+    "--variable=prefix openssl : echo '$openssl_libdir'" \
+    "--modversion openssl : echo 3.0.0"
   stub_make_install
 
-  mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
   run_inline_definition <<DEF
 install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl_102_300
 install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
@@ -389,6 +391,7 @@ DEF
 
   unstub uname
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
@@ -409,6 +412,7 @@ OUT
   stub_repeated brew false
   stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"' # system_openssl_version
   stub openssl "version -d : echo 'OPENSSLDIR: \"${TMP}/ssl\"'"
+  stub_repeated pkg-config false
   stub_make_install "install_sw"
   stub_make_install
 
@@ -422,6 +426,7 @@ DEF
   unstub uname
   unstub brew
   unstub cc
+  unstub pkg-config
   # Depending on certain system certificate files being present under /etc/,
   # `openssl version -d` might not have been called, so avoid unstubbing it
   # since that would verify the number of invocations.
@@ -449,6 +454,7 @@ OUT
   stub_repeated brew false
   stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"' # system_openssl_version
   stub openssl
+  stub_repeated pkg-config false
   stub_make_install "install_sw"
   stub_make_install
 
@@ -462,6 +468,7 @@ DEF
   unstub uname
   unstub security
   unstub brew
+  unstub pkg-config
   # Depending on the state of system `/usr/bin/openssl` in the test runner,
   # `cc` might not have been called, so avoid unstubbing it since that would
   # verify the number of invocations.
@@ -536,9 +543,6 @@ OUT
 @test "link to Homebrew OpenSSL" {
   cached_tarball "ruby-3.2.0" configure
 
-  openssl_libdir="$TMP/homebrew/Cellar/openssl@3/3.0.0"
-  mkdir -p "$openssl_libdir"
-
   local homebrew_prefix="${TMP}/homebrew"
   executable "${homebrew_prefix}/opt/openssl@3/bin/openssl" <<EXE
 #!/$BASH
@@ -565,8 +569,9 @@ EXE
   stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"'
   stub_repeated brew \
     'list : printf "git\nopenssl@3\nopenssl-utils\nopenssl@1.1\nopenssl@3.0\nwget\nopenssl@3.1"' \
-    "--prefix : echo '$homebrew_prefix'/opt/\$2 "
-  stub_repeated pkg-config '--modversion openssl : echo 3.0.0' "--variable=prefix openssl : echo '$openssl_libdir'"
+    "--prefix : if [ \$# -ge 2 ]; then echo '$homebrew_prefix'/opt/\$2; else echo '$homebrew_prefix'; fi " \
+    "--repository : echo '$homebrew_prefix'"
+  stub_repeated pkg-config false
   stub_make_install
 
   run_inline_definition <<DEF
@@ -578,6 +583,7 @@ DEF
   unstub uname
   unstub cc
   unstub brew
+  unstub pkg-config
   unstub make
 
   assert_build_log <<OUT
