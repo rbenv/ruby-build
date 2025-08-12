@@ -16,7 +16,7 @@
 #   -6, --ipv6      Resolve names to IPv6 addresses only
 #
 
-RUBY_BUILD_VERSION="20250610"
+RUBY_BUILD_VERSION="20250811"
 
 OLDIFS="$IFS"
 
@@ -211,7 +211,7 @@ is_fedora() {
   # shellcheck disable=SC1091
   source /etc/os-release
   # Treat Aurora, Bazzite, BlueFin, uCore, and other Fedora variants as "fedora".
-  if [[ "${ID_LIKE:-$ID}" != "fedora" || ( $# -gt 0 && "$VERSION_ID" -lt "$1") ]]; then
+  if [[ "${ID_LIKE:-$ID}" != "fedora" || ( $# -gt 0 && "${VERSION_ID%%.*}" -lt "$1") ]]; then
     return 1
   fi
 }
