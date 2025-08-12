@@ -889,7 +889,12 @@ install_jruby_launcher() {
   # workaround for https://github.com/jruby/jruby/issues/7799
   [[ $1 != "jruby-9.2."* ]] ||
     capture_command ./ruby gem update -q --silent --system 3.3.26 --no-document --no-post-install-message
-  capture_command ./ruby gem install jruby-launcher --no-document
+  if [[ $1 == "jruby-9.3."* ]]; then
+    # workaround for https://github.com/rbenv/ruby-build/issues/2550
+    capture_command ./ruby gem install jruby-launcher --version '<2' --no-document
+  else
+    capture_command ./ruby gem install jruby-launcher --no-document
+  fi
 }
 
 fix_jruby_shebangs() {
