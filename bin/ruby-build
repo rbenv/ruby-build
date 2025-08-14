@@ -1118,7 +1118,7 @@ pkgconfig_prefix() {
   prefix="$(pkg-config --variable=prefix "$1" 2>/dev/null || true)"
   [ -n "$prefix" ] || return 1
   brew_prefix="$(brew --prefix 2>/dev/null || true)"
-  if [[ -n $prefix_prefix && ( $prefix == "$brew_prefix"/Cellar/* || \
+  if [[ -n $brew_prefix && ( $prefix == "$brew_prefix"/Cellar/* || \
        $prefix == "$(brew --repository 2>/dev/null || true)"/Cellar/* ) ]]; then
     return 1
   fi
