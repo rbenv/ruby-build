@@ -673,7 +673,7 @@ build_package_standard() {
   if [ "$package_var_name" = "RUBY" ]; then
     # shellcheck disable=SC2155
     local ruby_semver="$(normalize_semver "${package_name#ruby-}")"
-    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-readline-dir=* && "$ruby_semver" -lt 300300 ]]; then
+    if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-readline-dir=* && "$ruby_semver" -lt 30300 ]]; then
       # Ruby 3.3+ does not need external readline: https://github.com/rbenv/ruby-build/issues/2330
       use_homebrew_readline || use_freebsd_readline || true
     fi
@@ -691,7 +691,7 @@ build_package_standard() {
         # use openssl installed from Ports Collection
         package_option ruby configure --with-openssl-dir="/usr/local"
       fi
-    elif [ "$ruby_semver" -lt 200707 ]; then
+    elif [ "$ruby_semver" -lt 20707 ]; then
       local opt
       for opt in $RUBY_CONFIGURE_OPTS "${RUBY_CONFIGURE_OPTS_ARRAY[@]}"; do
         if [[ $opt == --with-openssl-dir=* ]]; then
@@ -709,7 +709,7 @@ build_package_standard() {
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-ext* &&
           "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--without-ext* &&
-          "$ruby_semver" -ge 200500 ]]; then
+          "$ruby_semver" -ge 20500 ]]; then
       # For Ruby 2.5+, fail the `make` step if any of these extensions were not compiled.
       # Otherwise, the build would have succeeded, but Ruby would be useless at runtime.
       # https://github.com/ruby/ruby/commit/b58a30e1c14e971adba4096104274d5d692492e9
@@ -722,7 +722,7 @@ build_package_standard() {
     fi
     if [ -z "$CC" ] && is_mac 1010; then
       export CC=clang
-    elif [ "$ruby_semver" -lt 300200 ] && is_fedora 42; then
+    elif [ "$ruby_semver" -lt 30200 ] && is_fedora 42; then
       # Fedora 42+ has updated to GCC v15. GCC v15 changed the default
       # mode from gnu17 to gnu23: https://gcc.gnu.org/gcc-15/changes.html#c
       #
@@ -1146,13 +1146,10 @@ homebrew_openssl_versions() {
 }
 
 # Normalizes "X.Y.Z" into a comparable numeric value. Does not support prereleases.
+# Example: 3.1.23 -> 30123
 # See also osx_version, require_java
 normalize_semver() {
-  local ver
-  IFS=. read -d "" -r -a ver <<<"$1" || true
-  IFS="$OLDIFS"
-  # 3.1.23 -> 300_123
-  echo $(( ver[0]*100000 + ver[1]*100 + ver[2] ))
+  awk -F. '{print $1 * 10000 + $2 * 100 + $3}' <<<"$1"
 }
 
 # Checks if system OpenSSL does NOT satisfy the version requirement

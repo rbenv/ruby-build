@@ -374,13 +374,13 @@ OUT
 @test "use pkg-config OpenSSL" {
   cached_tarball "ruby-3.2.0" configure
 
-  openssl_libdir="$TMP/opt/local/libexec/openssl3"
+  openssl_libdir="$TMP/opt/local/libexec/openssl"
 
   stub_repeated uname '-s : echo Linux'
   stub_repeated brew false
   stub pkg-config \
     "--variable=prefix openssl : echo '$openssl_libdir'" \
-    "--modversion openssl : echo 3.0.0"
+    "--modversion openssl : echo 1.0.2k"
   stub_make_install
 
   run_inline_definition <<DEF
