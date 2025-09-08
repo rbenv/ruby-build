@@ -16,7 +16,7 @@
 #   -6, --ipv6      Resolve names to IPv6 addresses only
 #
 
-RUBY_BUILD_VERSION="20250829"
+RUBY_BUILD_VERSION="20250908"
 
 OLDIFS="$IFS"
 
