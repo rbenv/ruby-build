@@ -50,13 +50,13 @@ export RUBY_BUILD_CACHE_PATH="$TMP/cache"
 }
 
 
-@test "cached package with invalid checksum falls back to mirror and updates cache" {
+@test "cached package with invalid checksum falls back to original URL and updates cache" {
   export RUBY_BUILD_SKIP_MIRROR=
+  export RUBY_BUILD_MIRROR_URL=
   local checksum="ba988b1bb4250dee0b9dd3d4d722f9c64b2bacfc805d1b6eba7426bda72dd3c5"
 
   stub shasum true "echo invalid" "echo $checksum"
-  stub curl "-*I* : true" \
-    "-q -fL -o * https://?*/$checksum : cp $FIXTURE_ROOT/package-1.0.0.tar.gz \$4"
+  stub curl "-q -fL -o * http://example.com/* : cp $FIXTURE_ROOT/\${5##*/} \$4"
 
   mkdir -p "$RUBY_BUILD_CACHE_PATH"
   touch "${RUBY_BUILD_CACHE_PATH}/package-1.0.0.tar.gz"
