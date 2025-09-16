@@ -147,12 +147,15 @@ See the next section for more information on how to author checksums.
 
 #### Package Mirrors
 
-To speed up downloads, ruby-build fetches package files from a mirror hosted on
-Amazon CloudFront. To benefit from this, the packages must specify their checksum:
+You may specify a custom mirror by setting `RUBY_BUILD_MIRROR_URL`. When set,
+ruby-build will first attempt to download packages from the mirror before falling
+back to the original URL.
 
 ```sh
 # example:
+export RUBY_BUILD_MIRROR_URL="https://my-mirror.example.com"
 install_package "ruby-2.6.5" "https://ruby-lang.org/ruby-2.6.5.tgz#<SHA2>"
+# Will first try: https://my-mirror.example.com/<SHA2>
 ```
 
 ruby-build will first try to fetch this package from `$RUBY_BUILD_MIRROR_URL/<SHA2>`
@@ -164,14 +167,9 @@ will fall back to downloading the package from the original location if:
 - no tool is available to calculate the checksum; or
 - `RUBY_BUILD_SKIP_MIRROR` is enabled.
 
-You may specify a custom mirror by setting `RUBY_BUILD_MIRROR_URL`.
-
 If a mirror site doesn't conform to the above URL format, you can specify the
 complete URL by setting `RUBY_BUILD_MIRROR_PACKAGE_URL`. It behaves the same as
 `RUBY_BUILD_MIRROR_URL` except being a complete URL.
-
-The default ruby-build download mirror is sponsored by
-[Basecamp](https://basecamp.com/).
 
 #### Keeping the build directory after installation
 

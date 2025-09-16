@@ -20,8 +20,3 @@ jobs:
       run: git clone --depth 1 --branch v1.10.0 https://github.com/bats-core/bats-core.git bats
     - name: Run tests
       run: PATH="./bats/bin:$PATH" script/test
-    - name: Verify download URL checksums
-      if: github.event_name == 'pull_request'
-      run: ./script/mirror verify "$COMMIT_RANGE"
-      env:
-        COMMIT_RANGE: ${{ github.event.pull_request.base.sha }}..
