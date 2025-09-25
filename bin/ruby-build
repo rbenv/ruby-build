@@ -720,7 +720,7 @@ build_package_standard() {
     fi
     if [ -z "$CC" ] && is_mac 1010; then
       export CC=clang
-    elif [ "$ruby_semver" -lt 30200 ] && is_fedora 42; then
+    elif [[ "$package_var_name" = "RUBY" && "$ruby_semver" -lt 30200 ]] && is_fedora 42; then
       # Fedora 42+ has updated to GCC v15. GCC v15 changed the default
       # mode from gnu17 to gnu23: https://gcc.gnu.org/gcc-15/changes.html#c
       #

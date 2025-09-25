@@ -423,6 +423,12 @@ install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
 DEF
   assert_success
 
+  sanitized_output="$(grep -v '^\(->\|==>\)' <<<"$output" || true)"
+  if [ -n "$sanitized_output" ]; then
+    echo "expected no warnings, got: $sanitized_output"
+    return 1
+  fi
+
   unstub uname
   unstub brew
   unstub cc
