@@ -74,7 +74,7 @@ lib "$1"
 
 
 resolve_link() {
-  $(type -p greadlink readlink | head -1) "$1"
+  $(command -v greadlink readlink 2>/dev/null | head -1) "$1"
 }
 
 abs_dirname() {
@@ -181,9 +181,9 @@ log_notice() {
 }
 
 os_information() {
-  if type -p lsb_release >/dev/null; then
+  if command -v lsb_release >/dev/null; then
     lsb_release -sir | xargs echo
-  elif type -p sw_vers >/dev/null; then
+  elif command -v sw_vers >/dev/null; then
     echo "$(sw_vers -productName) $(sw_vers -productVersion)"
   elif [ -r /etc/os-release ]; then
     # shellcheck disable=SC1091
@@ -319,13 +319,13 @@ install_package_using() {
 
 compute_sha2() {
   local output
-  if type shasum &>/dev/null; then
+  if command -v shasum >/dev/null 2>&1; then
     output="$(shasum -a 256 -b)" || return 1
     echo "${output% *}"
-  elif type openssl &>/dev/null; then
+  elif command -v openssl >/dev/null 2>&1; then
     output="$(openssl dgst -sha256 2>/dev/null)" || return 1
     echo "${output##* }"
-  elif type sha256sum &>/dev/null; then
+  elif command -v sha256sum >/dev/null 2>&1; then
     output="$(sha256sum -b)" || return 1
     echo "${output%% *}"
   else
@@ -335,12 +335,12 @@ compute_sha2() {
 
 compute_md5() {
   local output
-  if type md5 &>/dev/null; then
+  if command -v md5 >/dev/null 2>&1; then
     md5 -q
-  elif type openssl &>/dev/null; then
+  elif command -v openssl >/dev/null 2>&1; then
     output="$(openssl md5)" || return 1
     echo "${output##* }"
-  elif type md5sum &>/dev/null; then
+  elif command -v md5sum >/dev/null 2>&1; then
     output="$(md5sum -b)" || return 1
     echo "${output%% *}"
   else
@@ -417,7 +417,7 @@ http() {
 detect_http_client() {
   local client
   for client in aria2c curl wget; do
-    if type "$client" &>/dev/null; then
+    if command -v "$client" >/dev/null 2>&1; then
       echo "$client"
       return
     fi
@@ -489,7 +489,7 @@ fetch_tarball() {
   local package_filename="${package_name}.tar.gz"
 
   if [ "$package_url" != "${package_url%bz2}" ]; then
-    if ! type -p bzip2 >/dev/null; then
+    if ! command -v bzip2 2>/dev/null; then
       echo "warning: bzip2 not found; consider installing the \`bzip2\` package" >&2
     fi
     package_filename="${package_filename%.gz}.bz2"
@@ -573,7 +573,7 @@ fetch_git() {
 
   log_info "Cloning ${git_url}..."
 
-  if ! type git &>/dev/null; then
+  if ! command -v git 2>/dev/null; then
     echo "error: please install \`git\` and try again" >&2
     exit 1
   fi
@@ -1284,7 +1284,7 @@ build_package_openssl() {
     rm -rf "$OPENSSLDIR/certs" "$pem_file"
     ln -s /etc/ssl/certs "$OPENSSLDIR/certs"
     ln -s /etc/ssl/certs/ca-certificates.crt "$pem_file"
-  elif type -p openssl >/dev/null; then
+  elif command -v openssl 2>/dev/null; then
     # symlink to the system openssl certs
     local SYSTEM_OPENSSLDIR
     SYSTEM_OPENSSLDIR=$(openssl version -d 2>/dev/null | cut -d'"' -f2)
