@@ -59,7 +59,7 @@ usage() {
 
 definitions() {
   local query="$1"
-  ruby-build --definitions | $(type -p ggrep grep | head -1) -F "$query" || true
+  ruby-build --definitions | $(command -v ggrep grep 2>/dev/null | head -1) -F "$query" || true
 }
 
 suggest_selecting_global() {
