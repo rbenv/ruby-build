@@ -1,0 +1,2 @@
+install_package "openssl-3.0.16" "https://github.com/openssl/openssl/releases/download/openssl-3.0.16/openssl-3.0.16.tar.gz#57e03c50feab5d31b152af2b764f10379aecd8ee92f16c985983ce4a99f7ef86" openssl --if needs_openssl:1.0.2-3.x.x
+install_package "ruby-4.0.0-preview2" "https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.0-preview2.tar.gz#0a3330dae710302e11f7f0323e83219ab3c6517984691a312c662f329c5120e1" enable_shared standard
