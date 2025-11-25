@@ -20,7 +20,7 @@ jobs:
     name: Update Ruby definitions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Store Ruby version
         run: echo "RUBY_VERSION=${{ github.event.client_payload.ruby_version || github.event.inputs.ruby_version }}" >> $GITHUB_ENV
