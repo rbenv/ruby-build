@@ -1,16 +1,16 @@
 platform="$(uname -s)-$(uname -m)"
 case $platform in
 Linux-x86_64)
-  install_package "truffleruby+graalvm-24.2.1" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-linux-amd64.tar.gz#c16f3996ae9446deb33ef6ad3f0de4d8f53e6e7dc87c621a746a56dca6f77793" truffleruby
+  install_package "truffleruby+graalvm-24.2.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-linux-amd64.tar.gz#c16f3996ae9446deb33ef6ad3f0de4d8f53e6e7dc87c621a746a56dca6f77793" truffleruby
   ;;
 Linux-aarch64)
-  install_package "truffleruby+graalvm-24.2.1" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-linux-aarch64.tar.gz#4d52efab718c48c0a4d9f9ecf26caac81171d5c5a8568cbf7983572449c30f78" truffleruby
+  install_package "truffleruby+graalvm-24.2.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-linux-aarch64.tar.gz#4d52efab718c48c0a4d9f9ecf26caac81171d5c5a8568cbf7983572449c30f78" truffleruby
   ;;
 Darwin-x86_64)
-  install_package "truffleruby+graalvm-24.2.1" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-macos-amd64.tar.gz#e97e7298c573290e49df3e8c4e3b8b4f5d17d209c2d7ee33d37e641e4044bc39" truffleruby
+  install_package "truffleruby+graalvm-24.2.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-macos-amd64.tar.gz#e97e7298c573290e49df3e8c4e3b8b4f5d17d209c2d7ee33d37e641e4044bc39" truffleruby
   ;;
 Darwin-arm64)
-  install_package "truffleruby+graalvm-24.2.1" "https://github.com/oracle/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-macos-aarch64.tar.gz#56b6e02860f69c0e2c49782e04557980bc5753d155afa246aeb63909631d8a61" truffleruby
+  install_package "truffleruby+graalvm-24.2.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.2.1/truffleruby-jvm-24.2.1-macos-aarch64.tar.gz#56b6e02860f69c0e2c49782e04557980bc5753d155afa246aeb63909631d8a61" truffleruby
   ;;
 *)
   colorize 1 "Unsupported platform: $platform"

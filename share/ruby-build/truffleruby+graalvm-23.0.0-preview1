@@ -1,16 +1,16 @@
 platform="$(uname -s)-$(uname -m)"
 case $platform in
 Linux-x86_64)
-  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-linux-amd64.tar.gz#973aabc7b5bd5d6c0c67c03e83972173a74b16f4905785988a13daff7107ed4c" truffleruby_graalvm
+  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/truffleruby/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-linux-amd64.tar.gz#973aabc7b5bd5d6c0c67c03e83972173a74b16f4905785988a13daff7107ed4c" truffleruby_graalvm
   ;;
 Linux-aarch64)
-  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-linux-aarch64.tar.gz#b8b6f6493219b5435eea87305cdb14b8f5af7b8d45097840afaf314428756748" truffleruby_graalvm
+  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/truffleruby/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-linux-aarch64.tar.gz#b8b6f6493219b5435eea87305cdb14b8f5af7b8d45097840afaf314428756748" truffleruby_graalvm
   ;;
 Darwin-x86_64)
-  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-darwin-amd64.tar.gz#dd7370352697325e0cfa25d069a64903103601bfacc7c7e1c515409e9cf74386" truffleruby_graalvm
+  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/truffleruby/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-darwin-amd64.tar.gz#dd7370352697325e0cfa25d069a64903103601bfacc7c7e1c515409e9cf74386" truffleruby_graalvm
   ;;
 Darwin-arm64)
-  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/oracle/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-darwin-aarch64.tar.gz#bfe1c1227d3648bbdaf4e40716e12729c5f1f66a40983d3ca3d2f814f570d4e0" truffleruby_graalvm
+  install_package "truffleruby+graalvm-23.0.0-preview1" "https://github.com/truffleruby/truffleruby/releases/download/vm-23.0.0-preview1/graalvm-ruby-community-23.0.0-preview1-jdk17-darwin-aarch64.tar.gz#bfe1c1227d3648bbdaf4e40716e12729c5f1f66a40983d3ca3d2f814f570d4e0" truffleruby_graalvm
   ;;
 *)
   colorize 1 "Unsupported platform: $platform"

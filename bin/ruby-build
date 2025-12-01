@@ -967,7 +967,7 @@ clean_prefix_path_truffleruby() {
     { echo
       echo "ERROR: cannot install TruffleRuby to $PREFIX_PATH, which does not look like a valid TruffleRuby prefix."
       echo "TruffleRuby only supports being installed to a not existing directory, an empty directory, or replacing an existing TruffleRuby installation."
-      echo "See https://github.com/oracle/truffleruby/issues/1389 for details"
+      echo "See https://github.com/truffleruby/truffleruby/issues/1389 for details"
     } >&2
     return 1
   fi
