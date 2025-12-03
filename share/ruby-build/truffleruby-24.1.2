@@ -1,16 +1,16 @@
 platform="$(uname -s)-$(uname -m)"
 case $platform in
 Linux-x86_64)
-  install_package "truffleruby-24.1.2" "https://github.com/oracle/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-linux-amd64.tar.gz#4afe5aa648f62c49dc4db8774fa0abb1340a16139f5ba8d7b2a263b915f984c0" truffleruby
+  install_package "truffleruby-24.1.2" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-linux-amd64.tar.gz#4afe5aa648f62c49dc4db8774fa0abb1340a16139f5ba8d7b2a263b915f984c0" truffleruby
   ;;
 Linux-aarch64)
-  install_package "truffleruby-24.1.2" "https://github.com/oracle/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-linux-aarch64.tar.gz#9015dc9686a10c64d8e58ae65ce811aed0379e1f124b588b35d57a3bf50c10ed" truffleruby
+  install_package "truffleruby-24.1.2" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-linux-aarch64.tar.gz#9015dc9686a10c64d8e58ae65ce811aed0379e1f124b588b35d57a3bf50c10ed" truffleruby
   ;;
 Darwin-x86_64)
-  install_package "truffleruby-24.1.2" "https://github.com/oracle/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-macos-amd64.tar.gz#e9027db1619993d0b8dbde4fddc3aa365300a4f9614025802c87003ee577675b" truffleruby
+  install_package "truffleruby-24.1.2" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-macos-amd64.tar.gz#e9027db1619993d0b8dbde4fddc3aa365300a4f9614025802c87003ee577675b" truffleruby
   ;;
 Darwin-arm64)
-  install_package "truffleruby-24.1.2" "https://github.com/oracle/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-macos-aarch64.tar.gz#8afd690aa9e8606869809f3139ab811a02c176b83d398971269c7acac7b8d74f" truffleruby
+  install_package "truffleruby-24.1.2" "https://github.com/truffleruby/truffleruby/releases/download/graal-24.1.2/truffleruby-24.1.2-macos-aarch64.tar.gz#8afd690aa9e8606869809f3139ab811a02c176b83d398971269c7acac7b8d74f" truffleruby
   ;;
 *)
   colorize 1 "Unsupported platform: $platform"
