@@ -679,7 +679,7 @@ build_package_standard() {
       use_freebsd_libffi || true
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-libyaml-dir=* ]]; then
-      use_homebrew_yaml || use_freebsd_yaml || true
+      use_homebrew_yaml || use_freebsd_yaml || build_yaml_from_source || true
     fi
     if [[ "$RUBY_CONFIGURE_OPTS ${RUBY_CONFIGURE_OPTS_ARRAY[*]}" != *--with-gmp-dir=* ]]; then
       use_homebrew_gmp || true
@@ -1045,13 +1045,55 @@ use_homebrew_yaml() {
 }
 
 use_freebsd_yaml() {
-  if is_freebsd; then
-    local libyaml_prefix
-    libyaml_prefix="$(freebsd_package_prefix libyaml)"
-    if [ -n "$libyaml_prefix" ]; then
-      package_option ruby configure --with-libyaml-dir="$libyaml_prefix"
-    fi
+  is_freebsd || return 1
+  local libyaml_prefix
+  libyaml_prefix="$(freebsd_package_prefix libyaml)"
+  if [ -n "$libyaml_prefix" ]; then
+    package_option ruby configure --with-libyaml-dir="$libyaml_prefix"
+  else
+    return 1
   fi
+}
+
+build_package_yaml() {
+  # Install to a subdirectory since we don't want shims for bin/yaml utilities.
+  YAML_PREFIX_PATH="${PREFIX_PATH}/libyaml"
+
+  # Tell Ruby to use this libyaml for its psych extension.
+  package_option ruby configure --with-libyaml-dir="$YAML_PREFIX_PATH"
+
+  # Build with standard configure/make/make install
+  build_package_standard "$@"
+}
+
+fetch_libyaml_latest_version() {
+  # Try to fetch latest version from GitHub API, fall back to known good version
+  local fallback_version="0.2.5"
+  local release_info
+
+  release_info="$(http get "https://api.github.com/repos/yaml/libyaml/releases/latest" - 2>/dev/null)" || {
+    echo "$fallback_version"
+    return
+  }
+
+  local version
+  version="$(echo "$release_info" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+
+  if [ -n "$version" ]; then
+    echo "$version"
+  else
+    echo "$fallback_version"
+  fi
+}
+
+build_yaml_from_source() {
+  # Download and build libyaml from source when not available via package manager
+  local yaml_version
+  yaml_version="$(fetch_libyaml_latest_version)"
+  local yaml_url="https://github.com/yaml/libyaml/releases/download/${yaml_version}/yaml-${yaml_version}.tar.gz"
+
+  log_notice "building libyaml ${yaml_version} from source"
+  install_package "yaml-${yaml_version}" "$yaml_url" yaml
 }
 
 use_homebrew_gmp() {
