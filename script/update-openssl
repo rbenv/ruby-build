@@ -1,9 +1,25 @@
 #!/usr/bin/env ruby
 
-raise "Usage: #{$0} NEW_VERSION SHA" unless ARGV.size == 2
-new_version, sha = ARGV
+require 'open-uri'
+require 'digest/sha2'
+require 'tempfile'
+
+raise "Usage: #{$0} NEW_VERSION" unless ARGV.size == 1
+new_version = ARGV[0]
 
 major_minor = new_version.split('.')[0..1].join('.')
+
+url = "https://github.com/openssl/openssl/releases/download/openssl-#{new_version}/openssl-#{new_version}.tar.gz"
+sha = nil
+
+Tempfile.create(['openssl', '.tar.gz']) do |tmpfile|
+  URI.open(url) do |remote_file|
+    IO.copy_stream(remote_file, tmpfile)
+  end
+  tmpfile.rewind
+
+  sha = Digest::SHA256.file(tmpfile.path).hexdigest
+end
 
 Dir.glob('share/ruby-build/*') do |file|
   contents = File.read(file)
