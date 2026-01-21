@@ -1,0 +1,19 @@
+platform="$(uname -s)-$(uname -m)"
+case $platform in
+Linux-x86_64)
+  install_package "truffleruby-33.0.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-33.0.1/truffleruby-33.0.1-linux-amd64.tar.gz#f20e5f7796501ddf52ab978d6987dbd6c941c347b5d9cb06be6e21b4aa51005f" truffleruby
+  ;;
+Linux-aarch64)
+  install_package "truffleruby-33.0.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-33.0.1/truffleruby-33.0.1-linux-aarch64.tar.gz#7b2a32a6e0b9e52b9969a9488ae2e11ae6a0369c1bba00fc9703985b08ab00b7" truffleruby
+  ;;
+Darwin-x86_64)
+  install_package "truffleruby-33.0.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-33.0.1/truffleruby-33.0.1-macos-amd64.tar.gz#fdb29ca55b2e8f8a56c6199a84478bd65be0507f7d0898ad64bdc684025b01c6" truffleruby
+  ;;
+Darwin-arm64)
+  install_package "truffleruby-33.0.1" "https://github.com/truffleruby/truffleruby/releases/download/graal-33.0.1/truffleruby-33.0.1-macos-aarch64.tar.gz#a84f9da803f4f125be4c5d49bb1d45fee2985362054997291ba264f825b3cbcd" truffleruby
+  ;;
+*)
+  colorize 1 "Unsupported platform: $platform"
+  return 1
+  ;;
+esac
