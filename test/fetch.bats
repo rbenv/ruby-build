@@ -38,10 +38,23 @@ setup() {
 }
 
 @test "fetching from git repository" {
-  stub git "clone --depth 1 --branch master http://example.com/packages/package.git package-dev : mkdir package-dev"
+  stub git "clone --depth 1 --single-branch --branch master http://example.com/packages/package.git package-dev : mkdir package-dev"
 
   run_inline_definition <<DEF
 install_git "package-dev" "http://example.com/packages/package.git" master copy
+DEF
+  assert_success
+  assert_output_contains "Cloning http://example.com/packages/package.git..."
+  unstub git
+}
+
+@test "fetching from git repository at specific ref" {
+  stub git \
+    "clone --single-branch --branch my-branch http://example.com/packages/package.git package-dev : mkdir package-dev" \
+    "-C package-dev checkout -q deadbeef : true"
+
+  run_inline_definition <<DEF
+install_git "package-dev" "http://example.com/packages/package.git" my-branch@deadbeef copy
 DEF
   assert_success
   assert_output_contains "Cloning http://example.com/packages/package.git..."
@@ -56,6 +69,20 @@ DEF
 
   run_inline_definition <<DEF
 install_git "package-dev" "http://example.com/packages/package.git" master copy
+DEF
+  assert_success
+  assert_output_contains "Cloning http://example.com/packages/package.git..."
+  unstub git
+}
+
+@test "updating existing git repository at specific ref" {
+  mkdir -p "${RUBY_BUILD_BUILD_PATH}/package-dev"
+  stub git \
+    "-C package-dev fetch origin +my-branch@deadbeef : true" \
+    "-C package-dev checkout -q deadbeef : true"
+
+  run_inline_definition <<DEF
+install_git "package-dev" "http://example.com/packages/package.git" my-branch@deadbeef copy
 DEF
   assert_success
   assert_output_contains "Cloning http://example.com/packages/package.git..."
