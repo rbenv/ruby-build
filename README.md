@@ -123,6 +123,8 @@ The build process may be configured through the following environment variables:
 | `RUBY_MAKE_INSTALL_OPTS`        | Additional `make install` options (applies only to Ruby source).                                 |
 | `NO_COLOR`                      | Disable ANSI colors in output. The default is to use colors for output connected to a terminal.  |
 | `CLICOLOR_FORCE`                | Use ANSI colors in output even when not connected to a terminal.                                 |
+| `RUBY_REPO`                     | The URL of the git repository to use when building `ruby-dev`                                    |
+| `RUBY_REF`                      | The git branch (or revision) to use when building `ruby-dev`, e.g. `some-branch@af12decf`        |
 
 #### Applying Patches
 
