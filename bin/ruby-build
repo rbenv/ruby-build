@@ -1292,6 +1292,11 @@ build_package_openssl() {
     # Extract root certs from the system keychain in .pem format.
     security find-certificate -a -p /Library/Keychains/System.keychain > "$pem_file"
     security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain >> "$pem_file"
+  elif [ -e /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem ]; then # RHEL 9+, Fedora 34+
+    # See https://fedoraproject.org/wiki/Changes/droppingOfCertPemFile
+    rm -rf "$OPENSSLDIR/certs" "$pem_file"
+    ln -s /etc/pki/ca-trust/extracted/pem/ "$OPENSSLDIR/certs"
+    ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem "$pem_file"
   elif [ -e /etc/pki/tls/cert.pem ]; then # RedHat
     # See https://github.com/rubygems/rubygems/issues/2415#issuecomment-509806259
     rm -rf "$OPENSSLDIR/certs" "$pem_file"
@@ -1311,7 +1316,10 @@ build_package_openssl() {
       ln -snf "$SYSTEM_OPENSSLDIR/certs" "$OPENSSLDIR/certs"
     fi
   else
-    echo "Could not find OpenSSL certificates" >&2
+    { colorize 1 "ERROR"
+      echo "Could not find OpenSSL certificates on this system."
+      echo "You may need to install the 'ca-certificates' package or 'openssl' for your distribution."
+    } >&2
     exit 1
   fi
 }
