@@ -6,7 +6,7 @@
 #        ruby-build --version
 #
 #   -l, --list      List latest stable releases for each Ruby
-#   -r, --resolve   Find the most recent version matching a prefix.
+#   --resolve       Find the most recent version matching a prefix.
 #   --definitions   List all local definitions, including outdated ones
 #   --version       Show version of ruby-build
 #
@@ -1405,47 +1405,24 @@ list_maintained_versions() {
 
 filter_version_prefix()
 {
-  match=1
-  prefix="$1"
-  if [[ "${prefix}" = "ruby" ]]; then
-    # Filter MRI versions
-    grep -e '^[0-9]'
-  elif echo "${prefix}" | grep -e '^\([0-9]\|[a-z\+]\+-[0-9]\)' > /dev/null; then
-    # Filter by version prefix
-    while IFS= read -r version; do
-      if [[ "${version}" = "${prefix}" ]] || [[ "${version}" = "${prefix}."* ]]; then
-        match=0
-        echo "${version}"
-      fi
-    done
-  else
-    # Filter by implementation
-    while IFS= read -r version; do
-      if [[ "${version}" = "${prefix}-"* ]]; then
-        match=0
-        echo "${version}"
-      fi
-    done
-  fi
-  return $match
+  pattern="${1//./\.}"
+  pattern="${pattern//+/\+}"
+  grep -e "^${pattern}[-.$]"
 }
 
 resolve() {
   prefix="${1%.}"
   prefix="${prefix#ruby-}"
 
-  list_definitions | \
+  version=$(list_definitions | \
     grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$' | \
     filter_version_prefix "${prefix}" | \
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | \
-    tail -n 1
-}
+    tail -n 1)
 
-resolve_version() {
-  version=$(resolve "$@")
-  if [[ -z "${version}" ]]; then
-    exit 1
-  fi
+  [[ -z "${version}" ]] && return 1
+  [[ "${1}" = "ruby-"* ]] && version="ruby-${version}"
+
   echo "${version}"
 }
 
@@ -1492,7 +1469,7 @@ for option in "${OPTIONS[@]}"; do
     EARLY_EXIT=list_maintained_versions
     ;;
   "resolve")
-    EARLY_EXIT=resolve_version
+    EARLY_EXIT=resolve
     ;;
   "d" | "dir")
     APPEND_DEFINITION_TO_PREFIX=true
@@ -1523,6 +1500,7 @@ for option in "${OPTIONS[@]}"; do
 done
 
 DEFINITION_PATH="${ARGUMENTS[0]}"
+ORIGINAL_DEFINITION_PATH="${DEFINITION_PATH}"
 PREFIX_PATH="${ARGUMENTS[1]}"
 
 if [ -z "$EARLY_EXIT" ] && [ -z "$DEFINITION_PATH" ]; then
@@ -1559,7 +1537,7 @@ help )
   echo
   usage 0
   ;;
-version | list_definitions | list_maintained_versions | resolve_version )
+version | list_definitions | list_maintained_versions | resolve )
   shift
   "$EARLY_EXIT" "$@"
   exit 0
@@ -1602,7 +1580,11 @@ if [[ ! -f "$DEFINITION_PATH" && ! -p "$DEFINITION_PATH" ]]; then
       if [ -f "${DEFINITION_DIR}/${fully_qualified_version}" ]; then
         DEFINITION_PATH="${DEFINITION_DIR}/${fully_qualified_version}"
         if [ "$APPEND_DEFINITION_TO_PREFIX" = "true" ]; then
-          PREFIX_PATH="$ORIGINAL_PREFIX_PATH/$(basename "$DEFINITION_PATH")"
+          if [[ "${ORIGINAL_DEFINITION_PATH}" = ruby-* ]]; then
+            PREFIX_PATH="$ORIGINAL_PREFIX_PATH/ruby-$(basename "$DEFINITION_PATH")"
+          else
+            PREFIX_PATH="$ORIGINAL_PREFIX_PATH/$(basename "$DEFINITION_PATH")"
+          fi
         fi
         break
       fi

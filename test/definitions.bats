@@ -99,7 +99,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   touch "${TMP}/definitions/2.0.0"
 
   run bin/ruby-build --resolve "ruby-1.9" "${TMP}/install"
-  assert_success "1.9.10"
+  assert_success "ruby-1.9.10"
 }
 
 @test "resolve definition by implementation name" {
