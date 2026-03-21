@@ -60,6 +60,76 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   assert_success ""
 }
 
+@test "installing definition by prefix" {
+  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
+  mkdir -p "${TMP}/definitions"
+
+  echo false > "${TMP}/definitions/1.8.6"
+  echo false > "${TMP}/definitions/1.9.3"
+  echo true  > "${TMP}/definitions/1.9.10"
+  echo false > "${TMP}/definitions/1.90.0"
+  echo false > "${TMP}/definitions/2.0.0"
+
+  run bin/ruby-build "1.9" "${TMP}/install"
+  assert_success ""
+}
+
+@test "resolve definition by version prefix" {
+  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
+  mkdir -p "${TMP}/definitions"
+
+  touch "${TMP}/definitions/1.8.6"
+  touch "${TMP}/definitions/1.9.3"
+  touch "${TMP}/definitions/1.9.10"
+  touch "${TMP}/definitions/1.90.0"
+  touch "${TMP}/definitions/2.0.0"
+
+  run bin/ruby-build --resolve "1.9" "${TMP}/install"
+  assert_success "1.9.10"
+}
+
+@test "resolve definition with ruby prefix" {
+  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
+  mkdir -p "${TMP}/definitions"
+
+  touch "${TMP}/definitions/1.8.6"
+  touch "${TMP}/definitions/1.9.3"
+  touch "${TMP}/definitions/1.9.10"
+  touch "${TMP}/definitions/1.90.0"
+  touch "${TMP}/definitions/2.0.0"
+
+  run bin/ruby-build --resolve "ruby-1.9" "${TMP}/install"
+  assert_success "1.9.10"
+}
+
+@test "resolve definition by implementation name" {
+  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
+  mkdir -p "${TMP}/definitions"
+
+  touch "${TMP}/definitions/foo-1.8.6"
+  touch "${TMP}/definitions/foo-1.9.3"
+  touch "${TMP}/definitions/1.9.10"
+  touch "${TMP}/definitions/1.90.0"
+  touch "${TMP}/definitions/2.0.0"
+
+  run bin/ruby-build --resolve "foo" "${TMP}/install"
+  assert_success "foo-1.9.3"
+}
+
+@test "resolve definition by implementation name and version" {
+  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
+  mkdir -p "${TMP}/definitions"
+
+  touch "${TMP}/definitions/foo-1.8.6"
+  touch "${TMP}/definitions/foo-1.9.3"
+  touch "${TMP}/definitions/1.9.10"
+  touch "${TMP}/definitions/1.90.0"
+  touch "${TMP}/definitions/2.0.0"
+
+  run bin/ruby-build --resolve "foo-1.8" "${TMP}/install"
+  assert_success "foo-1.8.6"
+}
+
 @test "installing nonexistent definition" {
   run ruby-build "nonexistent" "${TMP}/install"
   assert [ "$status" -eq 2 ]

@@ -2,9 +2,11 @@
 #
 # Usage: ruby-build [-dvpk] <definition> <prefix> [-- <configure-args...>]
 #        ruby-build {--list|--definitions}
+#        ruby-build {--resolve} <version>
 #        ruby-build --version
 #
 #   -l, --list      List latest stable releases for each Ruby
+#   -r, --resolve   Find the most recent version matching a prefix.
 #   --definitions   List all local definitions, including outdated ones
 #   --version       Show version of ruby-build
 #
@@ -1401,6 +1403,52 @@ list_maintained_versions() {
   } | extract_latest_versions | sort_versions | uniq
 }
 
+filter_version_prefix()
+{
+  match=1
+  prefix="$1"
+  if [[ "${prefix}" = "ruby" ]]; then
+    # Filter MRI versions
+    grep -e '^[0-9]'
+  elif echo "${prefix}" | grep -e '^\([0-9]\|[a-z\+]\+-[0-9]\)' > /dev/null; then
+    # Filter by version prefix
+    while IFS= read -r version; do
+      if [[ "${version}" = "${prefix}" ]] || [[ "${version}" = "${prefix}."* ]]; then
+        match=0
+        echo "${version}"
+      fi
+    done
+  else
+    # Filter by implementation
+    while IFS= read -r version; do
+      if [[ "${version}" = "${prefix}-"* ]]; then
+        match=0
+        echo "${version}"
+      fi
+    done
+  fi
+  return $match
+}
+
+resolve() {
+  prefix="${1%.}"
+  prefix="${prefix#ruby-}"
+
+  list_definitions | \
+    grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$' | \
+    filter_version_prefix "${prefix}" | \
+    LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | \
+    tail -n 1
+}
+
+resolve_version() {
+  version=$(resolve "$@")
+  if [[ -z "${version}" ]]; then
+    exit 1
+  fi
+  echo "${version}"
+}
+
 extract_latest_versions() {
   # sort in this function looks redundunt but it is necessary
   # rbx-3.99 appears latest unless the sort
@@ -1442,6 +1490,9 @@ for option in "${OPTIONS[@]}"; do
     ;;
   "l" | "list")
     EARLY_EXIT=list_maintained_versions
+    ;;
+  "resolve")
+    EARLY_EXIT=resolve_version
     ;;
   "d" | "dir")
     APPEND_DEFINITION_TO_PREFIX=true
@@ -1493,6 +1544,7 @@ if [ "${#EXTRA_ARGUMENTS[@]}" -gt 0 ]; then
   RUBY_CONFIGURE_OPTS_ARRAY=("${EXTRA_ARGUMENTS[@]}")
 fi
 
+ORIGINAL_PREFIX_PATH="${PREFIX_PATH}"
 if [ "$APPEND_DEFINITION_TO_PREFIX" = "true" ]; then
   if [ -p "$DEFINITION_PATH" ]; then
     echo "ruby-build: using named pipes in combination with \`--dir' is not possible" >&2
@@ -1507,8 +1559,9 @@ help )
   echo
   usage 0
   ;;
-version | list_definitions | list_maintained_versions )
-  "$EARLY_EXIT"
+version | list_definitions | list_maintained_versions | resolve_version )
+  shift
+  "$EARLY_EXIT" "$@"
   exit 0
   ;;
 usage_error )
@@ -1538,6 +1591,19 @@ if [[ ! -f "$DEFINITION_PATH" && ! -p "$DEFINITION_PATH" ]]; then
     for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
         DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
+        break
+      fi
+    done
+  fi
+
+  if [ ! -f "$DEFINITION_PATH" ]; then
+    fully_qualified_version=$(resolve "$DEFINITION_PATH")
+    for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      if [ -f "${DEFINITION_DIR}/${fully_qualified_version}" ]; then
+        DEFINITION_PATH="${DEFINITION_DIR}/${fully_qualified_version}"
+        if [ "$APPEND_DEFINITION_TO_PREFIX" = "true" ]; then
+          PREFIX_PATH="$ORIGINAL_PREFIX_PATH/$(basename "$DEFINITION_PATH")"
+        fi
         break
       fi
     done
