@@ -144,6 +144,12 @@ DEFINITION="${ARGUMENTS[0]}"
 [ -n "$DEFINITION" ] || DEFINITION="$(rbenv-local 2>/dev/null || true)"
 [ -n "$DEFINITION" ] || usage 1 >&2
 
+[ -n "$DEFINITION" ] && RESOLVED_DEFINITION="$(ruby-build --resolve "${DEFINITION}" 2>/dev/null || true)"
+
+if [ -n "$RESOLVED_DEFINITION" ]; then
+  DEFINITION="$RESOLVED_DEFINITION"
+fi
+
 # Define `before_install` and `after_install` functions that allow
 # plugin hooks to register a string of code for execution before or
 # after the installation process.

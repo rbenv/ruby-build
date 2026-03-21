@@ -16,7 +16,7 @@ stub_ruby_build() {
 }
 
 @test "install proper" {
-  stub_ruby_build 'echo ruby-build "$@"'
+  stub_ruby_build 'echo 2.1.2' 'echo ruby-build "$@"'
 
   run rbenv-install 2.1.2
   assert_success "ruby-build 2.1.2 ${RBENV_ROOT}/versions/2.1.2"
@@ -27,7 +27,7 @@ stub_ruby_build() {
 }
 
 @test "install with flags" {
-  stub_ruby_build 'echo "ruby-build $(inspect_args "$@")"'
+  stub_ruby_build 'echo 2.1.2' 'echo "ruby-build $(inspect_args "$@")"'
 
   run rbenv-install -kpv 2.1.2 -- --with-configure-opt="hello world"
   assert_success "ruby-build --keep --verbose --patch 2.1.2 ${RBENV_ROOT}/versions/2.1.2 -- \"--with-configure-opt=hello world\""
@@ -39,7 +39,7 @@ stub_ruby_build() {
 
 @test "suggest running rbenv global after install" {
   rm -rf "$RBENV_ROOT/version"
-  stub_ruby_build 'echo ruby-build "$@"'
+  stub_ruby_build 'echo 2.1.2' 'echo ruby-build "$@"'
 
   run rbenv-install 2.1.2
   assert_success <<OUT
@@ -52,7 +52,7 @@ OUT
 }
 
 @test "install rbenv local version by default" {
-  stub_ruby_build 'echo ruby-build "$1"'
+  stub_ruby_build 'echo 2.1.2' 'echo ruby-build "$1"'
   stub rbenv-local 'echo 2.1.2'
 
   run rbenv-install
@@ -100,7 +100,8 @@ OUT
   fi
 
   stub_repeated brew false
-  stub_ruby_build 'echo ERROR >&2 && exit 2' \
+  stub_ruby_build 'exit 1' \
+    'echo ERROR >&2 && exit 2' \
     "--definitions : echo 1.8.7 1.9.3-p0 1.9.3-p194 2.1.2 | tr ' ' $'\\n'"
 
   run rbenv-install 1.9.3
@@ -127,10 +128,11 @@ OUT
 
 @test "Homebrew upgrade instructions" {
   stub brew "--prefix : echo '${BATS_TEST_DIRNAME%/*}'"
-  stub_ruby_build 'echo ERROR >&2 && exit 2' \
+  stub_ruby_build 'exit 1' \
+    'echo ERROR >&2 && exit 2' \
     "--definitions : true"
 
-  run rbenv-install 1.9.3
+  run rbenv-install 1.9.10
   assert_failure
   assert_output <<OUT
 ERROR
@@ -148,7 +150,8 @@ OUT
 
 @test "no build definitions from plugins" {
   refute [ -e "${RBENV_ROOT}/plugins" ]
-  stub_ruby_build 'echo $RUBY_BUILD_DEFINITIONS'
+  stub_ruby_build 'echo 2.1.2' \
+    'echo $RUBY_BUILD_DEFINITIONS'
 
   run rbenv-install 2.1.2
   assert_success ""
@@ -157,7 +160,8 @@ OUT
 @test "some build definitions from plugins" {
   mkdir -p "${RBENV_ROOT}/plugins/foo/share/ruby-build"
   mkdir -p "${RBENV_ROOT}/plugins/bar/share/ruby-build"
-  stub_ruby_build "echo \$RUBY_BUILD_DEFINITIONS | tr ':' $'\\n'"
+  stub_ruby_build 'echo 2.1.2' \
+    "echo \$RUBY_BUILD_DEFINITIONS | tr ':' $'\\n'"
 
   run rbenv-install 2.1.2
   assert_success
