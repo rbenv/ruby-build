@@ -1401,6 +1401,22 @@ list_maintained_versions() {
   } | extract_latest_versions | sort_versions | uniq
 }
 
+resolve_version() {
+  prefix="${1}"
+  { for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      if [[ -d "$DEFINITION_DIR" ]]; then
+        pushd "$DEFINITION_DIR" > /dev/null || return 1
+        for f in "${prefix}"*; do
+          echo "${f}" | \
+          grep "^${prefix}\." | \
+          grep -v -e '-rc[0-9]*$' -e '-preview[0-9]*$' -e '-dev$'
+        done
+        popd > /dev/null || return 1
+      fi
+    done
+  } | extract_latest_versions | tail -n 1
+}
+
 extract_latest_versions() {
   # sort in this function looks redundunt but it is necessary
   # rbx-3.99 appears latest unless the sort
@@ -1538,6 +1554,16 @@ if [[ ! -f "$DEFINITION_PATH" && ! -p "$DEFINITION_PATH" ]]; then
     for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
       if [ -f "${DEFINITION_DIR}/${DEFINITION_PATH}" ]; then
         DEFINITION_PATH="${DEFINITION_DIR}/${DEFINITION_PATH}"
+        break
+      fi
+    done
+  fi
+
+  if [ ! -f "$DEFINITION_PATH" ]; then
+    fully_qualified_version=$(resolve_version "$DEFINITION_PATH")
+    for DEFINITION_DIR in "${RUBY_BUILD_DEFINITIONS[@]}"; do
+      if [ -f "${DEFINITION_DIR}/${fully_qualified_version}" ]; then
+        DEFINITION_PATH="${DEFINITION_DIR}/${fully_qualified_version}"
         break
       fi
     done

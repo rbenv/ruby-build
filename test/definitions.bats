@@ -60,6 +60,20 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   assert_success ""
 }
 
+@test "installing definition by prefix" {
+  export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
+  mkdir -p "${TMP}/definitions"
+
+  echo false > "${TMP}/definitions/1.8.6"
+  echo false > "${TMP}/definitions/1.9.3"
+  echo true  > "${TMP}/definitions/1.9.10"
+  echo false > "${TMP}/definitions/1.90.0"
+  echo false > "${TMP}/definitions/2.0.0"
+
+  run bin/ruby-build "1.9" "${TMP}/install"
+  assert_success ""
+}
+
 @test "installing nonexistent definition" {
   run ruby-build "nonexistent" "${TMP}/install"
   assert [ "$status" -eq 2 ]
