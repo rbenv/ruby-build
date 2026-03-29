@@ -888,6 +888,13 @@ build_package_picoruby() {
   ln -fs picoirb "$PREFIX_PATH/bin/irb"
 }
 
+build_package_picoruby_r2p2() {
+  capture_command ./minirake
+  mkdir -p "$PREFIX_PATH"
+  cp -fR build/host/* include "$PREFIX_PATH"
+  ln -fs picoruby "$PREFIX_PATH/bin/ruby"
+}
+
 build_package_jruby() {
   build_package_copy
   # shellcheck disable=SC2164
