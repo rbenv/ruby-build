@@ -44,6 +44,7 @@ $ ruby-build --list                        # lists latest stable releases for ea
 $ ruby-build --definitions                 # lists all definitions, including outdated ones
 $ ruby-build 3.2.2 ~/.rubies/ruby-3.2.2    # installs Ruby 3.2.2
 $ ruby-build -d ruby-3.2.2 ~/.rubies       # alternate form for the previous example
+$ ruby-build -d 3.2 ~/.rubies/             # installs latest "ruby-3.2" (3.2.10)
 
 # As an rbenv plugin
 $ rbenv install 3.2.2  # installs Ruby 3.2.2 to ~/.rbenv/versions/3.2.2
