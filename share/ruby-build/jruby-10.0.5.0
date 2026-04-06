@@ -1,0 +1,2 @@
+require_java 21
+install_package "jruby-10.0.5.0" "https://repo1.maven.org/maven2/org/jruby/jruby-dist/10.0.5.0/jruby-dist-10.0.5.0-bin.tar.gz#6b3aa0340bd60a2b131e12490bb498c45359d9c91e477f5760c3aa18e37d1988" jruby
