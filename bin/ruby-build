@@ -885,7 +885,9 @@ build_package_picoruby() {
   mkdir -p "$PREFIX_PATH"
   cp -fR build/host/* include "$PREFIX_PATH"
   ln -fs picoruby "$PREFIX_PATH/bin/ruby"
-  ln -fs picoirb "$PREFIX_PATH/bin/irb"
+  if [ -f build/host/bin/picoirb ]; then
+    ln -fs picoirb "$PREFIX_PATH/bin/irb"
+  fi
 }
 
 build_package_jruby() {
