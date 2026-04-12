@@ -35,10 +35,6 @@ Linux-aarch64)
 EOS
 add_platform "linux-aarch64"
 cat >> "$file" <<EOS
-Darwin-x86_64)
-EOS
-add_platform "macos-amd64"
-cat >> "$file" <<EOS
 Darwin-arm64)
 EOS
 add_platform "macos-aarch64"
