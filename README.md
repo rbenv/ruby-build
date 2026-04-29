@@ -42,12 +42,13 @@ PREFIX=/usr/local ./ruby-build-*/install.sh
 # As a standalone program
 $ ruby-build --list                        # lists latest stable releases for each Ruby
 $ ruby-build --definitions                 # lists all definitions, including outdated ones
-$ ruby-build 3.2.2 ~/.rubies/ruby-3.2.2    # installs Ruby 3.2.2
-$ ruby-build -d ruby-3.2.2 ~/.rubies       # alternate form for the previous example
-$ ruby-build -d 3.2 ~/.rubies/             # installs latest "ruby-3.2" (3.2.10)
+$ ruby-build 3.4.9 ~/.rubies/ruby-3.4.9    # installs Ruby 3.4.9
+$ ruby-build -d ruby-3.4.9 ~/.rubies       # alternate form for the previous example
+$ ruby-build -d ruby-3.4 ~/.rubies         # installs latest Ruby 3.4.x
 
 # As an rbenv plugin
-$ rbenv install 3.2.2  # installs Ruby 3.2.2 to ~/.rbenv/versions/3.2.2
+$ rbenv install 3.4.9  # installs Ruby 3.4.9 to ~/.rbenv/versions/3.4.9
+$ rbenv install 3      # installs latest Ruby 3.x
 ```
 
 > [!WARNING]
@@ -61,6 +62,22 @@ Basically, what ruby-build does when installing a Ruby version is this:
 - Verifies that the installed Ruby is functional.
 
 Depending on the context, ruby-build does a little bit more than the above: for example, it will try to link Ruby to the appropriate OpenSSL version, even if that means downloading and compiling OpenSSL itself; it will discover and link to Homebrew-installed instances of some libraries like libyaml and readline, etc.
+
+### Ruby implementations
+
+ruby-build ships with definitions for the following Ruby implementations, denoted by version prefixes in the `ruby-build --list` output:
+
+- [CRuby][]: listed in ruby-build as unprefixed version numbers in the `X.Y.Z` format. This is the main Ruby implementation that most people use and is also historically known as "MRI". ruby-build allows adding the `ruby-` prefix to CRuby version numbers for compatibility with other version managers.
+
+- `jruby`: [JRuby][] is a high-performance Ruby implementation with real threading built on top of the Java virtual machine (JVM).
+
+- `mruby`: [mruby][] is a lightweight, embeddable Ruby implementation for microcontrollers.
+
+- `picoruby`: [PicoRuby][] is an alternative mruby implementation for one-chip microcontrollers.
+
+- `truffleruby`: The Native standalone distribution of [TruffleRuby][], an implementation of Ruby on top of GraalVM's Truffle framework.
+
+- `truffleruby+graalvm`: The JVM standalone distribution of TruffleRuby.
 
 ### Advanced Usage
 
@@ -198,3 +215,8 @@ Be sure to include the full build log for build failures.
   [wiki]: https://github.com/rbenv/ruby-build/wiki
   [build-env]: https://github.com/rbenv/ruby-build/wiki#suggested-build-environment
   [issue tracker]: https://github.com/rbenv/ruby-build/issues
+  [cruby]: https://www.ruby-lang.org/
+  [truffleruby]: https://truffleruby.dev/
+  [picoruby]: https://github.com/picoruby/picoruby#readme
+  [mruby]: https://mruby.org/
+  [jruby]: https://www.jruby.org/

@@ -134,8 +134,6 @@ done
 
 [ "${#ARGUMENTS[@]}" -le 1 ] || usage 1 >&2
 
-unset VERSION_NAME
-
 # The first argument contains the definition to install. If the
 # argument is missing, try to install whatever local app-specific
 # version is specified by rbenv. Show usage instructions if a local
@@ -144,10 +142,10 @@ DEFINITION="${ARGUMENTS[0]}"
 [ -n "$DEFINITION" ] || DEFINITION="$(rbenv-local 2>/dev/null || true)"
 [ -n "$DEFINITION" ] || usage 1 >&2
 
-[ -n "$DEFINITION" ] && RESOLVED_DEFINITION="$(ruby-build --resolve "${DEFINITION}" 2>/dev/null || true)"
-
-if [ -n "$RESOLVED_DEFINITION" ]; then
-  DEFINITION="$RESOLVED_DEFINITION"
+if VERSION_NAME="$(ruby-build --resolve "$DEFINITION")"; then
+  DEFINITION="$VERSION_NAME"
+else
+  unset VERSION_NAME
 fi
 
 # Define `before_install` and `after_install` functions that allow

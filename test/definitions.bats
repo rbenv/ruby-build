@@ -89,7 +89,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   touch "${TMP}/definitions/1.90.0"
   touch "${TMP}/definitions/2.0.0"
 
-  run bin/ruby-build --resolve "1.9" "${TMP}/install"
+  run bin/ruby-build --resolve "1.9"
   assert_success "1.9.10"
 }
 
@@ -99,7 +99,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 
   touch "${TMP}/definitions/3.2.1"
 
-  run bin/ruby-build --resolve "3.2.1" "${TMP}/install"
+  run bin/ruby-build --resolve "3.2.1"
   assert_success "3.2.1"
 }
 
@@ -109,8 +109,8 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
 
   touch "${TMP}/definitions/3.2.1"
 
-  run bin/ruby-build --resolve "ruby-3.2.1" "${TMP}/install"
-  assert_success "ruby-3.2.1"
+  run bin/ruby-build --resolve "ruby-3.2.1"
+  assert_success "3.2.1"
 }
 
 @test "resolve definition with ruby prefix" {
@@ -123,22 +123,22 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   touch "${TMP}/definitions/1.90.0"
   touch "${TMP}/definitions/2.0.0"
 
-  run bin/ruby-build --resolve "ruby-1.9" "${TMP}/install"
-  assert_success "ruby-1.9.10"
+  run bin/ruby-build --resolve "ruby-1.9"
+  assert_success "1.9.10"
 }
 
 @test "resolve definition by implementation name" {
   export RUBY_BUILD_DEFINITIONS="${TMP}/definitions"
   mkdir -p "${TMP}/definitions"
 
-  touch "${TMP}/definitions/foo-1.8.6"
-  touch "${TMP}/definitions/foo-1.9.3"
+  touch "${TMP}/definitions/fooruby-1.8.6"
+  touch "${TMP}/definitions/fooruby-1.9.3"
   touch "${TMP}/definitions/1.9.10"
   touch "${TMP}/definitions/1.90.0"
   touch "${TMP}/definitions/2.0.0"
 
-  run bin/ruby-build --resolve "foo" "${TMP}/install"
-  assert_success "foo-1.9.3"
+  run bin/ruby-build --resolve "FooRuby"
+  assert_success "fooruby-1.9.3"
 }
 
 @test "resolve definition by implementation name and version" {
@@ -151,7 +151,7 @@ NUM_DEFINITIONS="$(ls "$BATS_TEST_DIRNAME"/../share/ruby-build | wc -l)"
   touch "${TMP}/definitions/1.90.0"
   touch "${TMP}/definitions/2.0.0"
 
-  run bin/ruby-build --resolve "foo-1.8" "${TMP}/install"
+  run bin/ruby-build --resolve "foo-1.8"
   assert_success "foo-1.8.6"
 }
 

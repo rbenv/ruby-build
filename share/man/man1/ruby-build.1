@@ -2,12 +2,12 @@
 .\"     Title: ruby-build
 .\"    Author: Mislav Marohnić
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2024-09-23
+.\"      Date: 2026-04-29
 .\"    Manual: ruby-build Manual
 .\"    Source: ruby-build 20260426
 .\"  Language: English
 .\"
-.TH "RUBY\-BUILD" "1" "2024-09-23" "ruby\-build 20260426" "ruby\-build Manual"
+.TH "RUBY\-BUILD" "1" "2026-04-29" "ruby\-build 20260426" "ruby\-build Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -35,14 +35,13 @@ ruby\-build [\-dvpk] \fI<definition>\fP \fI<prefix>\fP [\-\- \fI<configure\-args
 .br
 ruby\-build {\-\-list|\-\-definitions}
 .br
+ruby\-build \-\-resolve \fI<version>\fP
+.br
 ruby\-build \-\-version
 .SH "DESCRIPTION"
 .sp
 ruby\-build downloads, compiles, and installs a Ruby version named by the
 \fIdefinition\fP argument into the location specified by \fIprefix\fP.
-.sp
-The \fIdefinition\fP argument can optionally start with "ruby\-", in which case
-it resolves to a CRuby that matches the version number that follows.
 .sp
 The \fIdefinition\fP argument can be a path to a file on disk, in which case
 it is sourced into ruby\-build as a bash script.
@@ -53,6 +52,84 @@ will get forwarded to the \f(CR./configure\fP invocation.
 By default, all compile output is redirected to a log file at
 \f(CR$TMPDIR/ruby\-build.*.log\fP. Activate the verbose mode to skip the log file
 and print everything to standard streams.
+.SH "RUBY IMPLEMENTATIONS"
+.sp
+ruby\-build ships with definitions for the following Ruby implementations:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+CRuby, also known as "MRI": denoted by version numbers in form of "X.Y.Z".
+This is the main Ruby implementation that most people use.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+"jruby": High\-performance Ruby implementation with real threading built
+on top of the Java virtual machine (JVM).
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+"mruby": Lightweight Ruby for microcontrollers.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+"picoruby": Alternative mruby implementation for one\-chip microcontrollers.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+"truffleruby": The Native standalone distribution of TruffleRuby, an
+implementation of Ruby on top of GraalVM\(cqs Truffle framework.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+"truffleruby+graalvm": The JVM standalone distribution of TruffleRuby.
+.RE
+.sp
+The \fIdefinition\fP argument may optionally start with "ruby\-", in which case
+it resolves to a CRuby that matches the version number that follows. The
+\fIdefinition\fP argument may also be a name of one of the alternative Ruby
+implementations, in which case the latest version of that implementation
+will be installed.
 .SH "OPTIONS"
 .sp
 \fB\-l, \-\-list\fP
@@ -63,6 +140,11 @@ List latest stable releases for each Ruby
 \fB\-\-definitions\fP
 .RS 4
 List all local definitions, including outdated ones
+.RE
+.sp
+\fB\-\-resolve\fP
+.RS 4
+Print the definition name of the most recent Ruby version matching the \fIversion\fP argument
 .RE
 .sp
 \fB\-\-version\fP
@@ -106,27 +188,37 @@ Install a Ruby version while tweaking some configuration options:
 .if n .RS 4
 .nf
 .fam C
-$ ruby\-build 3.2.2 /path/to/destination \-\- \-\-disable\-install\-doc \-\-with\-openssl\-dir=/opt/openssl
+$ ruby\-build 3.4.9 /path/to/destination \-\- \-\-disable\-install\-doc \-\-with\-openssl\-dir=/opt/openssl
 .fam
 .fi
 .if n .RE
 .sp
-Install a Ruby version to \f(CR~/.rubies/ruby\-3.2.2\fP:
+Install a Ruby version to \f(CR~/.rubies/ruby\-3.4.9\fP:
 .sp
 .if n .RS 4
 .nf
 .fam C
-$ ruby\-build \-\-dir ruby\-3.2.2 ~/.rubies
+$ ruby\-build \-\-dir ruby\-3.4.9 ~/.rubies
 .fam
 .fi
 .if n .RE
 .sp
-Install a Ruby version to \f(CR~/.rbenv/versions/3.3.5\fP:
+Install the latest Ruby 3.x version to \f(CR~/.rubies/ruby\-3.x.y\fP:
 .sp
 .if n .RS 4
 .nf
 .fam C
-$ ruby\-build \-\-dir 3.3.5 ~/.rbenv/versions
+$ ruby\-build \-\-dir ruby\-3 ~/.rubies
+.fam
+.fi
+.if n .RE
+.sp
+Install a Ruby version to \f(CR~/.rbenv/versions/3.3.11\fP:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ ruby\-build \-\-dir 3.3.11 ~/.rbenv/versions
 .fam
 .fi
 .if n .RE
@@ -136,7 +228,7 @@ Usage as rbenv plugin, accomplishes the same as the previous example:
 .if n .RS 4
 .nf
 .fam C
-$ rbenv install 3.3.5
+$ rbenv install 3.3.11
 .fam
 .fi
 .if n .RE
