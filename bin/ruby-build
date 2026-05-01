@@ -1486,7 +1486,12 @@ for option in "${OPTIONS[@]}"; do
     EARLY_EXIT=list_maintained_versions
     ;;
   "resolve")
-    EARLY_EXIT=resolve_version
+    if [ "${#ARGUMENTS[*]}" -eq 1 ]; then
+      EARLY_EXIT=resolve_version
+    else
+      echo "ruby-build: '--resolve' needs an argument" >&2
+      EARLY_EXIT=usage_error
+    fi
     ;;
   "d" | "dir")
     APPEND_DEFINITION_TO_PREFIX=true
