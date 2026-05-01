@@ -31,6 +31,14 @@ By default, all compile output is redirected to a log file at
 `$TMPDIR/ruby-build.*.log`. Activate the verbose mode to skip the log file
 and print everything to standard streams.
 
+== Ruby versions
+
+When listing "latest" Ruby versions, such as in `--list` output,
+ruby-build only knows of Ruby versions that are bundled with this project.
+That means that when a new Ruby version comes out, ruby-build will not
+know about it immediately; you will have to upgrade ruby-build before you
+can use it to install the new Ruby version.
+
 == Ruby implementations
 
 ruby-build ships with definitions for the following Ruby implementations:
@@ -65,7 +73,7 @@ will be installed.
   List all local definitions, including outdated ones
 
 *--resolve*::
-  Print the definition name of the most recent Ruby version matching the _version_ argument
+  Print the definition name of the latest stable Ruby version matching the _version_ argument
 
 *--version*::
   Show version of ruby-build

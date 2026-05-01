@@ -2,12 +2,12 @@
 .\"     Title: ruby-build
 .\"    Author: Mislav Marohnić
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-04-29
+.\"      Date: 2026-05-01
 .\"    Manual: ruby-build Manual
 .\"    Source: ruby-build 20260426
 .\"  Language: English
 .\"
-.TH "RUBY\-BUILD" "1" "2026-04-29" "ruby\-build 20260426" "ruby\-build Manual"
+.TH "RUBY\-BUILD" "1" "2026-05-01" "ruby\-build 20260426" "ruby\-build Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -52,6 +52,13 @@ will get forwarded to the \f(CR./configure\fP invocation.
 By default, all compile output is redirected to a log file at
 \f(CR$TMPDIR/ruby\-build.*.log\fP. Activate the verbose mode to skip the log file
 and print everything to standard streams.
+.SH "RUBY VERSIONS"
+.sp
+When listing "latest" Ruby versions, such as in \f(CR\-\-list\fP output,
+ruby\-build only knows of Ruby versions that are bundled with this project.
+That means that when a new Ruby version comes out, ruby\-build will not
+know about it immediately; you will have to upgrade ruby\-build before you
+can use it to install the new Ruby version.
 .SH "RUBY IMPLEMENTATIONS"
 .sp
 ruby\-build ships with definitions for the following Ruby implementations:
@@ -144,7 +151,7 @@ List all local definitions, including outdated ones
 .sp
 \fB\-\-resolve\fP
 .RS 4
-Print the definition name of the most recent Ruby version matching the \fIversion\fP argument
+Print the definition name of the latest stable Ruby version matching the \fIversion\fP argument
 .RE
 .sp
 \fB\-\-version\fP

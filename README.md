@@ -63,6 +63,12 @@ Basically, what ruby-build does when installing a Ruby version is this:
 
 Depending on the context, ruby-build does a little bit more than the above: for example, it will try to link Ruby to the appropriate OpenSSL version, even if that means downloading and compiling OpenSSL itself; it will discover and link to Homebrew-installed instances of some libraries like libyaml and readline, etc.
 
+### Ruby versions
+
+When listing "latest" Ruby versions, such as in `ruby-build --list` output, ruby-build only knows of Ruby versions that are bundled with this project. That means that when a new Ruby version comes out, ruby-build will not know about it immediately— you will have to upgrade ruby-build before you can use it to install the new Ruby version. This is because ruby-build bundles [definition files](#custom-build-definitions) for each individual Ruby version.
+
+If it's important to you that your installer tool always consults remote resources to download the list of latest Ruby versions (without having to upgrade the tool itself), check out [ruby-install][] as an alternative to ruby-build.
+
 ### Ruby implementations
 
 ruby-build ships with definitions for the following Ruby implementations, denoted by version prefixes in the `ruby-build --list` output:
@@ -220,3 +226,4 @@ Be sure to include the full build log for build failures.
   [picoruby]: https://github.com/picoruby/picoruby#readme
   [mruby]: https://mruby.org/
   [jruby]: https://www.jruby.org/
+  [ruby-install]: https://github.com/postmodern/ruby-install#readme

@@ -7,7 +7,7 @@
 #
 #   -l, --list      List latest stable releases for each Ruby
 #   --definitions   List all local definitions, including outdated ones
-#   --resolve       Print the most recent definition name matching a version prefix
+#   --resolve       Print the latest stable definition name matching a version prefix
 #   --version       Show version of ruby-build
 #
 #   -d, --dir       Install the Ruby in <prefix>/<definition> instead of <prefix>
