@@ -1,0 +1,2 @@
+install_package "openssl-3.0.21" "https://github.com/openssl/openssl/releases/download/openssl-3.0.21/openssl-3.0.21.tar.gz#617e29af8e421f46649484a4937e48c685e47f46488167c982f88bc4ec1d522f" openssl --if needs_openssl:1.0.2-3.x.x
+install_package "ruby-3.4.10" "https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.10.tar.gz#ecee2d072a14f2d14347dd56dfd8fe5c3130abf5117bfaacbda0f4ef9cc429ec" enable_shared standard
