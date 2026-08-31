@@ -137,7 +137,7 @@ The build process may be configured through the following environment variables:
 | `RUBY_BUILD_ROOT`               | The path prefix to search for build definitions files. *Deprecated:* use `RUBY_BUILD_DEFINITIONS`|
 | `RUBY_BUILD_VENDOR_OPENSSL`     | Build and vendor openssl even if the system openssl is compatible                                |
 | `CC`                            | Path to the C compiler.                                                                          |
-| `RUBY_CFLAGS`                   | Additional `CFLAGS` options (_e.g.,_ to override `-O3`).                                         |
+| `RUBY_CFLAGS`                   | Overrides Ruby's default `CFLAGS`, including `-O3` (beware: without a `-O` flag Ruby is built unoptimized). To add flags, use `RUBY_CONFIGURE_OPTS=cflags=...` instead |
 | `CONFIGURE_OPTS`                | Additional `./configure` options.                                                                |
 | `MAKE`                          | Custom `make` command (_e.g.,_ `gmake`).                                                         |
 | `MAKE_OPTS` / `MAKEOPTS`        | Additional `make` options.                                                                       |
