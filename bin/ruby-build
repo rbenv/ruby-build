@@ -748,17 +748,11 @@ build_package_standard() {
       #
       # TODO: Consider changing this to check for GCC v15 specifically
       # rather than inspecting the OS itself.
-      if [ "${CFLAGS+defined}" ]; then
-        # If the user overrides CFLAGS they are responsible for it.
-        # The usual trap is specifying no `-O` flag and getting a `-O0` slow build.
-        export CFLAGS="-std=gnu17 $CFLAGS"
-      else
-        # Use the `cflags` configure variable, which Ruby's configure appends to
-        # its default optflags/debugflags/warnflags, unlike CFLAGS which would
-        # override them and notably lose the -O3, producing a much slower Ruby.
-        # configure ignores `cflags` when CFLAGS is given, hence the branch above.
-        export cflags="-std=gnu17 $cflags"
-      fi
+
+      # Use the cflags configure variable, which Ruby's configure appends to
+      # its default optflags/debugflags/warnflags, unlike CFLAGS which would
+      # override them and notably lose the -O3, producing a -O0 Ruby.
+      export cflags="-std=gnu17 $cflags"
     fi
     # ./configure --prefix=/path/to/ruby
     # shellcheck disable=SC2086,SC2153
