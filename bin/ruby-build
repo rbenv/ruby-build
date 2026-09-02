@@ -748,7 +748,11 @@ build_package_standard() {
       #
       # TODO: Consider changing this to check for GCC v15 specifically
       # rather than inspecting the OS itself.
-      export CFLAGS="-std=gnu17 $CFLAGS"
+
+      # Use the cflags configure variable, which Ruby's configure appends to
+      # its default optflags/debugflags/warnflags, unlike CFLAGS which would
+      # override them and notably lose the -O3, producing a -O0 Ruby.
+      export cflags="-std=gnu17 $cflags"
     fi
     # ./configure --prefix=/path/to/ruby
     # shellcheck disable=SC2086,SC2153
@@ -1169,7 +1173,11 @@ homebrew_openssl_versions() {
 # Example: 3.1.23 -> 30123
 # See also osx_version, require_java
 normalize_semver() {
-  awk -F. '{print $1 * 10000 + $2 * 100 + $3}' <<<"$1"
+  if [ "$1" = "dev" ]; then
+    echo 99999999
+  else
+    awk -F. '{print $1 * 10000 + $2 * 100 + $3}' <<<"$1"
+  fi
 }
 
 # Checks if system OpenSSL does NOT satisfy the version requirement
