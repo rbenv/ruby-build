@@ -8,7 +8,7 @@
 # - creates a new Release on GitHub
 # - [automated] a GitHub Action will create a Homebrew PR for the new release
 
-set -e
+set -ex
 
 git fetch -q --tags origin master
 git checkout -q master
