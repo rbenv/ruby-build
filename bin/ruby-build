@@ -754,6 +754,13 @@ build_package_standard() {
       # override them and notably lose the -O3, producing a -O0 Ruby.
       export cflags="-std=gnu17 $cflags"
     fi
+    if [ "$package_var_name" = "RUBY" ] && is_mac && ! is_mac 2700; then
+      # The macOS 27 SDK declares dup3() and pipe2() as available since macOS 27.0.
+      # Ruby's configure detects them even when building for an older macOS, where
+      # they are only weakly linked and are NULL at runtime, which makes miniruby
+      # crash during the build: https://bugs.ruby-lang.org/issues/22311
+      export ac_cv_func_dup3=no ac_cv_func_pipe2=no
+    fi
     # ./configure --prefix=/path/to/ruby
     # shellcheck disable=SC2086,SC2153
     capture_command ${!PACKAGE_CONFIGURE:-./configure} --prefix="${!PACKAGE_PREFIX_PATH:-$PREFIX_PATH}" \
