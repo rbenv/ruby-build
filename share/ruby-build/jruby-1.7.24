@@ -1,1 +1,1 @@
-install_package "jruby-1.7.24" "https://s3.amazonaws.com/jruby.org/downloads/1.7.24/jruby-bin-1.7.24.tar.gz#b5f4d1569646fba833c7cce6627434aba40cd54966aa8595454c0e92b83123ea" warn_eol jruby
+install_package "jruby-1.7.24" "https://repo1.maven.org/maven2/org/jruby/jruby-dist/1.7.24/jruby-dist-1.7.24-bin.tar.gz#b5f4d1569646fba833c7cce6627434aba40cd54966aa8595454c0e92b83123ea" warn_eol jruby
