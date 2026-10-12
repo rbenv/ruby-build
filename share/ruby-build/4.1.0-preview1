@@ -1,0 +1,2 @@
+install_package "openssl-3.0.22" "https://github.com/openssl/openssl/releases/download/openssl-3.0.22/openssl-3.0.22.tar.gz#67ebca7e50d17383028045486653492195b83db95f8558709701bb47b5c1ef81" openssl --if needs_openssl:1.1.1-3.x.x
+install_package "ruby-4.1.0-preview1" "https://cache.ruby-lang.org/pub/ruby/4.1/ruby-4.1.0-preview1.tar.gz#fb530bb88e90de3ae91c1310a27ae090e6bd989b8726de50ef12a890a85b88ef" enable_shared standard
