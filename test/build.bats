@@ -371,6 +371,34 @@ make install
 OUT
 }
 
+@test "use system OpenSSL 4" {
+  cached_tarball "ruby-3.2.0" configure
+
+  stub_repeated uname '-s : echo Linux'
+  stub_repeated brew false
+  stub cc '-xc -E - : echo "OpenSSL 4.0.3  29 Sep 2026"'
+  stub_repeated pkg-config false
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl:1.1.1-4.x.x
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub brew
+  unstub cc
+  unstub pkg-config
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
 @test "use pkg-config OpenSSL" {
   cached_tarball "ruby-3.2.0" configure
 
@@ -632,6 +660,49 @@ DEF
 
   assert_build_log <<OUT
 ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$TMP/homebrew/opt/openssl@3,--with-ext=openssl,psych,+]
+make -j 2
+make install
+OUT
+}
+
+@test "link to Homebrew OpenSSL 4" {
+  cached_tarball "ruby-3.2.0" configure
+
+  local homebrew_prefix="${TMP}/homebrew"
+  executable "${homebrew_prefix}/opt/openssl@3/bin/openssl" <<EXE
+#!/$BASH
+[ "\$1" = "version" ] || exit 1
+echo 'OpenSSL 3.5.4  30 Sep 2025'
+EXE
+  executable "${homebrew_prefix}/opt/openssl@4/bin/openssl" <<EXE
+#!/$BASH
+[ "\$1" = "version" ] || exit 1
+echo 'OpenSSL 4.0.3  29 Sep 2026'
+EXE
+
+  stub_repeated uname '-s : echo Linux'
+  stub cc '-xc -E - : echo "OpenSSL 1.0.1a  1 Aug 2023"'
+  stub_repeated brew \
+    'list : printf "openssl@3\nopenssl@4\n"' \
+    "--prefix : if [ \$# -ge 2 ]; then echo '$homebrew_prefix'/opt/\$2; else echo '$homebrew_prefix'; fi " \
+    "--repository : echo '$homebrew_prefix'"
+  stub_repeated pkg-config false
+  stub_make_install
+
+  run_inline_definition <<DEF
+install_package "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" openssl --if needs_openssl:1.1.1-4.x.x
+install_package "ruby-3.2.0" "http://ruby-lang.org/ruby/2.0/ruby-3.2.0.tar.gz"
+DEF
+  assert_success
+
+  unstub uname
+  unstub cc
+  unstub brew
+  unstub pkg-config
+  unstub make
+
+  assert_build_log <<OUT
+ruby-3.2.0: [--prefix=$INSTALL_ROOT,--with-openssl-dir=$TMP/homebrew/opt/openssl@4,--with-ext=openssl,psych,+]
 make -j 2
 make install
 OUT
