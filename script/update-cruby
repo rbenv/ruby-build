@@ -36,11 +36,20 @@ else
   exit 1
 fi
 
-major_version=$(echo ${version} | cut -d '.' -f 1)
+IFS=.- read -r major_version minor_version patch_version _prerelease <<< "$version"
+openssl_upper_bound="3.x.x"
+# These releases include Ruby/OpenSSL 3.2.4, 3.3.3, and 4.0.2, respectively.
+if (( (major_version == 3 && minor_version == 3 && patch_version >= 12) ||
+      (major_version == 3 && minor_version == 4 && patch_version >= 10) ||
+      (major_version == 4 && (minor_version >= 1 || patch_version >= 6)) ||
+      major_version > 4 )); then
+  openssl_upper_bound="4.x.x"
+fi
+
 if [ "$major_version" -ge 4 ]; then
-  needs_openssl="needs_openssl:1.1.1-3.x.x"
+  needs_openssl="needs_openssl:1.1.1-${openssl_upper_bound}"
 else
-  needs_openssl="needs_openssl:1.0.2-3.x.x"
+  needs_openssl="needs_openssl:1.0.2-${openssl_upper_bound}"
 fi
 
 cat > "$file" <<EOS
