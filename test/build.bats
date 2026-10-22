@@ -1286,6 +1286,79 @@ DEF
   assert_failure "ruby-build: TMPDIR=$TMPDIR is set to a non-accessible location"
 }
 
+@test "build failure on macOS suggests resetting a non-default developer directory" {
+  unset DEVELOPER_DIR
+  export TMPDIR="$TMP"
+  cached_tarball "yaml-0.1.6" configure
+
+  stub_repeated uname '-s : echo Darwin' '-m : echo arm64'
+  stub xcode-select '-p : echo /Applications/Xcode-15.0.1.app/Contents/Developer'
+  stub "$MAKE" false
+
+  run_inline_definition <<DEF
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz"
+DEF
+  assert_failure
+  assert_output_contains "BUILD FAILED"
+  assert_output_contains "The active developer directory is /Applications/Xcode-15.0.1.app/Contents/Developer"
+  assert_output_contains "  sudo xcode-select --reset"
+
+  unstub uname
+  unstub xcode-select
+  unstub make
+}
+
+@test "build failure on macOS suggests unsetting DEVELOPER_DIR" {
+  export TMPDIR="$TMP"
+  cached_tarball "yaml-0.1.6" configure
+
+  stub_repeated uname '-s : echo Darwin' '-m : echo arm64'
+  stub xcode-select '-p : echo /Applications/Xcode-15.0.1.app/Contents/Developer'
+  stub "$MAKE" false
+
+  DEVELOPER_DIR=/Applications/Xcode-15.0.1.app run_inline_definition <<DEF
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz"
+DEF
+  assert_failure
+  assert_output_contains "The active developer directory is /Applications/Xcode-15.0.1.app/Contents/Developer"
+  assert_output_contains "  unset DEVELOPER_DIR"
+  refute grep -q "xcode-select --reset" <<<"$output"
+
+  unstub uname
+  unstub xcode-select
+  unstub make
+}
+
+@test "build failure on macOS does not mention the default developer directory" {
+  unset DEVELOPER_DIR
+  export TMPDIR="$TMP"
+  cached_tarball "yaml-0.1.6" configure
+
+  stub_repeated uname '-s : echo Darwin' '-m : echo arm64'
+  stub xcode-select \
+    '-p : echo /Library/Developer/CommandLineTools' \
+    '-p : echo /Applications/Xcode.app/Contents/Developer'
+  stub "$MAKE" false false
+
+  cat > "$TMP/build-definition" <<DEF
+install_package "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz"
+DEF
+
+  run ruby-build "$TMP/build-definition" "$INSTALL_ROOT"
+  assert_failure
+  assert_output_contains "BUILD FAILED"
+  refute grep -q "developer directory" <<<"$output"
+
+  run ruby-build "$TMP/build-definition" "$INSTALL_ROOT"
+  assert_failure
+  assert_output_contains "BUILD FAILED"
+  refute grep -q "developer directory" <<<"$output"
+
+  unstub uname
+  unstub xcode-select
+  unstub make
+}
+
 @test "does not initialize LDFLAGS directories" {
   cached_tarball "ruby-3.2.0" configure
 
