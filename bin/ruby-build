@@ -239,6 +239,28 @@ build_failed() {
     echo " ($(os_information) on $(uname -m) using $(version))"
     echo
 
+    # Some builds fail on macOS unless the default developer directory is selected:
+    # https://github.com/rbenv/ruby-build/issues/2287
+    if is_mac; then
+      local developer_dir
+      developer_dir="$(xcode-select -p 2>/dev/null || true)"
+      case "$developer_dir" in
+      "" | /Library/Developer/CommandLineTools | /Applications/Xcode.app/Contents/Developer )
+        ;;
+      * )
+        echo "The active developer directory is ${developer_dir}"
+        echo "A non-default Xcode might have caused this failure. To restore the default, run:"
+        echo
+        if [ -n "$DEVELOPER_DIR" ]; then
+          echo "  unset DEVELOPER_DIR"
+        else
+          echo "  sudo xcode-select --reset"
+        fi
+        echo
+        ;;
+      esac
+    fi
+
     if ! rmdir "${BUILD_PATH}" 2>/dev/null; then
       echo "You can inspect the build directory at ${BUILD_PATH}"
 
