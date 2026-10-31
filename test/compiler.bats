@@ -190,6 +190,27 @@ OUT
   unstub_linux_build
 }
 
+@test "GCC 15 compiles Ruby 2.7 as gnu17 via CC" {
+  stub_linux_build
+  stub_cc '"#define __GNUC__ 15"'
+
+  run_inline_definition <<DEF
+build_package_standard ruby-2.7.8
+DEF
+  assert_success
+  run cat build.log
+  assert_output <<OUT
+./configure --prefix=$INSTALL_ROOT --with-ext=openssl,psych,+
+CC=gcc -std=gnu17
+cflags=unset
+make -j 2
+make install
+OUT
+
+  unstub gcc
+  unstub_linux_build
+}
+
 @test "GCC 15 compiles Ruby <= 2.2 as gnu17" {
   stub_linux_build
   stub_cc '"#define __GNUC__ 15"'
