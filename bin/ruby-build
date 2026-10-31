@@ -208,14 +208,22 @@ is_freebsd() {
   [ "$(uname -s)" = "FreeBSD" ]
 }
 
-is_fedora() {
-  [ -r /etc/os-release ] || return 1
-  # shellcheck disable=SC1091
-  source /etc/os-release
-  # Treat Aurora, Bazzite, BlueFin, uCore, and other Fedora variants as "fedora".
-  if [[ "${ID_LIKE:-$ID}" != "fedora" || ( $# -gt 0 && "${VERSION_ID%%.*}" -lt "$1") ]]; then
-    return 1
+# The C compiler that Ruby's configure picks: $CC, otherwise gcc if available, otherwise cc.
+c_compiler() {
+  if [ -n "$CC" ]; then
+    echo "$CC"
+  elif command -v gcc >/dev/null; then
+    echo gcc
+  else
+    echo cc
   fi
+}
+
+# Prints the major version of GCC, or nothing if the given C compiler is not GCC (e.g. Clang).
+gcc_major_version() {
+  # shellcheck disable=SC2086
+  $1 -E -dM - </dev/null 2>/dev/null |
+    awk '/^#define __clang__ /{clang=1} /^#define __GNUC__ /{gnuc=$3} END{if (!clang) print gnuc}'
 }
 
 freebsd_package_prefix() {
@@ -735,24 +743,36 @@ build_package_standard() {
     fi
   fi
 
+  local cc_override extra_cflags
+  if [ -z "$CC" ] && is_mac 1010; then
+    cc_override=clang
+  elif [[ "$package_var_name" = "RUBY" && "$ruby_semver" -lt 30200 ]]; then
+    local cc gcc_version
+    cc="$(c_compiler)"
+    gcc_version="$(gcc_major_version "$cc")"
+    if [ "${gcc_version:-0}" -ge 15 ]; then
+      # GCC 15 changed the default C mode from gnu17 to gnu23: https://gcc.gnu.org/gcc-15/changes.html#c
+      # Ruby < 3.2 can't compile as C23, where `()` in a declaration means `(void)`.
+      extra_cflags="-std=gnu17"
+    fi
+    if [[ -n "$extra_cflags" && "$ruby_semver" -ge 20600 && "$ruby_semver" -lt 20700 ]]; then
+      # Ruby 2.6 checks its MJIT header with a bare $(CC), so the flags must be part of CC there.
+      cc_override="$cc $extra_cflags"
+      extra_cflags=
+    fi
+  fi
+
   ( if [ "${CFLAGS+defined}" ] || [ "${!PACKAGE_CFLAGS+defined}" ]; then
       export CFLAGS="$CFLAGS ${!PACKAGE_CFLAGS}"
     fi
-    if [ -z "$CC" ] && is_mac 1010; then
-      export CC=clang
-    elif [[ "$package_var_name" = "RUBY" && "$ruby_semver" -lt 30200 ]] && is_fedora 42; then
-      # Fedora 42+ has updated to GCC v15. GCC v15 changed the default
-      # mode from gnu17 to gnu23: https://gcc.gnu.org/gcc-15/changes.html#c
-      #
-      # Ruby < 3.2 can't compile on GCC v15 in the default mode of gnu23.
-      #
-      # TODO: Consider changing this to check for GCC v15 specifically
-      # rather than inspecting the OS itself.
-
+    if [ -n "$cc_override" ]; then
+      export CC="$cc_override"
+    fi
+    if [ -n "$extra_cflags" ]; then
       # Use the cflags configure variable, which Ruby's configure appends to
       # its default optflags/debugflags/warnflags, unlike CFLAGS which would
       # override them and notably lose the -O3, producing a -O0 Ruby.
-      export cflags="-std=gnu17 $cflags"
+      export cflags="$extra_cflags${cflags:+ $cflags}"
     fi
     if [ "$package_var_name" = "RUBY" ] && is_mac && ! is_mac 2700; then
       # The macOS 27 SDK declares dup3() and pipe2() as available since macOS 27.0.
