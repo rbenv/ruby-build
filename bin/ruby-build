@@ -1318,6 +1318,10 @@ build_package_openssl() {
   # Disable SSLv2 and Kerberos on older OpenSSL
   [[ "$1" != openssl-1.0.* ]] || package_option openssl configure no-ssl2 no-krb5
 
+  # OpenSSL 1.0 can't be built in parallel, as two `ar` runs may create libcrypto.a at once and drop each other's objects.
+  # OPENSSL_MAKE_OPTS goes after MAKE_OPTS on the make command line, and a user's OPENSSL_MAKE_OPTS still goes after this.
+  [[ "$1" != openssl-1.0.* ]] || local OPENSSL_MAKE_OPTS="-j 1${OPENSSL_MAKE_OPTS:+ $OPENSSL_MAKE_OPTS}"
+
   # Skip building OpenSSL docs, which is slow.
   local make_target="install_sw install_ssldirs"
   [[ "$1" != openssl-1.0.* ]] || make_target="install_sw" # OpenSSL 1.0 does not have `install_ssldirs`

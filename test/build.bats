@@ -477,6 +477,32 @@ make install
 OUT
 }
 
+@test "bundled OpenSSL 1.0 is built without parallel make" {
+  cached_tarball "openssl-1.0.2u" config
+
+  mkdir -p "${TMP}/ssl/certs"
+  touch "${TMP}/ssl/cert.pem"
+
+  stub_repeated uname '-s : echo Linux'
+  stub openssl "version -d : echo 'OPENSSLDIR: \"${TMP}/ssl\"'"
+  stub_make_install "install_sw"
+
+  mkdir -p "$INSTALL_ROOT"/openssl/ssl # OPENSSLDIR
+  run_inline_definition <<DEF
+install_package "openssl-1.0.2u" "https://www.openssl.org/source/openssl-1.0.2u.tar.gz" openssl
+DEF
+  assert_success
+
+  unstub uname
+  unstub make
+
+  assert_build_log <<OUT
+openssl-1.0.2u: [--prefix=${INSTALL_ROOT}/openssl,--openssldir=${INSTALL_ROOT}/openssl/ssl,--libdir=lib,zlib-dynamic,no-ssl3,shared,-Wl,-rpath,${INSTALL_ROOT}/openssl/lib,no-ssl2,no-krb5]
+make -j 2 -j 1
+make install_sw
+OUT
+}
+
 @test "install bundled OpenSSL on macOS" {
   cached_tarball "openssl-1.1.1w" config
   cached_tarball "ruby-3.2.0" configure
